@@ -1,0 +1,8 @@
+umožnit nastavit barvy pomocí nastavení programu
+umožnit vykreslení tooltipu a nápovědy What\'s this? (Co je toto?)
+remove backward compatible support of dvbcut tag
+
+Zjistit, ve kterých případech jsou provedny příkazy volající funkce:
+avcodec_decode_audio3, avcodec_decode_audio2, avcodec_decode_audio
+v konstruktoru lavfmuxer (použito při exportu s volbou typu výstupního
+formátu souboru s libavformat).

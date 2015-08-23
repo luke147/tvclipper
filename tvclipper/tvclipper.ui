@@ -1,0 +1,1677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>tvclipper</class>
+ <widget class="QMainWindow" name="tvclipper">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>822</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::CustomContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>TV Clipper</string>
+  </property>
+  <property name="usesTextLabel" stdset="0">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="tvclipperWidget">
+   <layout class="QVBoxLayout">
+    <item>
+     <widget class="QSplitter" name="splitter3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QListWidget" name="eventlist">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+       <property name="whatsThis">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layout7">
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout">
+          <item>
+           <widget class="QLabel" name="imagedisplay">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer1">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>503</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="spacer4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>16</width>
+            <height>254</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout">
+          <item>
+           <widget class="QLineEdit" name="goinput">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maxLength">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="gobutton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>go</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>2</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="picinfolabel">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Monospace</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer7">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>2</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="goinput2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maxLength">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="gobutton2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>go</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout">
+          <item>
+           <widget class="QLabel" name="pictimelabel">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Monospace</family>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>2</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="picinfolabel2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Monospace</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>2</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="pictimelabel2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Monospace</family>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="Line" name="line3">
+      <property name="frameShape">
+       <enum>QFrame::HLine</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSlider" name="linslider">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="maximum">
+       <number>180000</number>
+      </property>
+      <property name="singleStep">
+       <number>7500</number>
+      </property>
+      <property name="pageStep">
+       <number>45000</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksBothSides</enum>
+      </property>
+      <property name="tickInterval">
+       <number>90000</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSlider" name="jogslider">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimum">
+       <number>-100000</number>
+      </property>
+      <property name="maximum">
+       <number>100000</number>
+      </property>
+      <property name="singleStep">
+       <number>5000</number>
+      </property>
+      <property name="pageStep">
+       <number>10000</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksBothSides</enum>
+      </property>
+      <property name="tickInterval">
+       <number>100000</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="fileToolbar">
+   <property name="label" stdset="0">
+    <string>File toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="fileOpenAction"/>
+   <addaction name="fileSaveAction"/>
+   <addaction name="fileSaveAsAction"/>
+   <addaction name="snapshotSaveAction"/>
+  </widget>
+  <widget class="QToolBar" name="Toolbar">
+   <property name="label" stdset="0">
+    <string>Edit toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="editStartAction"/>
+   <addaction name="editStopAction"/>
+   <addaction name="editChapterAction"/>
+   <addaction name="editBookmarkAction"/>
+  </widget>
+  <widget class="QToolBar" name="playToolbar">
+   <property name="label" stdset="0">
+    <string>Play toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="playAudio1Action"/>
+   <addaction name="playAudio2Action"/>
+   <addaction name="playPlayAction"/>
+   <addaction name="playStopAction"/>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>822</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="fileMenu">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="fileNewAction"/>
+    <addaction name="fileOpenAction"/>
+    <addaction name="fileSaveAction"/>
+    <addaction name="fileSaveAsAction"/>
+    <addaction name="snapshotSaveAction"/>
+    <addaction name="chapterSnapshotsSaveAction"/>
+    <addaction name="separator"/>
+    <addaction name="fileExportAction"/>
+    <addaction name="separator"/>
+    <addaction name="fileCloseAction"/>
+   </widget>
+   <widget class="QMenu" name="editMenu">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="editStartAction"/>
+    <addaction name="editStopAction"/>
+    <addaction name="editChapterAction"/>
+    <addaction name="editBookmarkAction"/>
+    <addaction name="separator"/>
+    <addaction name="editAutoChaptersAction"/>
+    <addaction name="editSuggestAction"/>
+    <addaction name="editImportAction"/>
+   </widget>
+   <widget class="QMenu" name="viewMenu">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="viewNormalAction"/>
+    <addaction name="viewUnscaledAction"/>
+    <addaction name="viewDifferenceAction"/>
+    <addaction name="separator"/>
+    <addaction name="zoomInAction"/>
+    <addaction name="zoomOutAction"/>
+    <addaction name="separator"/>
+    <addaction name="viewFullSizeAction"/>
+    <addaction name="viewHalfSizeAction"/>
+    <addaction name="viewQuarterSizeAction"/>
+    <addaction name="viewCustomSizeAction"/>
+   </widget>
+   <widget class="QMenu" name="playMenu">
+    <property name="title">
+     <string>&amp;Play</string>
+    </property>
+    <addaction name="playPlayAction"/>
+    <addaction name="playStopAction"/>
+    <addaction name="separator"/>
+    <addaction name="playAudio1Action"/>
+    <addaction name="playAudio2Action"/>
+   </widget>
+   <widget class="QMenu" name="Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpAboutAction"/>
+    <addaction name="helpContentAction"/>
+   </widget>
+   <addaction name="fileMenu"/>
+   <addaction name="editMenu"/>
+   <addaction name="viewMenu"/>
+   <addaction name="playMenu"/>
+   <addaction name="Help"/>
+  </widget>
+  <action name="fileOpenAction">
+   <property name="icon">
+    <iconset theme="document-open">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="iconText">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>O</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>fileOpenAction</cstring>
+   </property>
+  </action>
+  <action name="fileSaveAction">
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="iconText">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>fileSaveAction</cstring>
+   </property>
+  </action>
+  <action name="fileSaveAsAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="document-save-as">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Save &amp;As...</string>
+   </property>
+   <property name="iconText">
+    <string>Save As</string>
+   </property>
+   <property name="shortcut">
+    <string/>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>fileSaveAsAction</cstring>
+   </property>
+  </action>
+  <action name="fileCloseAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image3</normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image3</iconset>
+   </property>
+   <property name="iconText">
+    <string>Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>fileCloseAction</cstring>
+   </property>
+  </action>
+  <action name="playAudio1Action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="media-seek-backward">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Play audio: last 2 seconds</string>
+   </property>
+   <property name="iconText">
+    <string>Audio -&gt;|</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+&gt;</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>playAudio1Action</cstring>
+   </property>
+  </action>
+  <action name="playAudio2Action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="media-seek-forward">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Play audio: next 2 seconds</string>
+   </property>
+   <property name="iconText">
+    <string>Audio |-&gt;</string>
+   </property>
+   <property name="shortcut">
+    <string>&lt;</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>playAudio2Action</cstring>
+   </property>
+  </action>
+  <action name="playPlayAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="media-playback-start">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="iconText">
+    <string>Play</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>playPlayAction</cstring>
+   </property>
+  </action>
+  <action name="playStopAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="media-playback-pause">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="iconText">
+    <string>Stop</string>
+   </property>
+   <property name="shortcut">
+    <string>Q</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>playStopAction</cstring>
+   </property>
+  </action>
+  <action name="editStartAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/play.png</normaloff>icons/play.png</iconset>
+   </property>
+   <property name="iconText">
+    <string>Set start marker</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editStartAction</cstring>
+   </property>
+  </action>
+  <action name="editStopAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/stop.png</normaloff>icons/stop.png</iconset>
+   </property>
+   <property name="iconText">
+    <string>Set stop marker</string>
+   </property>
+   <property name="shortcut">
+    <string>N</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editStopAction</cstring>
+   </property>
+  </action>
+  <action name="editChapterAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/chapter.png</normaloff>icons/chapter.png</iconset>
+   </property>
+   <property name="iconText">
+    <string>Set chapter marker</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editChapterAction</cstring>
+   </property>
+  </action>
+  <action name="editBookmarkAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/bookmark.png</normaloff>icons/bookmark.png</iconset>
+   </property>
+   <property name="iconText">
+    <string>Set bookmark</string>
+   </property>
+   <property name="shortcut">
+    <string>B</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editBookmarkAction</cstring>
+   </property>
+  </action>
+  <action name="editAutoChaptersAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="iconText">
+    <string>Auto chapters</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editAutoChaptersAction</cstring>
+   </property>
+  </action>
+  <action name="editSuggestAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="iconText">
+    <string>Suggest bookmarks</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editSuggestAction</cstring>
+   </property>
+  </action>
+  <action name="editImportAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="iconText">
+    <string>Import bookmarks</string>
+   </property>
+   <property name="shortcut">
+    <string>I</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>editImportAction</cstring>
+   </property>
+  </action>
+  <action name="fileNewAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image12</normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image12</iconset>
+   </property>
+   <property name="iconText">
+    <string>New</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>fileNewAction</cstring>
+   </property>
+  </action>
+  <action name="fileExportAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="iconText">
+    <string>Export video...</string>
+   </property>
+   <property name="shortcut">
+    <string>E</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>fileExportAction</cstring>
+   </property>
+  </action>
+  <action name="viewNormalAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Normal</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewNormalAction</cstring>
+   </property>
+  </action>
+  <action name="viewUnscaledAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Unscaled</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewUnscaledAction</cstring>
+   </property>
+  </action>
+  <action name="viewDifferenceAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Show difference to current picture</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewDifferenceAction</cstring>
+   </property>
+  </action>
+  <action name="viewFullSizeAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Full size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewFullSizeAction</cstring>
+   </property>
+  </action>
+  <action name="viewQuarterSizeAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Quarter size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewQuarterSizeAction</cstring>
+   </property>
+  </action>
+  <action name="viewCustomSizeAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Custom size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewCustomSizeAction</cstring>
+   </property>
+  </action>
+  <action name="zoomInAction">
+   <property name="iconText">
+    <string>Zoom in</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>zoomInAction</cstring>
+   </property>
+  </action>
+  <action name="zoomOutAction">
+   <property name="iconText">
+    <string>Zoom out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>zoomOutAction</cstring>
+   </property>
+  </action>
+  <action name="viewHalfSizeAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="iconText">
+    <string>Half size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>viewHalfSizeAction</cstring>
+   </property>
+  </action>
+  <action name="snapshotSaveAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="camera-photo">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="iconText">
+    <string>Save Snapshot</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>snapshotSaveAction</cstring>
+   </property>
+  </action>
+  <action name="chapterSnapshotsSaveAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="iconText">
+    <string>Save Chapter Snapshots</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>chapterSnapshotsSaveAction</cstring>
+   </property>
+  </action>
+  <action name="helpAboutAction">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+   <property name="iconText">
+    <string>&amp;About</string>
+   </property>
+   <property name="toolTip">
+    <string>About </string>
+   </property>
+   <property name="statusTip">
+    <string>About </string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>helpAboutAction</cstring>
+   </property>
+  </action>
+  <action name="helpContentAction">
+   <property name="text">
+    <string>&amp;Contents</string>
+   </property>
+   <property name="iconText">
+    <string>&amp;Contents</string>
+   </property>
+   <property name="toolTip">
+    <string>Contents</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+   <property name="name" stdset="0">
+    <cstring>helpContentAction</cstring>
+   </property>
+  </action>
+  <action name="actionWhatsThis">
+   <property name="text">
+    <string>What's this</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>fileCloseAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>fileClose()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileOpenAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>fileOpen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>linslider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>tvclipper</receiver>
+   <slot>linslidervalue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jogslider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>tvclipper</receiver>
+   <slot>jogslidervalue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jogslider</sender>
+   <signal>sliderReleased()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>jogsliderreleased()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editStartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editStart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editStopAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editStop()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editChapterAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editChapter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editBookmarkAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editBookmark()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editAutoChaptersAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editAutoChapters()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editSuggestAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editSuggest()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editImportAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>editImport()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gobutton</sender>
+   <signal>clicked()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>clickedgo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>goinput</sender>
+   <signal>returnPressed()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>clickedgo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gobutton2</sender>
+   <signal>clicked()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>clickedgo2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>goinput2</sender>
+   <signal>returnPressed()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>clickedgo2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>playPlayAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>playPlay()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>playStopAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>playStop()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>playAudio1Action</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>playAudio1()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>playAudio2Action</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>playAudio2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileNewAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>fileNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileSaveAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>fileSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileSaveAsAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>fileSaveAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewDifferenceAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewDifference()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewNormalAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewNormal()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewUnscaledAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewUnscaled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileExportAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>fileExport()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomInAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomOutAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewHalfSizeAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewHalfSize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewFullSizeAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewFullSize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewQuarterSizeAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewQuarterSize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>viewCustomSizeAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>viewCustomSize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>snapshotSaveAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>snapshotSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chapterSnapshotsSaveAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>chapterSnapshotsSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>helpAboutAction_activated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpContentAction</sender>
+   <signal>triggered()</signal>
+   <receiver>tvclipper</receiver>
+   <slot>helpContentAction_activated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>eventlist</sender>
+   <signal>itemDoubleClicked(QListWidgetItem*)</signal>
+   <receiver>tvclipper</receiver>
+   <slot>doubleclickedeventlist(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>eventlist</sender>
+   <signal>customContextMenuRequested(const QPoint)</signal>
+   <receiver>tvclipper</receiver>
+   <slot>eventlistcontextmenu(const QPoint)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,10 @@
+#ifndef _TVCLIPPER_VERSION_H
+#define _TVCLIPPER_VERSION_H
+
+#define PROGRAM_NAME        "TV Clipper"
+#define VERSION		"0"
+#define REVISION	"7"
+
+#define VERSION_STRING      PROGRAM_NAME " " VERSION "." REVISION
+
+#endif //_TVCLIPPER_VERSION_H
