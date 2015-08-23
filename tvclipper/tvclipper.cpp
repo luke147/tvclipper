@@ -159,7 +159,6 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     ui->playMenu->removeAction(ui->playAudio2Action);
 #endif // ! HAVE_LIB_AO
 
-
     audiotrackpopup=new QMenu(QString("Audio track"), this);
     ui->playMenu->addSeparator();
     audiotrackmenu=ui->playMenu->addMenu(audiotrackpopup);
@@ -182,7 +181,6 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     ListItemDelegate *itemDelegate = new ListItemDelegate(ui->eventlist);
     ui->eventlist->setItemDelegate(itemDelegate);
     ui->eventlist->setUpdatesEnabled(true);
-    //ui->eventlist->setContextMenuPolicy(Qt::CustomContextMenu);
 
     QAction *actionGoTo = new QAction(ui->eventlist);
     QAction *actionDelete = new QAction(ui->eventlist);
@@ -1270,12 +1268,19 @@ void tvclipper::playPlay()
 
     mplayer_success=false;
     mplayer_process->start(process, arguments);
+
+    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+
+    return;
 }
 
 void tvclipper::playStop()
 {
     if (mplayer_process)
         mplayer_process->terminate();
+    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+
+    return;
 }
 
 void tvclipper::playAudio1()
@@ -1290,7 +1295,11 @@ void tvclipper::playAudio1()
     {
         ex.show();
     }
+
+    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
 #endif // HAVE_LIB_AO
+
+    return;
 }
 
 void tvclipper::playAudio2()
@@ -1305,7 +1314,11 @@ void tvclipper::playAudio2()
     {
         ex.show();
     }
+
+    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
 #endif // HAVE_LIB_AO
+
+    return;
 }
 
 // **************************************************************************
@@ -1908,6 +1921,8 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
         } else {
             currentaudiotrack=-1;
         }
+
+        ui->imagedisplay->setFocus(Qt::OtherFocusReason);
     } else {
         ui->playStopAction->setEnabled(false);
         ui->viewNormalAction->setChecked(true);
@@ -2220,32 +2235,52 @@ void tvclipper::keyReleaseEvent() {
 }
 
 void tvclipper::keyPressEvent(QKeyEvent *keyEvent) {
-    if (keyEvent->key() != Qt::Key_Left && keyEvent->key() != Qt::Key_Right) {
-        // return QObject::eventFilter(watched, e);
+    int newpos = -1;
+
+    int k = keyEvent->key();
+    if (keyEvent->key() == Qt::Key_Home) {
+        newpos = 0;
+    }
+
+    if (keyEvent->key() == Qt::Key_End) {
+        newpos = pictures - 1;
+    }
+
+    if (keyEvent->key() == Qt::Key_PageDown) {
+        newpos = curpic - ui->linslider->pageStep();
+    }
+
+    if (keyEvent->key() == Qt::Key_PageUp) {
+        newpos = curpic + ui->linslider->pageStep();
+    }
+
+    if (keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
+        int delta = settings()->wheel_delta;
+
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+            delta *= (WHEEL_INCR_SHIFT + 1);
+        if (keyEvent->modifiers() & Qt::ControlModifier)
+            delta *= (WHEEL_INCR_CTRL + 1);
+        if (keyEvent->modifiers() & Qt::AltModifier)
+            delta *= (WHEEL_INCR_ALT + 1);
+
+        if (keyEvent->key() == Qt::Key_Left)
+            delta = -delta;
+
+        newpos = curpic + delta;
+    }
+
+    if (newpos == -1) {
         return;
     }
 
-    int delta = settings()->wheel_delta;
-    int newpos;
-
-    if (keyEvent->modifiers() & Qt::ShiftModifier)
-        delta *= (WHEEL_INCR_SHIFT + 1);
-    if (keyEvent->modifiers() & Qt::ControlModifier)
-        delta *= (WHEEL_INCR_CTRL + 1);
-    if (keyEvent->modifiers() & Qt::AltModifier)
-        delta *= (WHEEL_INCR_ALT + 1);
-
-    if (keyEvent->key() == Qt::Key_Left)
-        delta = -delta;
-
-    newpos = curpic + delta;
     if (newpos < 0)
         newpos = 0;
     if (newpos >= pictures)
         newpos = pictures - 1;
+
     ui->linslider->setValue(newpos);
 
-    // return QObject::eventFilter(watched, e);
     return;
 }
 

@@ -435,7 +435,7 @@
    <addaction name="fileSaveAsAction"/>
    <addaction name="snapshotSaveAction"/>
   </widget>
-  <widget class="QToolBar" name="Toolbar">
+  <widget class="QToolBar" name="eventToolbar">
    <property name="label" stdset="0">
     <string>Edit toolbar</string>
    </property>
