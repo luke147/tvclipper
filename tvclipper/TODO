@@ -1,3 +1,6 @@
+Zajistit správnou instalaci programu a zajistit, aby program správně zjišťoval cestu k datovým souborům nápovedy a obrázkům ikon
+(tvclipper.cpp: metoda tvclipper::helpContentAction_activated(), řádek 2607)
+
 umožnit nastavit barvy pomocí nastavení programu
 umožnit vykreslení tooltipu a nápovědy What\'s this? (Co je toto?)
 remove backward compatible support of dvbcut tag

@@ -167,8 +167,10 @@ int genIdx(std::list<std::string> filenames, std::string idxfilename) {
             idxfilename = mpgfilename + ".idx";
         }
 
-        for (std::list<std::string>::iterator it = filenames.begin(); okay && it != filenames.end(); it++) {
-            okay = buf.open(*it, &errormessage);
+        for (std::list<std::string>::iterator it = filenames.begin(); it != filenames.end(); it++) {
+            bool o = buf.open(*it, &errormessage);
+            if (!o)
+                okay = o;
         }
     }
 

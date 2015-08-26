@@ -178,11 +178,8 @@ public:
     bool iseof() const { return eof; }
 
     int providedata(unsigned int amount, long long position);
-    int providedata(unsigned int amount) {
-        if (amount <= inbytes())
-            return inbytes();
-        return providedata(amount, pos + readpos);
-    }
+    int providedata(unsigned int amount);
+
     void discarddata(unsigned int amount) {
         readpos += amount;
         if (readpos >= writepos) {

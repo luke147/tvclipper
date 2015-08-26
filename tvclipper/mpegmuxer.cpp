@@ -114,7 +114,7 @@ mpegmuxer::mpegmuxer(uint32_t audiostreammask, mpgfile &mpg, const char *filenam
     systemhdr = (void*) calloc(1, systemhdrlen);
     bzero(systemhdr,systemhdrlen);
 
-#warning inicializace struktury - opravit nestandardní zápis: změnit typ atributu z void* na systemhdr_s*
+#warning inicializace struktury - opravit nestandardní zápis
     *(systemhdr_s *)systemhdr = (systemhdr_s) {
             mbo32(0x000001bb),mbo16(18),
             //1,muxrate,1,mpg.getaudiostreams(),0,0,

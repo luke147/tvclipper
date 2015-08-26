@@ -526,7 +526,7 @@ bool tvclipper::saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selec
 
         if (!newexpfilen.isEmpty()) {
             QFileInfo fInfo = QFileInfo(newexpfilen);
-            newexpfilen = fInfo.dir().absolutePath() + QDir::separator() + fInfo.baseName();
+            newexpfilen = fInfo.dir().absolutePath() + QDir::separator() + fInfo.completeBaseName();
 
             expfilen=newexpfilen.toStdString()+".mpg";
             int nr = 0;
@@ -1456,11 +1456,9 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
     if (!lbi)
         return;
 
-    if (typeid(*lbi) != typeid(EventListItem))
+    EventListItem *eli = dynamic_cast<EventListItem*>(lbi);
+    if (eli == NULL)
         return;
-    // is it a problem to have no "const EventListItem &eli=..."? Needed for seteventtype()...!
-    // EventListItem &eli=*static_cast<EventListItem*>(lbi);
-    EventListItem *eli = (EventListItem*) lbi;
 
     QListWidget *lb = lbi->listWidget();
 
@@ -2237,7 +2235,6 @@ void tvclipper::keyReleaseEvent() {
 void tvclipper::keyPressEvent(QKeyEvent *keyEvent) {
     int newpos = -1;
 
-    int k = keyEvent->key();
     if (keyEvent->key() == Qt::Key_Home) {
         newpos = 0;
     }
@@ -2603,7 +2600,6 @@ void tvclipper::helpContentAction_activated()
 #ifndef __WIN32__
     // Unix/Linux: search in the associated share subdirectory
     if (!QFile::exists(helpFile)) {
-#warning nastavit správnou cestu pro dokument nápovědy a zajistit instalaci na správné místo
         QString dirPath = appDir.absolutePath();
         helpFile = dirPath.remove(appDir.dirName()) + "/share/tvclipper/tvclipper_en.html";
     }
