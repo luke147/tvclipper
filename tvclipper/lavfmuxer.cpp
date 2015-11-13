@@ -1,4 +1,4 @@
-/*  tvclipper
+/*  dvbcut
     Copyright (c) 2005 Sven Over <svenover@svenover.de>
 
     This program is free software; you can redistribute it and/or modify
@@ -14,9 +14,25 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
 
-/* $Id: lavfmuxer.cpp 138 2008-10-31 14:58:18Z too-tired $ */
+ *  tvclipper
+    Copyright (c) 2015 Lukáš Vlček
+
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TV Clipper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -94,8 +110,7 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
             avcodec_get_context_defaults(s->codec);
 #endif
             s->codec->codec_type=AVMEDIA_TYPE_AUDIO;
-            s->codec->codec_id = (mpg.getstreamtype(astr)==streamtype::ac3audio) ?
-                        CODEC_ID_AC3 : CODEC_ID_MP2;
+            s->codec->codec_id = (mpg.getstreamtype(astr)==streamtype::ac3audio) ? AV_CODEC_ID_AC3 : AV_CODEC_ID_MP2;
             s->codec->rc_buffer_size = 224*1024*8;
 
             // Must read some packets to get codec parameters
@@ -130,7 +145,7 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
 #else
                         int16_t samples[AVCODEC_MAX_AUDIO_FRAME_SIZE/sizeof(int16_t)];
 #endif
-                        int frame_size=sizeof(samples);
+                        int frame_size = sizeof(samples);
                         //fprintf(stderr, "** decode audio size=%d\n", sd->inbytes());
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
@@ -141,7 +156,7 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
                         // HACK for CorePNG to decode as normal PNG by default
                         avpkt.flags = AV_PKT_FLAG_KEY;
                         avcodec_decode_audio3(s->codec,samples,&frame_size, &avpkt);
-#elif LIBAVCODEC_VERSION_INT >= ((52<<16)+(0<<8)+0)
+#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52, 0, 0)
                         avcodec_decode_audio2(s->codec,samples,&frame_size,
                                               (uint8_t*) sd->getdata(),sd->inbytes());
 #else

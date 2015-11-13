@@ -1,4 +1,4 @@
-/*  tvclipper
+/*  dvbcut
     Copyright (c) 2005 Sven Over <svenover@svenover.de>
 
     This program is free software; you can redistribute it and/or modify
@@ -14,15 +14,38 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+ *  tvclipper
+    Copyright (c) 2015 Lukáš Vlček
+
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TV Clipper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* $Id: mpegmuxer.cpp 161 2009-06-23 21:07:15Z too-tired $ */
+#ifdef __WIN32__
+#include <string.h>
+#else
+#include <strings.h>
+#endif
 
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-#include <strings.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#endif
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -114,19 +137,20 @@ mpegmuxer::mpegmuxer(uint32_t audiostreammask, mpgfile &mpg, const char *filenam
     systemhdr = (void*) calloc(1, systemhdrlen);
     bzero(systemhdr,systemhdrlen);
 
-#warning inicializace struktury - opravit nestandardní zápis
-    *(systemhdr_s *)systemhdr = (systemhdr_s) {
-            mbo32(0x000001bb),mbo16(18),
-            //1,muxrate,1,mpg.getaudiostreams(),0,0,
-            htom32(0x80000100 | ((muxrate&0x3fffff)<<9) | (mpg.getaudiostreams()<<2)),
-            //1,1,1,1,
-            0xe1,
-            //0,0x7f,
-            0x7f,
-            0xb9,mbo16(0xe000|232),0xb8,mbo16(0xc000|32),
-            0xbd,mbo16(0xe000|58),0xbf,mbo16(0xe000|2)
-};
-
+    {
+        systemhdr_s *value = (systemhdr_s*) systemhdr;
+        *value = {
+                mbo32(0x000001bb),mbo16(18),
+                //1,muxrate,1,mpg.getaudiostreams(),0,0,
+                htom32(0x80000100 | ((muxrate&0x3fffff)<<9) | (mpg.getaudiostreams()<<2)),
+                //1,1,1,1,
+                0xe1,
+                //0,0x7f,
+                0x7f,
+                0xb9,mbo16(0xe000|232),0xb8,mbo16(0xc000|32),
+                0xbd,mbo16(0xe000|58),0xbf,mbo16(0xe000|2)
+        };
+    }
     if (dvd) { // dvd nav packets
         *(uint32_t*)((char*)systemhdr+24)=mbo32(0x000001bf);
         *(uint16_t*)((char*)systemhdr+28)=mbo16(980);

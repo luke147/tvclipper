@@ -1,79 +1,91 @@
-/*  tvclipper
+/*  dvbcut
     Copyright (c) 2005 Sven Over <svenover@svenover.de>
- 
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
- 
+
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
- 
+
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
 
-/* $Id: avframe.h 141 2009-01-09 17:53:48Z too-tired $ */
+ *  tvclipper
+    Copyright (c) 2015 Lukáš Vlček
+
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TV Clipper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef _TVCLIPPER_AVFRAME_H
 #define _TVCLIPPER_AVFRAME_H
 
+class QImage;
+
 extern "C" {
 #include <libavcodec/avcodec.h>
-#ifdef HAVE_LIB_SWSCALE
 #include <libswscale/swscale.h>
-#endif
 }
-
-class QImage;
 
 /**
 @author Sven Over
 */
 class avframe
-  {
+{
 protected:
-  AVFrame *f;
-  void *tobefreed;
-  int w,h,dw;
-  enum PixelFormat pix_fmt;
-#ifdef HAVE_LIB_SWSCALE
-  struct SwsContext *img_convert_ctx;
-#endif
+    AVFrame *f;
+    void *tobefreed;
+    int w,h,dw;
+    enum PixelFormat pix_fmt;
+    struct SwsContext *img_convert_ctx;
 
 public:
-  avframe();
-  avframe(AVFrame *src, AVCodecContext *ctx);
-  ~avframe();
+    avframe();
+    avframe(AVFrame *src, AVCodecContext *ctx);
+    ~avframe();
 
-  operator AVFrame*()
+    operator AVFrame*()
     {
-    return f;
+        return f;
     }
-  AVFrame *operator->()
+    AVFrame *operator->()
     {
-    return f;
+        return f;
     }
-  int getwidth() const
+    int getwidth() const
     {
-    return w;
+        return w;
     }
-  int getheight() const
+    int getheight() const
     {
-    return h;
+        return h;
     }
-  int getdisplaywidth() const
+    int getdisplaywidth() const
     {
-    return dw;
+        return dw;
     }
-  enum PixelFormat getpixfmt() const
+    enum PixelFormat getpixfmt() const
     {
-    return pix_fmt;
+        return pix_fmt;
     }
-  QImage getqimage(bool scaled=true, double viewscalefactor=1.0);
-  };
+    QImage getqimage(bool scaled=true, double viewscalefactor=1.0);
+};
 
 #endif

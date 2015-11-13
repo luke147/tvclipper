@@ -20,9 +20,15 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="tvclipperWidget">
+   <property name="acceptDrops">
+    <bool>true</bool>
+   </property>
    <layout class="QVBoxLayout">
     <item>
      <widget class="QSplitter" name="splitter3">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -47,7 +53,7 @@
        </property>
       </widget>
       <widget class="QWidget" name="layout7">
-       <layout class="QVBoxLayout">
+       <layout class="QVBoxLayout" name="mainImageLayout">
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -63,9 +69,9 @@
         <item>
          <layout class="QHBoxLayout">
           <item>
-           <widget class="QLabel" name="imagedisplay">
+           <widget class="QLabel" name="imageDisplay">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -76,22 +82,25 @@
               <height>100</height>
              </size>
             </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
             <property name="wordWrap">
              <bool>false</bool>
             </property>
            </widget>
           </item>
           <item>
-           <spacer name="spacer1">
+           <spacer name="imageSpacer1">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
+             <enum>QSizePolicy::Minimum</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>503</width>
+              <width>3</width>
               <height>16</height>
              </size>
             </property>
@@ -100,23 +109,29 @@
          </layout>
         </item>
         <item>
-         <spacer name="spacer4">
+         <spacer name="imageSpacer2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
+           <enum>QSizePolicy::Minimum</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>16</width>
-            <height>254</height>
+            <height>3</height>
            </size>
           </property>
          </spacer>
         </item>
         <item>
-         <layout class="QHBoxLayout">
+         <layout class="QHBoxLayout" name="controlingLayout">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetNoConstraint</enum>
+          </property>
           <item>
            <widget class="QLineEdit" name="goinput">
             <property name="enabled">
@@ -232,7 +247,13 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout">
+         <layout class="QHBoxLayout" name="infoLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="pictimelabel">
             <property name="enabled">
@@ -374,7 +395,7 @@
        <number>180000</number>
       </property>
       <property name="singleStep">
-       <number>7500</number>
+       <number>1</number>
       </property>
       <property name="pageStep">
        <number>45000</number>
@@ -434,6 +455,7 @@
    <addaction name="fileSaveAction"/>
    <addaction name="fileSaveAsAction"/>
    <addaction name="snapshotSaveAction"/>
+   <addaction name="fileExportAction"/>
   </widget>
   <widget class="QToolBar" name="eventToolbar">
    <property name="label" stdset="0">
@@ -519,7 +541,7 @@
     <addaction name="viewFullSizeAction"/>
     <addaction name="viewHalfSizeAction"/>
     <addaction name="viewQuarterSizeAction"/>
-    <addaction name="viewCustomSizeAction"/>
+    <addaction name="viewAdaptSizeAction"/>
    </widget>
    <widget class="QMenu" name="playMenu">
     <property name="title">
@@ -711,10 +733,6 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/play.png</normaloff>icons/play.png</iconset>
-   </property>
    <property name="iconText">
     <string>Set start marker</string>
    </property>
@@ -728,10 +746,6 @@
   <action name="editStopAction">
    <property name="enabled">
     <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/stop.png</normaloff>icons/stop.png</iconset>
    </property>
    <property name="iconText">
     <string>Set stop marker</string>
@@ -747,10 +761,6 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/chapter.png</normaloff>icons/chapter.png</iconset>
-   </property>
    <property name="iconText">
     <string>Set chapter marker</string>
    </property>
@@ -764,10 +774,6 @@
   <action name="editBookmarkAction">
    <property name="enabled">
     <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/bookmark.png</normaloff>icons/bookmark.png</iconset>
    </property>
    <property name="iconText">
     <string>Set bookmark</string>
@@ -837,6 +843,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme="document-export"/>
+   </property>
    <property name="iconText">
     <string>Export video...</string>
    </property>
@@ -897,7 +906,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="iconText">
     <string>Full size</string>
@@ -923,18 +932,24 @@
     <cstring>viewQuarterSizeAction</cstring>
    </property>
   </action>
-  <action name="viewCustomSizeAction">
+  <action name="viewAdaptSizeAction">
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Adapt size</string>
+   </property>
    <property name="iconText">
-    <string>Custom size</string>
+    <string>Adapt size</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+3</string>
    </property>
    <property name="name" stdset="0">
-    <cstring>viewCustomSizeAction</cstring>
+    <cstring>viewAdaptSizeAction</cstring>
    </property>
   </action>
   <action name="zoomInAction">
@@ -1562,7 +1577,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>viewCustomSizeAction</sender>
+   <sender>viewAdaptSizeAction</sender>
    <signal>triggered()</signal>
    <receiver>tvclipper</receiver>
    <slot>viewCustomSize()</slot>
@@ -1645,7 +1660,7 @@
    <sender>eventlist</sender>
    <signal>itemDoubleClicked(QListWidgetItem*)</signal>
    <receiver>tvclipper</receiver>
-   <slot>doubleclickedeventlist(QListWidgetItem*)</slot>
+   <slot>goToEventItemPic(QListWidgetItem*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>20</x>

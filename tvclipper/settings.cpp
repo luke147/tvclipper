@@ -1,27 +1,44 @@
-/*  tvclipper settings
+/*  dvbcut settings
     Copyright (c) 2006 - 2009 Michael Riepe
- 
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
- 
+
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
- 
+
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
 
-/* $Id: settings.cpp 172 2011-04-22 21:57:55Z too-tired $ */
+ *  tvclipper
+    Copyright (c) 2015 Lukáš Vlček
+
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TV Clipper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <string>
 #include <vector>
 
 #include <qstringlist.h>
+#include <QStandardPaths>
 
 #include <assert.h>
 
@@ -29,29 +46,9 @@
 #include "defines.h"
 #include "settings.h"
 
-#warning zkontrolovat funkčnost celého načítání a ukládání nastavení
 
 #define TVCLIPPER_QSETTINGS_PATH "/" TVCLIPPER_QSETTINGS_DOMAIN "/"
 
-#define TVCLIPPER_DEFAULT_LOADFILTER \
-	"Recognized files (*.tvclipper *.m2t *.mpg *.rec* *.ts *.tts* *.trp *.vdr);;" \
-	"tvclipper project files (*.tvclipper);;" \
-	"MPEG files (*.m2t *.mpg *.rec* *.ts *.tts* *.trp *.vdr);;" \
-	"All files (*)"
-#define TVCLIPPER_DEFAULT_IDXFILTER \
-	"tvclipper index files (*.idx);;All files (*)"
-#define TVCLIPPER_DEFAULT_PRJFILTER \
-	"tvclipper project files (*.tvclipper);;All files (*)"
-
-#define TVCLIPPER_DEFAULT_START_LABEL   "<font size=\"+1\" color=\"" START_COLOUR_MASK "\"><b>START</b></font>"
-#define TVCLIPPER_DEFAULT_STOP_LABEL    "<font size=\"+1\" color=\"" STOP_COLOUR_MASK "\"><b>STOP</b></font>"
-#define TVCLIPPER_DEFAULT_CHAPTER_LABEL "<font color=\"" CHAPTER_COLOUR_MASK "\">CHAPTER</font>"
-#define TVCLIPPER_DEFAULT_BOOKMARK_LABEL "<font color=\"" BOOKMARK_COLOUR_MASK "\">BOOKMARK</font>"
-
-#define TVCLIPPER_DEFAULT_PIPE_COMMAND "|dvdauthor -t -c '%CHAPTERS%' -v mpeg2 -o '%OUTPUT%' -"
-#define TVCLIPPER_DEFAULT_PIPE_POST "dvdauthor -o '%OUTPUT%' -T"
-#define TVCLIPPER_DEFAULT_PIPE_LABEL "DVD-Video titleset (dvdauthor)"
-#define TVCLIPPER_DEFAULT_PIPE_FORMAT (0)
 /* 
 // SOME OTHER EXAMPLES for the settings file ~/.qt/tvclipper.sf.netrc 
 // (ok, for time consuming conversions one does not save any time, but it may be convenient...) 
@@ -73,6 +70,156 @@ pipe/3/label=recoded DVD compliant video (ffmpeg)
 pipe/3/post=
 */
 
+#define OPTION_VERSION                  "/version"
+
+#define OPTIONS_WHEEL                   "/wheel"
+#define OPTION_WHEEL_NORMAL             "/incr_normal"
+#define OPTION_WHEEL_SHIFT              "/incr_shift"
+#define OPTION_WHEEL_CTRL               "/incr_ctrl"
+#define OPTION_WHEEL_ALT                "/incr_alt"
+#define OPTION_WHEEL_THRESHOLD          "/threshold"
+#define OPTION_WHEEL_DELTA              "/delta"
+
+#define OPTIONS_SLIDERS                  "/sliders"
+#define OPTION_SLIDERS_JOG_MAXIMUM       "/jog_maximum"
+#define OPTION_SLIDERS_JOG_THRESHOLD     "/jog_threshold"
+#define OPTION_SLIDERS_JOG_OFFSET        "/jog_offset"
+#define OPTION_SLIDERS_JOG_INTERVAL      "/jog_interval"
+#define OPTION_SLIDERS_LIN_INTERVAL      "/lin_interval"
+
+#define OPTIONS_LASTDIR                  "/lastdir"
+#define OPTION_LASTDIR_NAME              "/name"
+#define OPTION_LASTDIR_UPDATE            "/update"
+
+#define OPTIONS_FILTERS                  "/filters"
+#define OPTION_FILTERS_IDXFILTER         "/idxfilter"
+#define OPTION_FILTERS_PRJFILTER         "/prjfilter"
+#define OPTION_FILTERS_LOADFILTER        "/loadfilter"
+
+#define OPTIONS_VIEW_SCALE_FACTOR        "/viewscalefactor"
+#define OPTION_VIEW_SCALE_FACTOR_CURRENT "/current"
+
+#define OPTION_EXPORT_FORMAT             "/export_format"
+
+#define OPTIONS_RECENTFILES              "/recentfiles"
+#define OPTION_RECENTFILES_MAX           "/max"
+#define OPTION_RECENTFILES_FILE_IDX         "idx"
+
+#define OPTIONS_LABELS                      "/labels"
+#define OPTION_LABELS_START                 "/start"
+#define OPTION_LABELS_STOP                 "/stop"
+#define OPTION_LABELS_CHAPTER                 "/chapter"
+#define OPTION_LABELS_BOOKMARK                 "/bookmark"
+#define OPTION_LABELS_CUSTOM_COLORS                 "/CustomColors"
+#define OPTION_LABELS_COLOR_START_NORMAL              "/ColorStartNormal"
+#define OPTION_LABELS_COLOR_START_HIGHLIGHT              "/ColorStartHighlight"
+#define OPTION_LABELS_COLOR_STOP_NORMAL              "/ColorStopNormal"
+#define OPTION_LABELS_COLOR_STOP_HIGHLIGHT              "/ColorStopHighlight"
+#define OPTION_LABELS_COLOR_CHAPTER_NORMAL              "/ColorchapterNormal"
+#define OPTION_LABELS_COLOR_CHAPTER_HIGHLIGHT              "/ColorChapterHighlight"
+#define OPTION_LABELS_COLOR_BOOKMARK_NORMAL              "/ColorBookmarkNormal"
+#define OPTION_LABELS_COLOR_BOOKMARK_HIGHLIGHT              "/ColorBookmarkHighlight"
+#define OPTION_LABELS_COLOR_TEXT_NORMAL              "/ColorTextNormal"
+#define OPTION_LABELS_COLOR_TEXT_HIGHLIGHT              "/ColorTextHighlight"
+
+#define OPTIONS_SNAPSHOTS               "/snapshots"
+#define OPTION_SNAPSHOTS_TYPE           "/type"
+#define OPTION_SNAPSHOTS_QUALITY           "/quality"
+#define OPTION_SNAPSHOTS_PREFIX           "/prefix"
+#define OPTION_SNAPSHOTS_DELIMITER           "/delimiter"
+#define OPTION_SNAPSHOTS_FIRST           "/first"
+#define OPTION_SNAPSHOTS_WIDTH           "/width"
+#define OPTION_SNAPSHOTS_EXTENSION           "/extension"
+#define OPTION_SNAPSHOTS_RANGE           "/range"
+#define OPTION_SNAPSHOTS_SAMPLES           "/samples"
+
+#define OPTIONS_PIPE                        "/pipe"
+#define OPTION_PIPE_COMMAND                 "/command"
+#define OPTION_PIPE_POST                 "/post"
+#define OPTION_PIPE_DVDLABEL                 "/dvdlabel"
+#define OPTION_PIPE_FORMAT                 "/format"
+
+#define OPTIONS_CHAPTERS                 "/chapters"
+#define OPTION_CHAPTERS_INTERVAL                 "/interval"
+#define OPTION_CHAPTERS_TOLERANCE                 "/tolerance"
+#define OPTION_CHAPTERS_THRESHOLD                 "/threshold"
+#define OPTION_CHAPTERS_MINIMUM                 "/minimum"
+
+#define OPTION_START_BOF                    "/start_bof"
+#define OPTION_STOP_EOF                    "/stop_eof"
+
+#define OPTION_WHEEL_NORMAL_DEF_VAL     25 * 60
+#define OPTION_WHEEL_ALT_DEF_VAL        15 * 25 * 60
+#define OPTION_WHEEL_CTRL_DEF_VAL       1
+#define OPTION_WHEEL_SHIFT_DEF_VAL      25
+#define OPTION_WHEEL_THRESHOLD_DEF_VAL  24
+#define OPTION_WHEEL_DELTA_DEF_VAL      50
+
+#define OPTION_SLIDERS_JOG_MAXIMUM_DEF_VAL 180000
+#define OPTION_SLIDERS_JOG_THRESHOLD_DEF_VAL     50
+#define OPTION_SLIDERS_JOG_OFFSET_DEF_VAL    0.4
+#define OPTION_SLIDERS_JOG_INTERVAL_DEF_VAL      1
+#define OPTION_SLIDERS_LIN_INTERVAL_DEF_VAL  3600
+
+#define OPTION_LASTDIR_UPDATE_DEF_VAL            true
+
+#define OPTION_FILTERS_LOADFILTER_DEF_VAL \
+    "Recognized files (*.tvclipper *.m2t *.mpg *.rec* *.ts *.tts* *.trp *.vdr);;" \
+    "tvclipper project files (*.tvclipper);;" \
+    "MPEG files (*.m2t *.mpg *.rec* *.ts *.tts* *.trp *.vdr);;" \
+    "All files (*)"
+#define OPTION_FILTERS_IDXFILTER_DEF_VAL \
+    "tvclipper index files (*.idx);;All files (*)"
+#define OPTION_FILTERS_PRJFILTER_DEF_VAL \
+    "tvclipper project files (*.tvclipper);;All files (*)"
+
+#define OPTION_VIEW_SCALE_FACTOR_CURRENT_DEF_VAL 0.99
+
+#define OPTION_EXPORT_FORMAT_DEF_VAL 0
+
+#define OPTION_RECENTFILES_MAX_DEF_VAL           5
+
+#define OPTION_LABELS_START_DEF_VAL   "<font size=\"+1\" color=\"" START_COLOUR_MASK "\"><b>START</b></font>"
+#define OPTION_LABELS_STOP_DEF_VAL    "<font size=\"+1\" color=\"" STOP_COLOUR_MASK "\"><b>STOP</b></font>"
+#define OPTION_LABELS_CHAPTER_DEF_VAL "<font color=\"" CHAPTER_COLOUR_MASK "\">CHAPTER</font>"
+#define OPTION_LABELS_BOOKMARK_DEF_VAL "<font color=\"" BOOKMARK_COLOUR_MASK "\">BOOKMARK</font>"
+
+#define OPTION_SNAPSHOTS_TYPE_DEF_VAL           "PNG"
+#define OPTION_SNAPSHOTS_QUALITY_DEF_VAL           -1
+#define OPTION_SNAPSHOTS_PREFIX_DEF_VAL           ""
+#define OPTION_SNAPSHOTS_DELIMITER_DEF_VAL           "_"
+#define OPTION_SNAPSHOTS_FIRST_DEF_VAL           1
+#define OPTION_SNAPSHOTS_WIDTH_DEF_VAL           3
+#define OPTION_SNAPSHOTS_EXTENSION_DEF_VAL           "png"
+#define OPTION_SNAPSHOTS_RANGE_DEF_VAL           0
+#define OPTION_SNAPSHOTS_SAMPLES_DEF_VAL           1
+
+#define OPTION_PIPE_COMMAND_DEF_VAL "|dvdauthor -t -c '%CHAPTERS%' -v mpeg2 -o '%OUTPUT%' -"
+#define OPTION_PIPE_POST_DEF_VAL "dvdauthor -o '%OUTPUT%' -T"
+#define OPTION_PIPE_DVDLABEL_DEF_VAL "DVD-Video titleset (dvdauthor)"
+#define OPTION_PIPE_FORMAT_DEV_VAL 0
+
+#define OPTION_CHAPTERS_INTERVAL_DEF_VAL 600 * 25
+#define OPTION_CHAPTERS_TOLERANCE_DEF_VAL 0
+#define OPTION_CHAPTERS_THRESHOLD_DEF_VAL  50.
+#define OPTION_CHAPTERS_MINIMUM_DEF_VAL 200 * 25
+
+#define OPTION_START_BOF_DEF_VAL                    true
+#define OPTION_STOP_EOF_DEF_VAL                    true
+
+#define OPTION_LABELS_CUSTOM_COLORS_DEF_VAL                 false
+#define OPTION_LABELS_COLOR_START_NORMAL_DEF_VAL              "#009000"
+#define OPTION_LABELS_COLOR_START_HIGHLIGHT_DEF_VAL              "#00DC00"
+#define OPTION_LABELS_COLOR_STOP_NORMAL_DEF_VAL              "#900000"
+#define OPTION_LABELS_COLOR_STOP_HIGHLIGHT_DEF_VAL              "#DC0000"
+#define OPTION_LABELS_COLOR_CHAPTER_NORMAL_DEF_VAL              "#909000"
+#define OPTION_LABELS_COLOR_CHAPTER_HIGHLIGHT_DEF_VAL              "#D0D000"
+#define OPTION_LABELS_COLOR_BOOKMARK_NORMAL_DEF_VAL              "#0000D0"
+#define OPTION_LABELS_COLOR_BOOKMARK_HIGHLIGHT_DEF_VAL              "#000090"
+#define OPTION_LABELS_COLOR_TEXT_NORMAL_DEF_VAL              "#000000"
+#define OPTION_LABELS_COLOR_TEXT_HIGHLIGHT_DEF_VAL              "#FFFFFF"
+
+
 tvclipper_settings::tvclipper_settings(QString organization, QString application)
     : QSettings(organization, application)
 {
@@ -86,309 +233,293 @@ tvclipper_settings::~tvclipper_settings()
     if (loaded) {
         save_settings();
     }
-    endGroup();
+    endGroup(); // TVCLIPPER_QSETTINGS_PATH
 }
 
 void tvclipper_settings::load_settings()
 {
-    int version = value("/version", 0).toInt();
+    //int version = value(OPTION_VERSION, 0).toInt();
 
-    if (version >= 1) {
-        // config format version 1 or later
-        beginGroup("/wheel");
-        wheel_increments[WHEEL_INCR_NORMAL] = value("/incr_normal", 25*60).toInt();
-        wheel_increments[WHEEL_INCR_SHIFT] = value("/incr_shift", 25).toInt();
-        wheel_increments[WHEEL_INCR_CTRL] = value("/incr_ctrl", 1).toInt();
-        wheel_increments[WHEEL_INCR_ALT] = value("/incr_alt", 15*25*60).toInt();
-        wheel_threshold = value("/threshold", 24).toInt();
-        // Note: delta is a multiple of 120 (see Qt documentation)
-        wheel_delta = value("/delta", 120).toInt();
-        if (wheel_delta == 0)
-            wheel_delta = 1;	// avoid devide by zero
-        endGroup();	// wheel
-        beginGroup("/slider");
-        jog_maximum = value("/jog_maximum", 180000).toInt();
-        jog_threshold = value("/jog_threshold", 50).toInt();
-        // to increase the "zero frames"-region of the jog-slider
-        jog_offset = value("/jog_offset", 0.4).toDouble();
-        // sub-intervals of jog_maximum
-        jog_interval = value("/jog_interval", 1).toInt();
-        if (jog_interval < 0)
-            jog_interval = 0;
-        lin_interval = value("/lin_interval", 3600).toInt();
-        if (lin_interval < 0)
-            lin_interval = 0;
-        endGroup();	// slider
-        beginGroup("/lastdir");
-        lastdir = value("/name", ".").toString();
-        lastdir_update = value("/update", true).toBool();
-        endGroup(); // lastdir
-        beginGroup("/filter");
-        idxfilter = value("/idxfilter", TVCLIPPER_DEFAULT_IDXFILTER).toString();
-        prjfilter = value("/prjfilter", TVCLIPPER_DEFAULT_PRJFILTER).toString();
-        loadfilter = value("/loadfilter", TVCLIPPER_DEFAULT_LOADFILTER).toString();
-        endGroup();	// filter
-    }
-    else {
-        // old (unnumbered) config format
-        wheel_increments[WHEEL_INCR_NORMAL] = value("/wheel_incr_normal", 25*60).toInt();
-        wheel_increments[WHEEL_INCR_SHIFT] = value("/wheel_incr_shift", 25).toInt();
-        wheel_increments[WHEEL_INCR_CTRL] = value("/wheel_incr_ctrl", 1).toInt();
-        wheel_increments[WHEEL_INCR_ALT] = value("/wheel_incr_alt", 15*25*60).toInt();
-        wheel_threshold = value("/wheel_threshold", 24).toInt();
-        // Note: delta is a multiple of 120 (see Qt documentation)
-        wheel_delta = value("/wheel_delta", 120).toInt();
-        if (wheel_delta == 0)
-            wheel_delta = 1;	// avoid devide by zero
-        jog_maximum = value("/jog_maximum", 180000).toInt();
-        jog_threshold = value("/jog_threshold", 50).toInt();
-        // to increase the "zero frames"-region of the jog-slider
-        jog_offset = value("/jog_offset", 0.4).toDouble();
-        // sub-intervals of jog_maximum
-        jog_interval = value("/jog_interval", 1).toInt();
-        if (jog_interval < 0)
-            jog_interval = 0;
-        lin_interval = value("/lin_interval", 3600).toInt();
-        if (lin_interval < 0)
-            lin_interval = 0;
-        lastdir = value("/lastdir", ".").toString();
-        lastdir_update = true;
-        idxfilter = value("/idxfilter", TVCLIPPER_DEFAULT_IDXFILTER).toString();
-        prjfilter = value("/prjfilter", TVCLIPPER_DEFAULT_PRJFILTER).toString();
-        loadfilter = value("/loadfilter", TVCLIPPER_DEFAULT_LOADFILTER).toString();
-        // remove old-style entries
-        remove("/wheel_incr_normal");
-        remove("/wheel_incr_shift");
-        remove("/wheel_incr_ctrl");
-        remove("/wheel_incr_alt");
-        remove("/wheel_threshold");
-        remove("/wheel_delta");
-        remove("/jog_maximum");
-        remove("/jog_threshold");
-        remove("/jog_offset");
-        remove("/jog_interval");
-        remove("/lin_interval");
-        remove("/lastdir");
-        remove("/idxfilter");
-        remove("/prjfilter");
-        remove("/loadfilter");
-    }
-    if (version >= 2) {
-        /* float view scale factor */
-        beginGroup("/viewscalefactor");
-        viewscalefactor = value("/current", 1.0).toDouble();
-        viewscalefactor_custom = value("/custom", 3.0).toDouble();
-        endGroup(); // viewscalefactor
-    }
-    else {
-        viewscalefactor = (double)value("/viewscalefactor", 1).toInt();
-        viewscalefactor_custom = 3.0;
-        remove("/viewscalefactor");
-    }
-    export_format = value("/export_format", 0).toInt();
-    beginGroup("/recentfiles");
-    recentfiles_max = value("/max", 5).toInt();
+    beginGroup(OPTIONS_WHEEL);
+    wheel_increments[WHEEL_INCR_NORMAL] = value(OPTION_WHEEL_NORMAL, OPTION_WHEEL_NORMAL_DEF_VAL).toInt();
+    wheel_increments[WHEEL_INCR_SHIFT] = value(OPTION_WHEEL_SHIFT, OPTION_WHEEL_SHIFT_DEF_VAL).toInt();
+    wheel_increments[WHEEL_INCR_CTRL] = value(OPTION_WHEEL_CTRL, OPTION_WHEEL_CTRL_DEF_VAL).toInt();
+    wheel_increments[WHEEL_INCR_ALT] = value(OPTION_WHEEL_ALT, OPTION_WHEEL_ALT_DEF_VAL).toInt();
+    wheel_threshold = value(OPTION_WHEEL_THRESHOLD, OPTION_WHEEL_THRESHOLD_DEF_VAL).toInt();
+    // Note: delta is a multiple of 120 (see Qt documentation)
+    wheel_delta = value(OPTION_WHEEL_DELTA, OPTION_WHEEL_DELTA_DEF_VAL).toInt();
+    if (wheel_delta == 0)
+        wheel_delta = 1;	// avoid devide by zero
+    endGroup();	// wheel
+
+    beginGroup(OPTIONS_SLIDERS);
+    jog_maximum = value(OPTION_SLIDERS_JOG_MAXIMUM, OPTION_SLIDERS_JOG_MAXIMUM_DEF_VAL).toInt();
+    jog_threshold = value(OPTION_SLIDERS_JOG_THRESHOLD, OPTION_SLIDERS_JOG_THRESHOLD_DEF_VAL).toInt();
+    // to increase the "zero frames"-region of the jog-slider
+    jog_offset = value(OPTION_SLIDERS_JOG_OFFSET, OPTION_SLIDERS_JOG_OFFSET_DEF_VAL).toDouble();
+    // sub-intervals of jog_maximum
+    jog_interval = value(OPTION_SLIDERS_JOG_INTERVAL, OPTION_SLIDERS_JOG_INTERVAL_DEF_VAL).toInt();
+    if (jog_interval < 0)
+        jog_interval = 0;
+    lin_interval = value(OPTION_SLIDERS_LIN_INTERVAL, OPTION_SLIDERS_LIN_INTERVAL_DEF_VAL).toInt();
+    if (lin_interval < 0)
+        lin_interval = 0;
+    endGroup();	// sliders
+
+    beginGroup(OPTIONS_LASTDIR);
+    lastdir = value(OPTION_LASTDIR_NAME, QStandardPaths::displayName(QStandardPaths::HomeLocation)).toString();
+    lastdir_update = value(OPTION_LASTDIR_UPDATE, OPTION_LASTDIR_UPDATE_DEF_VAL).toBool();
+    endGroup(); // lastdir
+
+    beginGroup(OPTIONS_FILTERS);
+    idxfilter = value(OPTION_FILTERS_IDXFILTER, OPTION_FILTERS_IDXFILTER_DEF_VAL).toString();
+    prjfilter = value(OPTION_FILTERS_PRJFILTER, OPTION_FILTERS_PRJFILTER_DEF_VAL).toString();
+    loadfilter = value(OPTION_FILTERS_LOADFILTER, OPTION_FILTERS_LOADFILTER_DEF_VAL).toString();
+    endGroup();	// filters
+
+    /* view scale factor */
+    beginGroup(OPTIONS_VIEW_SCALE_FACTOR);
+    viewscalefactor = value(OPTION_VIEW_SCALE_FACTOR_CURRENT, OPTION_VIEW_SCALE_FACTOR_CURRENT_DEF_VAL).toDouble();
+    endGroup(); // viewscalefactor
+
+    export_format = value(OPTION_EXPORT_FORMAT, 0).toInt();
+
+    beginGroup(QStringLiteral(OPTIONS_RECENTFILES));
+    recentfiles_max = value(QStringLiteral(OPTION_RECENTFILES_MAX), OPTION_RECENTFILES_MAX_DEF_VAL).toInt();
+
     recentfiles.clear();
-    std::list<std::string> filenames;
-    QStringList keys = this->childKeys();
-    for (unsigned int i = 0; i < recentfiles_max; ++i) {
-        QString key = "/" + QString::number(i);
-        if (version < 1 && keys.size()>1) {
-            // OLD format (2 keys per input file, NO subkeys!)
-            if (! this->contains(key))
+    std::list<std::string> videoFilenames;
+
+    {
+        QStringList recentFileNumbers = childGroups();
+        unsigned int currentNumber = 0;
+        for (QStringList::const_iterator itNumber = recentFileNumbers.begin();
+             itNumber != recentFileNumbers.end() && currentNumber < recentfiles_max;
+             itNumber++, currentNumber++)
+        {
+            // format with subkeys and multiple files!
+            beginGroup(*itNumber);
+
+            if (!contains(QStringLiteral(OPTION_RECENTFILES_FILE_IDX))) {
+                endGroup();
                 continue;
-            QString filename = value(key).toString();
-            if (filename.isEmpty())
-                continue;
-            filenames.clear();
-            filenames.push_back(filename.toStdString());
-            if (! this->contains(key + "-idx"))
-                continue;
-            QString idxfilename = value(key + "-idx").toString();
-            recentfiles.push_back(
-                        std::pair<std::list<std::string>,std::string>(filenames, idxfilename.toStdString()));
-        }
-        else {
-            // NEW format with subkeys and multiple files!
-            beginGroup(key);
-            QString filename = value("/0").toString();
-            if (!filename.isEmpty()) {
-                // multiple input files?
-                int j=0;
-                filenames.clear();
-                while(!filename.isEmpty()) {
-                    filenames.push_back(filename.toStdString());
-                    filename = value("/" + QString::number(++j), "").toString();
-                }
-                if (! this->contains("/idx"))
-                    continue;
-                QString idxfilename = value("/idx").toString();
-                recentfiles.push_back(
-                            std::pair<std::list<std::string>,std::string>(filenames, idxfilename.toStdString()));
             }
-            endGroup();	// key
+            videoFilenames.clear();
+            QStringList fileKeys = childKeys();
+            QString idxfilename;
+            for (QStringList::const_iterator iter = fileKeys.begin(); iter != fileKeys.end(); iter++) {
+                if (*iter == QStringLiteral(OPTION_RECENTFILES_FILE_IDX)) {
+                    idxfilename = value(*iter).toString();
+                    continue;
+                }
+                QString videoFilename = value(*iter).toString();
+                if (videoFilename.isEmpty()) {
+                    endGroup();	// *itNumber
+                    continue;
+                }
+                videoFilenames.push_back( videoFilename.toStdString() );
+            }
+
+            if (videoFilenames.empty()) {
+                endGroup();	// *itNumber
+                continue;
+            }
+
+            // adding one item of recent file list
+            recentfiles.push_back(std::pair<std::list<std::string>,std::string>(videoFilenames, idxfilename.toStdString()));
+
+            endGroup();	// *itNumber
         }
     }
+
     endGroup();	// recentfiles
-    beginGroup("/labels");
-    start_label = value("/start", TVCLIPPER_DEFAULT_START_LABEL).toString();
-    stop_label = value("/stop", TVCLIPPER_DEFAULT_STOP_LABEL).toString();
-    chapter_label = value("/chapter", TVCLIPPER_DEFAULT_CHAPTER_LABEL).toString();
-    bookmark_label = value("/bookmark", TVCLIPPER_DEFAULT_BOOKMARK_LABEL).toString();
+
+
+    beginGroup(OPTIONS_LABELS);
+    start_label = value(OPTION_LABELS_START, OPTION_LABELS_START_DEF_VAL).toString();
+    stop_label = value(OPTION_LABELS_STOP, OPTION_LABELS_STOP_DEF_VAL).toString();
+    chapter_label = value(OPTION_LABELS_CHAPTER, OPTION_LABELS_CHAPTER_DEF_VAL).toString();
+    bookmark_label = value(OPTION_LABELS_BOOKMARK, OPTION_LABELS_BOOKMARK_DEF_VAL).toString();
+    customColors = value(OPTION_LABELS_CUSTOM_COLORS, OPTION_LABELS_CUSTOM_COLORS_DEF_VAL).toBool();
+    colorStartNormal = value(OPTION_LABELS_COLOR_START_NORMAL, OPTION_LABELS_COLOR_START_NORMAL_DEF_VAL).toString();
+    colorStartHighlight = value(OPTION_LABELS_COLOR_START_HIGHLIGHT, OPTION_LABELS_COLOR_START_HIGHLIGHT_DEF_VAL).toString();
+    colorStopNormal = value(OPTION_LABELS_COLOR_STOP_NORMAL, OPTION_LABELS_COLOR_STOP_NORMAL_DEF_VAL).toString();
+    colorStopHighlight = value(OPTION_LABELS_COLOR_STOP_HIGHLIGHT, OPTION_LABELS_COLOR_STOP_HIGHLIGHT_DEF_VAL).toString();
+    colorChapterNormal = value(OPTION_LABELS_COLOR_CHAPTER_NORMAL, OPTION_LABELS_COLOR_CHAPTER_NORMAL_DEF_VAL).toString();
+    colorChapterHighlight = value(OPTION_LABELS_COLOR_CHAPTER_HIGHLIGHT, OPTION_LABELS_COLOR_CHAPTER_HIGHLIGHT_DEF_VAL).toString();
+    colorBookmarkNormal = value(OPTION_LABELS_COLOR_BOOKMARK_NORMAL, OPTION_LABELS_COLOR_BOOKMARK_NORMAL_DEF_VAL).toString();
+    colorBookmarkHighlight = value(OPTION_LABELS_COLOR_BOOKMARK_HIGHLIGHT, OPTION_LABELS_COLOR_BOOKMARK_HIGHLIGHT_DEF_VAL).toString();
+    colorTextNormal = value(OPTION_LABELS_COLOR_TEXT_NORMAL, OPTION_LABELS_COLOR_TEXT_NORMAL_DEF_VAL).toString();
+    colorTextHighlight = value(OPTION_LABELS_COLOR_TEXT_HIGHLIGHT, OPTION_LABELS_COLOR_TEXT_HIGHLIGHT_DEF_VAL).toString();
     endGroup();	// labels
-    start_bof = value("/start_bof", true).toBool();
-    stop_eof = value("/stop_eof", true).toBool();
-    beginGroup("/snapshots");
-    snapshot_type = value("/type", "PNG").toString();
-    snapshot_quality = value("/quality", -1).toInt();
-    snapshot_prefix = value("/prefix", "").toString();
-    snapshot_delimiter = value("/delimiter", "_").toString();
-    snapshot_first = value("/first", 1).toInt();
-    snapshot_width = value("/width", 3).toInt();
-    snapshot_extension = value("/extension", "png").toString();
-    snapshot_range = value("/range", 0).toInt();
-    snapshot_samples = value("/samples", 1).toInt();
+
+    start_bof = value(QStringLiteral(OPTION_START_BOF), true).toBool();
+    stop_eof = value(QStringLiteral(OPTION_STOP_EOF), true).toBool();
+
+    beginGroup(OPTIONS_SNAPSHOTS);
+    snapshot_type = value(OPTION_SNAPSHOTS_TYPE, OPTION_SNAPSHOTS_TYPE_DEF_VAL).toString();
+    snapshot_quality = value(OPTION_SNAPSHOTS_QUALITY, OPTION_SNAPSHOTS_QUALITY_DEF_VAL).toInt();
+    snapshot_prefix = value(OPTION_SNAPSHOTS_PREFIX, OPTION_SNAPSHOTS_PREFIX_DEF_VAL).toString();
+    snapshot_delimiter = value(OPTION_SNAPSHOTS_DELIMITER, OPTION_SNAPSHOTS_DELIMITER_DEF_VAL).toString();
+    snapshot_first = value(OPTION_SNAPSHOTS_FIRST, OPTION_SNAPSHOTS_FIRST_DEF_VAL).toInt();
+    snapshot_width = value(OPTION_SNAPSHOTS_WIDTH, OPTION_SNAPSHOTS_WIDTH_DEF_VAL).toInt();
+    snapshot_extension = value(OPTION_SNAPSHOTS_EXTENSION, OPTION_SNAPSHOTS_EXTENSION_DEF_VAL).toString();
+    snapshot_range = value(OPTION_SNAPSHOTS_RANGE, OPTION_SNAPSHOTS_RANGE_DEF_VAL).toInt();
+    snapshot_samples = value(OPTION_SNAPSHOTS_SAMPLES, OPTION_SNAPSHOTS_SAMPLES_DEF_VAL).toInt();
     endGroup();	// snapshots
-    beginGroup("/pipe");
+
+    beginGroup(OPTIONS_PIPE);
     pipe_command.clear();
     pipe_post.clear();
     pipe_label.clear();
     pipe_format.clear();
-    beginGroup("/0");
-    QString command = value("/command", TVCLIPPER_DEFAULT_PIPE_COMMAND).toString();
-    QString post = value("/post", TVCLIPPER_DEFAULT_PIPE_POST).toString();
-    QString label = value("/label", TVCLIPPER_DEFAULT_PIPE_LABEL).toString();
-    int format = value("/format", TVCLIPPER_DEFAULT_PIPE_FORMAT).toInt();
-    endGroup();	// 0
-    unsigned int i = 0;
 
-    while(!command.isEmpty() && !label.isEmpty()) {
-        if(format<0 || format>3) format = 0;
+    QStringList pipeList = childGroups();
+    for (QStringList::const_iterator it = pipeList.begin(); it != pipeList.end(); it++) {
+        QString command = value(*it + OPTION_PIPE_COMMAND, OPTION_PIPE_COMMAND_DEF_VAL).toString();
+        QString label = value(*it + OPTION_PIPE_DVDLABEL, OPTION_PIPE_DVDLABEL_DEF_VAL).toString();
+        QString post = value(*it + OPTION_PIPE_POST, OPTION_PIPE_POST_DEF_VAL).toString();
+        int format = value(*it + OPTION_PIPE_FORMAT, OPTION_PIPE_FORMAT_DEV_VAL).toInt();
+        if (format < 0 || format > 3) {
+            format = 0;
+        }
+        if (command.isEmpty() || label.isEmpty()) {
+            continue;
+        }
+
         pipe_command.push_back(command);
         pipe_post.push_back(post);
         pipe_label.push_back(label);
         pipe_format.push_back(format);
-        QString key = "/" + QString::number(++i);
-        beginGroup(key);
-        command = value("/command", QVariant("")).toString();
-        post = value("/post", QVariant("")).toString();
-        label = this->value("/label", QVariant("")).toString();
-        format = value("/format", QVariant(0)).toInt();
-        endGroup();	// key
     }
     endGroup();	// pipe
-    beginGroup("/chapters");
+
+    beginGroup(QStringLiteral(OPTIONS_CHAPTERS));
     // length (>0) or number (<0) of chapter(s)
-    chapter_interval = value("/interval", 600*25).toInt();
+    chapter_interval = value(QStringLiteral(OPTION_CHAPTERS_INTERVAL), OPTION_CHAPTERS_INTERVAL_DEF_VAL).toInt();
     // detection of scene changes is rather time comsuming...
-    //chapter_tolerance = readNumEntry("/tolerance", 10*25);
-    //... better switch it off per default!
-    chapter_tolerance = value("/tolerance", 0).toInt();
+    chapter_tolerance = value(QStringLiteral(OPTION_CHAPTERS_TOLERANCE), OPTION_CHAPTERS_TOLERANCE_DEF_VAL).toInt();
     // average color distance needed for a scene change
-    chapter_threshold = value("/threshold", 50.).toDouble();
+    chapter_threshold = value(QStringLiteral(OPTION_CHAPTERS_THRESHOLD), OPTION_CHAPTERS_THRESHOLD_DEF_VAL).toDouble();
     // minimal length of a chapter
-    chapter_minimum = value("/minimum", 200*25).toInt();
+    chapter_minimum = value(QStringLiteral(OPTION_CHAPTERS_MINIMUM), OPTION_CHAPTERS_MINIMUM_DEF_VAL).toInt();
     endGroup();	// auto chapters
 }
 
 void
-tvclipper_settings::save_settings() {
-    setValue("/version", 2);	// latest config version
-    beginGroup("/wheel");
-    setValue("/incr_normal", wheel_increments[WHEEL_INCR_NORMAL]);
-    setValue("/incr_shift", wheel_increments[WHEEL_INCR_SHIFT]);
-    setValue("/incr_ctrl", wheel_increments[WHEEL_INCR_CTRL]);
-    setValue("/incr_alt", wheel_increments[WHEEL_INCR_ALT]);
-    setValue("/threshold", wheel_threshold);
-    setValue("/delta", wheel_delta);
+tvclipper_settings::save_settings()
+{
+    setValue(OPTION_VERSION, 0);	// latest config version
+
+    beginGroup(QStringLiteral(OPTIONS_WHEEL));
+    setValue(QStringLiteral(OPTION_WHEEL_NORMAL), wheel_increments[WHEEL_INCR_NORMAL]);
+    setValue(QStringLiteral(OPTION_WHEEL_SHIFT), wheel_increments[WHEEL_INCR_SHIFT]);
+    setValue(QStringLiteral(OPTION_WHEEL_CTRL), wheel_increments[WHEEL_INCR_CTRL]);
+    setValue(QStringLiteral(OPTION_WHEEL_ALT), wheel_increments[WHEEL_INCR_ALT]);
+    setValue(QStringLiteral(OPTION_WHEEL_THRESHOLD), wheel_threshold);
+    setValue(QStringLiteral(OPTION_WHEEL_DELTA), wheel_delta);
     endGroup();	// wheel
-    beginGroup("/slider");
-    setValue("/jog_maximum", jog_maximum);
-    setValue("/jog_threshold", jog_threshold);
-    setValue("/jog_offset", jog_offset);
-    setValue("/jog_interval", jog_interval);
-    setValue("/lin_interval", lin_interval);
-    endGroup();	// slider
-    beginGroup("/lastdir");
-    setValue("/name", lastdir);
-    setValue("/update", lastdir_update);
+
+    beginGroup(QStringLiteral(OPTIONS_SLIDERS));
+    setValue(QStringLiteral(OPTION_SLIDERS_JOG_MAXIMUM), jog_maximum);
+    setValue(QStringLiteral(OPTION_SLIDERS_JOG_THRESHOLD), jog_threshold);
+    setValue(QStringLiteral(OPTION_SLIDERS_JOG_OFFSET), jog_offset);
+    setValue(QStringLiteral(OPTION_SLIDERS_JOG_INTERVAL), jog_interval);
+    setValue(QStringLiteral(OPTION_SLIDERS_LIN_INTERVAL), lin_interval);
+    endGroup();	// sliders
+
+    beginGroup(QStringLiteral(OPTIONS_LASTDIR));
+    setValue(QStringLiteral(OPTION_LASTDIR_NAME), lastdir);
+    setValue(QStringLiteral(OPTION_LASTDIR_UPDATE), lastdir_update);
     endGroup();	// lastdir
-    beginGroup("/filter");
-    setValue("/idxfilter", idxfilter);
-    setValue("/prjfilter", prjfilter);
-    setValue("/loadfilter", loadfilter);
-    endGroup();	// filter
-    beginGroup("/viewscalefactor");
-    setValue("/current", viewscalefactor);
-    setValue("/custom", viewscalefactor_custom);
+
+    beginGroup(QStringLiteral(OPTIONS_FILTERS));
+    setValue(QStringLiteral(OPTION_FILTERS_IDXFILTER), idxfilter);
+    setValue(QStringLiteral(OPTION_FILTERS_PRJFILTER), prjfilter);
+    setValue(QStringLiteral(OPTION_FILTERS_LOADFILTER), loadfilter);
+    endGroup();	// filters
+
+    beginGroup(QStringLiteral(OPTIONS_VIEW_SCALE_FACTOR));
+    setValue(QStringLiteral(OPTION_VIEW_SCALE_FACTOR_CURRENT), viewscalefactor);
     endGroup();	// viewscalefactor
-    setValue("/export_format", export_format);
-    beginGroup("/recentfiles");
-    // first remove any OLD recentfiles entries to clean the settings file (<revision 108)!!!
-    QStringList keys = this->childKeys();
-    for ( QStringList::Iterator it = keys.begin(); it != keys.end(); ++it )
-        remove("/" + *it);
-    // then remove ALL new recentfiles entries!!!
-    // (otherwise it would be a mess with erased&inserted muliple file entries of different size)
-    this->beginGroup("/");
-    QStringList subkeys = this->childKeys();
-    this->endGroup(); // /
-    for ( QStringList::Iterator its = subkeys.begin(); its != subkeys.end(); ++its ) {
-        this->beginGroup("/" + *its);
-        QStringList keys = childKeys();
-        this->endGroup();
-        for ( QStringList::Iterator itk = keys.begin(); itk != keys.end(); ++itk )
-            remove("/"  + *its + "/" + *itk);
+
+    setValue(QStringLiteral(OPTION_EXPORT_FORMAT), export_format);
+
+    beginGroup(QStringLiteral(OPTIONS_RECENTFILES));
+    /* --- removing old recentfile list --- */
+    QStringList keys = allKeys();
+    for (QStringList::const_iterator it = keys.begin(); it != keys.end(); it++) {
+        remove(*it);
     }
-    setValue("/max", int(recentfiles_max));
-    // and NOW write the updated list from scratch!!!
+
+    /* --- saving --- */
+    // saving maximal number of recent files
+    setValue(QStringLiteral(OPTION_RECENTFILES_MAX), int(recentfiles_max));
+
+    // saving the updated list of recent files
     for (unsigned int i = 0; i < recentfiles.size(); ++i) {
         QString key = "/" + QString::number(i);
         beginGroup(key);
-        int j=0;
-        for(std::list<std::string>::iterator it=settings()->recentfiles[i].first.begin();
-            it!=settings()->recentfiles[i].first.end(); it++, j++)
+        int j = 0;
+        for(std::list<std::string>::iterator it = settings()->recentfiles[i].first.begin(); it!=settings()->recentfiles[i].first.end(); it++, j++) {
             setValue("/" + QString::number(j), QString::fromStdString(*it));
-        setValue("/idx", QString::fromStdString(recentfiles[i].second));
+        }
+        setValue(QStringLiteral(OPTION_RECENTFILES_FILE_IDX), QString::fromStdString(recentfiles[i].second));
         endGroup();	// key
     }
     endGroup();	// recentfiles
-    beginGroup("/labels");
-    setValue("/start", start_label);
-    setValue("/stop", stop_label);
-    setValue("/chapter", chapter_label);
-    setValue("/bookmark", bookmark_label);
+
+    beginGroup(QStringLiteral(OPTIONS_LABELS));
+    setValue(QStringLiteral(OPTION_LABELS_START), start_label);
+    setValue(QStringLiteral(OPTION_LABELS_STOP), stop_label);
+    setValue(QStringLiteral(OPTION_LABELS_CHAPTER), chapter_label);
+    setValue(QStringLiteral(OPTION_LABELS_BOOKMARK), bookmark_label);
+    setValue(QStringLiteral(OPTION_LABELS_CUSTOM_COLORS), customColors);
+    setValue(OPTION_LABELS_COLOR_START_NORMAL, colorStartNormal);
+    setValue(OPTION_LABELS_COLOR_START_HIGHLIGHT, colorStartHighlight);
+    setValue(OPTION_LABELS_COLOR_STOP_NORMAL, colorStopNormal);
+    setValue(OPTION_LABELS_COLOR_STOP_HIGHLIGHT, colorStopHighlight);
+    setValue(OPTION_LABELS_COLOR_CHAPTER_NORMAL, colorChapterNormal);
+    setValue(OPTION_LABELS_COLOR_CHAPTER_HIGHLIGHT, colorChapterHighlight);
+    setValue(OPTION_LABELS_COLOR_BOOKMARK_NORMAL, colorBookmarkNormal);
+    setValue(OPTION_LABELS_COLOR_BOOKMARK_HIGHLIGHT, colorBookmarkHighlight);
+    setValue(OPTION_LABELS_COLOR_TEXT_NORMAL, colorTextNormal);
+    setValue(OPTION_LABELS_COLOR_TEXT_HIGHLIGHT, colorTextHighlight);
     endGroup();	// labels
-    setValue("/start_bof", start_bof);
-    setValue("/stop_eof", stop_eof);
-    beginGroup("/snapshots");
-    setValue("/type", snapshot_type);
-    setValue("/quality", snapshot_quality);
-    setValue("/prefix", snapshot_prefix);
-    setValue("/delimiter", snapshot_delimiter);
-    setValue("/first", snapshot_first);
-    setValue("/width", snapshot_width);
-    setValue("/extension", snapshot_extension);
-    setValue("/range", snapshot_range);
-    setValue("/samples", snapshot_samples);
+
+    setValue(QStringLiteral(OPTION_START_BOF), start_bof);
+    setValue(QStringLiteral(OPTION_STOP_EOF), stop_eof);
+
+    beginGroup(QStringLiteral(OPTIONS_SNAPSHOTS));
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_TYPE), snapshot_type);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_QUALITY), snapshot_quality);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_PREFIX), snapshot_prefix);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_DELIMITER), snapshot_delimiter);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_FIRST), snapshot_first);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_WIDTH), snapshot_width);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_EXTENSION), snapshot_extension);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_RANGE), snapshot_range);
+    setValue(QStringLiteral(OPTION_SNAPSHOTS_SAMPLES), snapshot_samples);
     endGroup();	// snapshots
-    beginGroup("/pipe");
+
+    beginGroup(QStringLiteral(OPTIONS_PIPE));
     for (unsigned int i = 0; i < pipe_command.size(); ++i) {
         QString key = "/" + QString::number(i);
         beginGroup(key);
-        setValue("/command", pipe_command[i]);
-        setValue("/post", pipe_post[i]);
-        setValue("/label", pipe_label[i]);
-        setValue("/format", pipe_format[i]);
+        setValue(QStringLiteral(OPTION_PIPE_COMMAND), pipe_command[i]);
+        setValue(QStringLiteral(OPTION_PIPE_POST), pipe_post[i]);
+        setValue(QStringLiteral(OPTION_PIPE_DVDLABEL), pipe_label[i]);
+        setValue(QStringLiteral(OPTION_PIPE_FORMAT), pipe_format[i]);
         endGroup();	// key
     }
     endGroup();	// pipe
-    beginGroup("/chapters");
-    setValue("/interval", chapter_interval);
-    setValue("/tolerance", chapter_tolerance);
-    setValue("/threshold", chapter_threshold);
-    setValue("/minimum", chapter_minimum);
-    endGroup();	// auto chapters
+
+    beginGroup(QStringLiteral(OPTIONS_CHAPTERS));
+    setValue(QStringLiteral(OPTION_CHAPTERS_INTERVAL), chapter_interval);
+    setValue(QStringLiteral(OPTION_CHAPTERS_TOLERANCE), chapter_tolerance);
+    setValue(QStringLiteral(OPTION_CHAPTERS_THRESHOLD), chapter_threshold);
+    setValue(QStringLiteral(OPTION_CHAPTERS_MINIMUM), chapter_minimum);
+    endGroup();	// chapters
 }
 
 // private settings variable

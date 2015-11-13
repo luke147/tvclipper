@@ -1,22 +1,21 @@
 /*  tvclipper
-    Copyright (c) 2005 Sven Over <svenover@svenover.de>
+    Copyright (c) 2015 Lukáš Vlček
 
-    This program is free software; you can redistribute it and/or modify
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+    the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
+    TV Clipper is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
 */
-
-/* $Id: tvclipper.cpp 173 2011-04-22 22:00:52Z too-tired $ */
 
 #include <unistd.h>
 
@@ -55,6 +54,8 @@
 #include <QDir>
 #include <QWheelEvent>
 #include <QThread>
+#include <QMimeData>
+#include <QDesktopServices>
 
 #include "port.h"
 #include "tvclipper.h"
@@ -130,19 +131,18 @@ void tvclipper::setbusy(bool b)
 
 tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::WindowFlags flags)
     :QMainWindow(parent),
-      audiotrackpopup(0), recentfilespopup(0), editconvertpopup(0), audiotrackmenu(0),
+      audiotrackpopup(0), recentfilespopup(0), editconvertpopup(0), originalImageHeight(0), audiotrackmenu(0),
       buf(8 << 20, 128 << 20),
       mpg(0), pictures(0),
       curpic(~0), showimage(true), fine(false),
       jogsliding(false), jogmiddlepic(0),
       mplayer_process(0), imgp(0), busy(0),
-      viewscalefactor(1.0),
-      nogui(false)
+      viewscalefactor(1.0), nogui(false)
 {
     this->appName = appName;
     this->orgName = orgName;
     // constructSettings(orgName, appName); // setting file: $HOME/.config/orgName/appName.conf
-    constructSettings(orgName, QString()); // setting file: $HOME/.config/orgName.conf
+    constructSettings(orgName, QStringLiteral("")); // setting file: $HOME/.config/orgName.conf
 
     this->setAccessibleName(appName);
     this->setWindowFlags(flags);
@@ -176,7 +176,7 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     connect( editconvertpopup, SIGNAL( triggered(QAction*) ), this, SLOT( editConvert(QAction*) ) );
     connect( editconvertpopup, SIGNAL( aboutToShow() ), this, SLOT( abouttoshoweditconvert() ) );
 
-    setviewscalefactor(settings()->viewscalefactor);
+    setViewScaleFactor(settings()->viewscalefactor);
 
     ListItemDelegate *itemDelegate = new ListItemDelegate(ui->eventlist);
     ui->eventlist->setItemDelegate(itemDelegate);
@@ -193,14 +193,41 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     ui->eventlist->addAction(actionGoTo);
     ui->eventlist->addAction(actionDelete);
 
-    connect( actionGoTo, SIGNAL(triggered()), this, SLOT(actGoToEventItem()) );
-    connect( actionDelete, SIGNAL(triggered()), this, SLOT(actDelEventItem()) );
+    connect( actionGoTo, SIGNAL(triggered()), this, SLOT(enteredEventList()) );
+    connect( actionDelete, SIGNAL(triggered()), this, SLOT(delCurrentEventItem()) );
 
     // install event handler
     installEventFilter(this);
 
     // set caption
     this->setWindowTitle(QString(VERSION_STRING));
+    double factor = settings()->viewscalefactor;
+    ui->viewAdaptSizeAction->setChecked(true);
+    if (factor == 1.0) {
+        ui->viewFullSizeAction->setChecked(true);
+        ui->viewAdaptSizeAction->setChecked(false);
+    }
+    if (factor == 2.0) {
+        ui->viewHalfSizeAction->setChecked(true);
+        ui->viewAdaptSizeAction->setChecked(false);
+    }
+    if (factor == 4.0) {
+        ui->viewQuarterSizeAction->setChecked(true);
+        ui->viewAdaptSizeAction->setChecked(false);
+    }
+
+// SHAREDIR macro is defined with qmake in Makefile before compilation
+#ifdef SHAREDIR
+    QFileInfo fInfo;
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start.png");
+    ui->editStartAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop.png");
+    ui->editStopAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter.png");
+    ui->editChapterAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark.png");
+    ui->editBookmarkAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+#endif
 }
 
 // **************************************************************************
@@ -288,29 +315,26 @@ void tvclipper::fileSave()
     }
 
     EventMarks marks;
-    {
-        QListWidgetItem *item;
 
-        for (int i = 0; (i < ui->eventlist->count()); i++) {
-            item = ui->eventlist->item(i);
+    for (int i = 0; (i < ui->eventlist->count()); i++) {
+        EventListItem *item = dynamic_cast<EventListItem*>(ui->eventlist->item(i));
 
-            if (typeid(*item) != typeid(EventListItem)) {
-                continue;
-            }
-
-            EventListItem *eli = (EventListItem*)item;
-            class EventMark mark = EventMark(QString::number(eli->getpicture()), eli->geteventtype());
-            marks.push_back(mark);
+        if (!item) {
+            continue;
         }
+
+        class EventMark mark = EventMark(QString::number(item->getpicture()), item->geteventtype());
+        marks.push_back(mark);
     }
+
 
     class XmlPrjFileWriter prjWriter = XmlPrjFileWriter(mpgfilen, QString::fromStdString(idxfilen), QString::fromStdString(expfilen), QString::number(exportformat), marks);
     bool okay = prjWriter.write(QString::fromStdString(prjfilen));
     if (!okay) {
         QMessageBox::critical(this, PROGRAM_NAME " - Failed to write project file",
-                                      QString::fromStdString(prjfilen) + ": \nCould not open file",
-                                      QMessageBox::Abort,
-                                      QMessageBox::NoButton);
+                              QString::fromStdString(prjfilen) + ": \nCould not open file",
+                              QMessageBox::Abort,
+                              QMessageBox::NoButton);
     }
     return;
 }
@@ -327,26 +351,27 @@ void tvclipper::chapterSnapshotsSave()
 {
     int found=0;
     std::vector<int> piclist;
-    {
-        QListWidgetItem *item;
-        for (int i = 0; (i < ui->eventlist->count()); i++) {
-            item = ui->eventlist->item(i);
 
-            if (typeid(*item) == typeid(EventListItem)) {
-                EventListItem *eli=(EventListItem*)item;
-                if (eli->geteventtype()==EventListItem::chapter) {
-                    piclist.push_back(eli->getpicture());
-                    found++;
-                }
-            }
+    for (int i = 0; (i < ui->eventlist->count()); i++) {
+        EventListItem *item = dynamic_cast<EventListItem*>(ui->eventlist->item(i));
+
+        if (!item) {
+            continue;
+        }
+
+        if (item->geteventtype()==EventListItem::chapter) {
+            piclist.push_back(item->getpicture());
+            found++;
         }
     }
 
-    if (found) {
-        snapshotSave(piclist, settings()->snapshot_range, settings()->snapshot_samples);
-    } else {
+    if (!found) {
         statusBar()->showMessage(QString("*** No chapters to save! ***"));
+        return;
     }
+
+    snapshotSave(piclist, settings()->snapshot_range, settings()->snapshot_samples);
+    return;
 }
 
 void tvclipper::snapshotSave(std::vector<int> piclist, int range, int samples)
@@ -388,12 +413,6 @@ void tvclipper::snapshotSave(std::vector<int> piclist, int range, int samples)
                                              NULL,
                                              NULL);
     if (s.isEmpty())
-        return;
-
-    if (QFileInfo(s).exists() && question(
-                "File exists - tvclipper",
-                s + "\nalready exists. Overwrite?") !=
-            QMessageBox::Yes)
         return;
 
     QImage p;
@@ -617,7 +636,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 
     //   lavfmuxer mux(fmt,*mpg,outfilename);
 
-    std::auto_ptr<muxer> mux;
+    std::unique_ptr<muxer> mux;
     uint32_t audiostreammask(0);
 
     for(int a = 0;a < mpg->getaudiostreams(); a++)
@@ -629,17 +648,17 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 
     switch(expfmt) {
     case 1:
-        mux=std::auto_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.c_str(),false,0));
+        mux = std::unique_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.c_str(),false,0));
         break;
     case 2:
-        mux=std::auto_ptr<muxer>(new lavfmuxer("dvd",audiostreammask,*mpg,out_file.c_str()));
+        mux = std::unique_ptr<muxer>(new lavfmuxer("dvd",audiostreammask,*mpg,out_file.c_str()));
         break;
     case 3:
-        mux=std::auto_ptr<muxer>(new lavfmuxer("mpegts",audiostreammask,*mpg,out_file.c_str()));
+        mux = std::unique_ptr<muxer>(new lavfmuxer("mpegts",audiostreammask,*mpg,out_file.c_str()));
         break;
     case 0:
     default:
-        mux=std::auto_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.c_str()));
+        mux = std::unique_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.c_str()));
         break;
     }
 
@@ -858,16 +877,15 @@ void tvclipper::addEventListItem(int pic, EventListItem::eventtype type)
     int newItemIndex = 0;
     QPixmap p;
     EventListItem *newItem;
-    QListWidgetItem *item;
+    EventListItem *item = NULL;
 
     //check if requested EventListItem is already in list to avoid doubles!
     for (int i = 0; (i < ui->eventlist->count()); i++) {
-        item = ui->eventlist->item(i);
-        if (typeid(*item) != typeid(EventListItem)) {
+        item = dynamic_cast<EventListItem*>(ui->eventlist->item(i));
+        if (!item) {
             continue;
         }
-        EventListItem *eli = (EventListItem*) item;
-        if (pic == eli->getpicture() && type == eli->geteventtype())
+        if (pic == item->getpicture() && type == item->geteventtype())
             return;
     }
 
@@ -880,20 +898,19 @@ void tvclipper::addEventListItem(int pic, EventListItem::eventtype type)
     newItem = new EventListItem(p, ui->eventlist->width(), type, pic, (*mpg)[pic].getpicturetype(),
                                 (*mpg)[pic].getpts() - firstpts);
 
-    // get index item
+    // get index of new item
+    item = NULL;
     for (int i = 0; (i <= ui->eventlist->count()); i++) {
         if (i >= ui->eventlist->count()) {
             newItemIndex = i;
             break;
         }
 
-        item = ui->eventlist->item(i);
-        if (typeid(*item) != typeid(EventListItem))
+        item = dynamic_cast<EventListItem*>(ui->eventlist->item(i));
+        if (!item)
             continue;
 
-        EventListItem *eli=(EventListItem*)item;
-
-        if (*newItem < *eli) {
+        if (*newItem < *item) {
             newItemIndex = i;
             break;
         }
@@ -912,27 +929,27 @@ void tvclipper::editBookmark()
 void tvclipper::editChapter()
 {
     addEventListItem(curpic, EventListItem::chapter);
-    update_quick_picture_lookup_table();
+    updateQuickPictureLookupTable();
 }
 
 
 void tvclipper::editStop()
 {
     addEventListItem(curpic, EventListItem::stop);
-    update_quick_picture_lookup_table();
+    updateQuickPictureLookupTable();
 }
 
 
 void tvclipper::editStart()
 {
     addEventListItem(curpic, EventListItem::start);
-    update_quick_picture_lookup_table();
+    updateQuickPictureLookupTable();
 }
 
 void tvclipper::editAutoChapters()
 {
     int inpic, chapters = 0;
-    quick_picture_lookup_t::iterator it;
+    quickPictureLookup_t::iterator it;
     QImage p1, p2;
 
     // the first chapter at 0sec is ALWAYS set by default from update_quick_picture_lookup_table()
@@ -949,7 +966,7 @@ void tvclipper::editAutoChapters()
     for(int outpic = chapter_start; outpic < chapter_max; outpic+=chapter_start)
         if (!quick_picture_lookup.empty()) {
             // find the entry in the quick_picture_lookup table that corresponds to given output picture
-            it = std::upper_bound(quick_picture_lookup.begin(),quick_picture_lookup.end(),outpic,quick_picture_lookup_s::cmp_outpicture());
+            it = std::upper_bound(quick_picture_lookup.begin(),quick_picture_lookup.end(),outpic,quickPictureLookup_s::cmp_outpicture());
             inpic = outpic - it->outpicture + it->stoppicture;
 
             if(inpic+settings()->chapter_tolerance>it->stoppicture) {
@@ -1001,7 +1018,7 @@ void tvclipper::editAutoChapters()
         }
 
     if (chapters)
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
 
 }
 
@@ -1038,38 +1055,43 @@ void tvclipper::abouttoshoweditconvert()
     editconvertpopup->addAction(QString("16 : 9"));
 }
 
+// convert Bookmarks to START/STOP markers
 void tvclipper::editConvert(QAction *action)
 {
-    int option = this->editconvertpopup->actions().indexOf(action);
-    // convert Bookmarks to START/STOP markers
-    if(option<0 || option>3) return;
+    int option = editconvertpopup->actions().indexOf(action);
 
-    int found=0;
+    if(option < 0 || option > 3)
+        return;
+
+    int found = 0;
     std::vector<int> cutlist;
-    {
-        QListWidgetItem *item;
-        for (int i = 0; (i < ui->eventlist->count()); i++) {
-            item = ui->eventlist->item(i);
 
-            if (typeid(*item) == typeid(EventListItem)) {
-                EventListItem *eli=(EventListItem*)item;
-                if (eli->geteventtype()==EventListItem::bookmark) {
-                    cutlist.push_back(eli->getpicture());
-                    delete item;
-                    found++;
-                }
-            }
+    for (int i = ui->eventlist->count() - 1; (i > -1 ); i--) {
+        EventListItem *item = dynamic_cast<EventListItem*>(ui->eventlist->item(i));
+
+        if (!item)
+            continue;
+
+        if (item->geteventtype() == EventListItem::bookmark) {
+            cutlist.push_back(item->getpicture());
+            delete item;
+            found++;
         }
+
     }
 
-    if (found) {
-        addStartStopItems(cutlist, option);
 
-        if (found%2)
-            statusBar()->showMessage(QString("*** No matching stop marker!!! ***"));
-    }
-    else
+    if (!found) {
         statusBar()->showMessage(QString("*** No bookmarks to convert! ***"));
+        return;
+    }
+
+    addStartStopItems(cutlist, option);
+
+    if (found % 2)
+        statusBar()->showMessage(QString("*** No matching stop marker!!! ***"));
+
+    return;
 }
 
 void tvclipper::addStartStopItems(std::vector<int> cutlist, int option)
@@ -1086,18 +1108,16 @@ void tvclipper::addStartStopItems(std::vector<int> cutlist, int option)
     std::sort(cutlist.begin(),cutlist.end());
 
     // ...AND there are no old START/STOP pairs!!!
-    {
-        QListWidgetItem *item;
-        for (int i = 0; (i < ui->eventlist->count()); i++) {
-            item = ui->eventlist->item(i);
+    for (int i = ui->eventlist->count() - 1; (i > -1); i--) {
+        EventListItem *item = dynamic_cast<EventListItem*>(ui->eventlist->item(i));
 
-            if (typeid(*item) == typeid(EventListItem)) {
-                EventListItem *eli=(EventListItem*)item;
-                if (eli->geteventtype()==EventListItem::start || eli->geteventtype()==EventListItem::stop)
-                    delete item;
-            }
+        if (!item)
+            continue;
+
+        if (item->geteventtype()==EventListItem::start || item->geteventtype()==EventListItem::stop)
+            delete item;
         }
-    }
+
 
     for (std::vector<int>::iterator it = cutlist.begin(); it != cutlist.end(); ++it) {
         if(!alternate) {
@@ -1119,7 +1139,7 @@ void tvclipper::addStartStopItems(std::vector<int> cutlist, int option)
         }
     }
 
-    update_quick_picture_lookup_table();
+    updateQuickPictureLookupTable();
 }
 
 void tvclipper::viewDifference()
@@ -1131,7 +1151,7 @@ void tvclipper::viewDifference()
     if (imgp)
         delete imgp;
     imgp=new differenceimageprovider(*mpg,curpic, new tvclipperbusy(this), false, viewscalefactor);
-    updateimagedisplay();
+    updateImageDisplay();
 }
 
 
@@ -1145,7 +1165,7 @@ void tvclipper::viewUnscaled()
         if (imgp)
             delete imgp;
         imgp=new imageprovider(*mpg,new tvclipperbusy(this),true,viewscalefactor);
-        updateimagedisplay();
+        updateImageDisplay();
     }
 }
 
@@ -1160,38 +1180,58 @@ void tvclipper::viewNormal()
         if (imgp)
             delete imgp;
         imgp=new imageprovider(*mpg,new tvclipperbusy(this),false,viewscalefactor);
-        updateimagedisplay();
+        updateImageDisplay();
     }
 }
 
 void tvclipper::zoomIn()
 {
-    setviewscalefactor(viewscalefactor / 1.2);
+    setViewScaleFactor(viewscalefactor / 1.2);
 }
 
 void tvclipper::zoomOut()
 {
-    setviewscalefactor(viewscalefactor * 1.2);
+    setViewScaleFactor(viewscalefactor * 1.2);
 }
 
 void tvclipper::viewFullSize()
 {
-    setviewscalefactor(1.0);
+    ui->viewFullSizeAction->setChecked(true);
+    ui->viewHalfSizeAction->setChecked(false);
+    ui->viewQuarterSizeAction->setChecked(false);
+    ui->viewAdaptSizeAction->setChecked(false);
+
+    setViewScaleFactor(1.0);
 }
 
 void tvclipper::viewHalfSize()
 {
-    setviewscalefactor(2.0);
+    ui->viewFullSizeAction->setChecked(false);
+    ui->viewHalfSizeAction->setChecked(true);
+    ui->viewQuarterSizeAction->setChecked(false);
+    ui->viewAdaptSizeAction->setChecked(false);
+
+    setViewScaleFactor(2.0);
 }
 
 void tvclipper::viewQuarterSize()
-{
-    setviewscalefactor(4.0);
+{    
+    ui->viewFullSizeAction->setChecked(false);
+    ui->viewHalfSizeAction->setChecked(false);
+    ui->viewQuarterSizeAction->setChecked(true);
+    ui->viewAdaptSizeAction->setChecked(false);
+
+    setViewScaleFactor(4.0);
 }
 
 void tvclipper::viewCustomSize()
 {
-    setviewscalefactor(settings()->viewscalefactor_custom);
+    ui->viewFullSizeAction->setChecked(false);
+    ui->viewHalfSizeAction->setChecked(false);
+    ui->viewQuarterSizeAction->setChecked(false);
+    ui->viewAdaptSizeAction->setChecked(true);
+
+    setViewScaleFactor(getRequireImageHeight());
 }
 
 void tvclipper::playPlay()
@@ -1226,8 +1266,8 @@ void tvclipper::playPlay()
     ui->fileExportAction->setEnabled(false);
 
     showimage=false;
-    ui->imagedisplay->setPixmap(QPixmap());
-    ui->imagedisplay->grabKeyboard();
+    ui->imageDisplay->setPixmap(QPixmap());
+    ui->imageDisplay->grabKeyboard();
 
     fine=true;
     ui->linslider->setValue(mpg->lastiframe(curpic));
@@ -1246,9 +1286,9 @@ void tvclipper::playPlay()
 #ifdef __WIN32__
     arguments << "-vo" << "directx:noaccel";
 #endif
-    arguments << "-wid" << QString().sprintf("0x%x",int(ui->imagedisplay->winId()));
+    arguments << "-wid" << QString().sprintf("0x%x",int(ui->imageDisplay->winId()));
     arguments << "-sb" << QString::number(offset - partoffset);
-    arguments << "-geometry" << QString().sprintf("%dx%d+0+0",int(ui->imagedisplay->width()),int(ui->imagedisplay->height()));
+    arguments << "-geometry" << QString().sprintf("%dx%d+0+0",int(ui->imageDisplay->width()),int(ui->imageDisplay->height()));
 
     if (currentaudiotrack>=0 && currentaudiotrack<mpg->getaudiostreams()) {
         arguments << "-aid" << QString().sprintf("0x%x",int(mpg->mplayeraudioid(currentaudiotrack)));
@@ -1269,7 +1309,7 @@ void tvclipper::playPlay()
     mplayer_success=false;
     mplayer_process->start(process, arguments);
 
-    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+    ui->imageDisplay->setFocus(Qt::OtherFocusReason);
 
     return;
 }
@@ -1278,7 +1318,7 @@ void tvclipper::playStop()
 {
     if (mplayer_process)
         mplayer_process->terminate();
-    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+    ui->imageDisplay->setFocus(Qt::OtherFocusReason);
 
     return;
 }
@@ -1296,7 +1336,7 @@ void tvclipper::playAudio1()
         ex.show();
     }
 
-    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+    ui->imageDisplay->setFocus(Qt::OtherFocusReason);
 #endif // HAVE_LIB_AO
 
     return;
@@ -1315,7 +1355,7 @@ void tvclipper::playAudio2()
         ex.show();
     }
 
-    ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+    ui->imageDisplay->setFocus(Qt::OtherFocusReason);
 #endif // HAVE_LIB_AO
 
     return;
@@ -1339,8 +1379,8 @@ void tvclipper::linslidervalue(int newpic)
     if (!jogsliding)
         jogmiddlepic=newpic;
 
-    update_time_display();
-    updateimagedisplay();
+    updateTimeDisplay();
+    updateImageDisplay();
 
     return;
 }
@@ -1373,10 +1413,10 @@ void tvclipper::jogslidervalue(int v)
   than range of 0 and 2 frames as in old function!)
   */
     if (v>0) {
-        relpic=int(exp(alpha*v)-settings()->jog_offset);
+        relpic = int(exp(alpha * v) - settings()->jog_offset);
         if (relpic<0) relpic=0;
     }
-    else if (v<0) {
+    if (v<0) {
         relpic=-int(exp(-alpha*v)-settings()->jog_offset);
         if (relpic>0) relpic=0;
     }
@@ -1403,50 +1443,36 @@ void tvclipper::jogslidervalue(int v)
     return;
 }
 
-void tvclipper::doubleclickedeventlist(QListWidgetItem *lbi)
+void tvclipper::goToEventItemPic(QListWidgetItem *lbi)
 {
-    if (typeid(*lbi) != typeid(EventListItem))
+    EventListItem *eli = dynamic_cast<EventListItem*>(lbi);
+
+    if (!eli)
         return;
 
-    fine=true;
-    ui->linslider->setValue(((EventListItem*)lbi)->getpicture());
+    fine = true;
+    ui->linslider->setValue(eli->getpicture());
     fine=false;
+    return;
 }
 
-void tvclipper::actDelEventItem()
+void tvclipper::delCurrentEventItem()
 {
-    QListWidgetItem *lbi = this->ui->eventlist->currentItem();
-    if (!lbi)
+    EventListItem *item = dynamic_cast<EventListItem*>(ui->eventlist->currentItem());
+    if (!item)
         return;
 
-    if (typeid(*lbi) != typeid(EventListItem))
-        return;
-
-    EventListItem *eli = (EventListItem*) lbi;
-
-    EventListItem::eventtype type = eli->geteventtype();
-    delete eli;
+    EventListItem::eventtype type = item->geteventtype();
+    delete item;
     if (type != EventListItem::bookmark)
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
 
     return;
 }
 
-void tvclipper::actGoToEventItem()
+void tvclipper::enteredEventList()
 {
-    QListWidgetItem *lbi = this->ui->eventlist->currentItem();
-    if (!lbi)
-        return;
-
-    if (typeid(*lbi) != typeid(EventListItem))
-        return;
-
-    EventListItem *eli = (EventListItem*) lbi;
-
-    fine = true;
-    ui->linslider->setValue(eli->getpicture());
-    fine = false;
-
+    goToEventItemPic(ui->eventlist->currentItem());
     return;
 }
 
@@ -1457,7 +1483,7 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
         return;
 
     EventListItem *eli = dynamic_cast<EventListItem*>(lbi);
-    if (eli == NULL)
+    if (!eli)
         return;
 
     QListWidget *lb = lbi->listWidget();
@@ -1483,6 +1509,7 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
     EventListItem::eventtype cmptype = EventListItem::none, cmptype2 = EventListItem::none;
 
     QAction *currentAction = popup.exec(QCursor::pos());
+    // context menu was canceled
     if (!currentAction) {
         return;
     }
@@ -1501,21 +1528,21 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
                 delete item;
         }
 
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
         return;
     }
 
     if (currentAction == actDelAll)
     {
         lb->clear();
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
         return;
     }
 
     if (currentAction == actConvToStart)
     {
         eli->setEventType(EventListItem::start);
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
 
         return;
     }
@@ -1523,21 +1550,21 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
     if (currentAction == actConvToStop)
     {
         eli->setEventType(EventListItem::stop);
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
         return;
     }
 
     if (currentAction == actConvToCpt)
     {
         eli->setEventType(EventListItem::chapter);
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
         return;
     }
 
     if (currentAction == actConvToBmk)
     {
         eli->setEventType(EventListItem::bookmark);
-        update_quick_picture_lookup_table();
+        updateQuickPictureLookupTable();
         return;
     }
 
@@ -1546,7 +1573,7 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
         if (imgp)
             delete imgp;
         imgp=new differenceimageprovider(*mpg,eli->getpicture(),new tvclipperbusy(this),false,viewscalefactor);
-        updateimagedisplay();
+        updateImageDisplay();
         ui->viewNormalAction->setChecked(false);
         ui->viewUnscaledAction->setChecked(false);
         ui->viewDifferenceAction->setChecked(true);
@@ -1578,7 +1605,7 @@ void tvclipper::eventlistcontextmenu(const QPoint &point)
 
         if (cmptype!=EventListItem::bookmark)
         {
-            update_quick_picture_lookup_table();
+            updateQuickPictureLookupTable();
         }
     }
 
@@ -1604,7 +1631,7 @@ void tvclipper::clickedgo()
     }
     // ui->goinput->clear();
 
-    ui->imagedisplay->setFocus();
+    ui->imageDisplay->setFocus();
 
 }
 
@@ -1622,8 +1649,8 @@ void tvclipper::clickedgo2()
         outpic=text.toInt(&okay,0);
     if (okay && !quick_picture_lookup.empty()) {
         // find the entry in the quick_picture_lookup table that corresponds to given output picture
-        quick_picture_lookup_t::iterator it=
-                std::upper_bound(quick_picture_lookup.begin(),quick_picture_lookup.end(),outpic,quick_picture_lookup_s::cmp_outpicture());
+        quickPictureLookup_t::iterator it=
+                std::upper_bound(quick_picture_lookup.begin(),quick_picture_lookup.end(),outpic,quickPictureLookup_s::cmp_outpicture());
         inpic=outpic-it->outpicture+it->stoppicture;
         fine=true;
         ui->linslider->setValue(inpic);
@@ -1631,7 +1658,7 @@ void tvclipper::clickedgo2()
     }
     // ui->goinput2->clear();
 
-    ui->imagedisplay->setFocus();
+    ui->imageDisplay->setFocus();
 }
 
 void tvclipper::mplayer_exited()
@@ -1676,7 +1703,7 @@ void tvclipper::mplayer_exited()
     ui->chapterSnapshotsSaveAction->setEnabled(true);
     ui->fileExportAction->setEnabled(true);
 
-    ui->imagedisplay->releaseKeyboard();
+    ui->imageDisplay->releaseKeyboard();
 
     int cp=curpic;
     jogmiddlepic=curpic;
@@ -1741,16 +1768,34 @@ void tvclipper::mplayer_readstdout()
     ui->linslider->setValue(cp);
 }
 
-void tvclipper::updateimagedisplay()
+int tvclipper::getRequireImageHeight() {
+    QRect mainSpace = ui->mainImageLayout->contentsRect();
+    QRect belowSpace1 = ui->controlingLayout->contentsRect();
+    QRect belowSpace2 = ui->infoLayout->contentsRect();
+    double reqHeight = mainSpace.height() - belowSpace1.height() - belowSpace2.height() - 20;
+    double reqWidth = mainSpace.width();
+    double scaleFactor = static_cast<double>(ui->imageDisplay->sizeHint().width()) / static_cast<double>(ui->imageDisplay->sizeHint().height());
+    double calculatedHeight =  reqWidth / scaleFactor - 2;
+    if (calculatedHeight < reqHeight)
+        reqHeight = calculatedHeight;
+
+    return static_cast<int>(reqHeight + 0.5);
+}
+
+void tvclipper::updateImageDisplay()
 {
-    if (showimage) {
-        if (!imgp)
-            imgp=new imageprovider(*mpg,new tvclipperbusy(this),false,viewscalefactor);
-        QImage px=imgp->getimage(curpic,fine);
-        ui->imagedisplay->setMinimumSize(px.size());
-        ui->imagedisplay->setPixmap(QPixmap::fromImage(px));
-        qApp->processEvents();
+    if (!showimage) {
+        return;
     }
+
+    if (!imgp)
+        imgp=new imageprovider(*mpg,new tvclipperbusy(this),false,viewscalefactor);
+    QImage px=imgp->getimage(curpic,fine);
+    //ui->imageDisplay->setMinimumSize(px.size());
+    ui->imageDisplay->setPixmap(QPixmap::fromImage(px));
+    qApp->processEvents();
+
+    return;
 }
 
 void tvclipper::audiotrackchosen(QAction *action)
@@ -1785,7 +1830,6 @@ void tvclipper::loadrecentfile(QAction *action)
 
 void tvclipper::getFilesToOpen(std::list<std::string> &filenames)
 {
-
     QStringList fn = QFileDialog::getOpenFileNames(ui->tvclipperWidget,
                                                    QString("Open files..."),
                                                    settings()->lastdir,
@@ -1793,12 +1837,11 @@ void tvclipper::getFilesToOpen(std::list<std::string> &filenames)
                                                    NULL,
                                                    NULL);
     if (fn.empty()) {
-        //      fprintf(stderr,"open(): QFileDialog::getOpenFileNames() returned EMPTY filelist!!!\n");
-        //      fprintf(stderr,"        If you didn't saw a FileDialog, please check your 'lastdir' settings variable...");
         return;
     }
-    for (QStringList::const_iterator it = fn.begin(); it != fn.end(); ++it)
+    for (QStringList::const_iterator it = fn.begin(); it != fn.end(); ++it) {
         filenames.push_back(it->toStdString());
+    }
 
     // remember last directory if requested
     if (settings()->lastdir_update) {
@@ -1821,19 +1864,26 @@ QString tvclipper::getIdxFileName(QString idxfilename, QString mpgFilename)
 
     QUrl u = QUrl::fromLocalFile(idxfilename);
     QString relname = u.toString(); // for file://file-path // u.path(); // for just file path
-    QString s = QFileDialog::getSaveFileName(ui->tvclipperWidget,
-                                             QString("Choose the name of the index file"),
-                                             relname,
-                                             settings()->idxfilter,
-                                             NULL,
-                                             NULL);
+    QFileDialog fDialog(ui->tvclipperWidget, QString("Choose the name of the index file"), QFileInfo(relname).absoluteDir().absolutePath(), settings()->idxfilter);
+    fDialog.setFileMode(QFileDialog::AnyFile);
+    fDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    fDialog.selectUrl(u);
+    QGridLayout *dlgLayout = dynamic_cast<QGridLayout*>(fDialog.layout());
+    QLabel infoLabel(dlgLayout->widget());
+    infoLabel.setText(QString("Indexing file will be created if it doesn't exists."));
+    dlgLayout->addWidget(&infoLabel, dlgLayout->rowCount(), 0, 1, 0);
+
+
+    int dlgResult = fDialog.exec();
+    if (dlgResult == QDialog::Rejected)
+        return QString();
+    QString s = fDialog.selectedFiles().front();
     if (s.isEmpty()) {
         if (mpg) {
             delete mpg;
             mpg = 0;
         }
         ui->fileOpenAction->setEnabled(true);
-        return QString();
     }
 
     return s;
@@ -1881,7 +1931,7 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
     ui->viewDifferenceAction->setEnabled(afterOpening);
 
     ui->eventlist->setEnabled(afterOpening);
-    ui->imagedisplay->setEnabled(afterOpening);
+    ui->imageDisplay->setEnabled(afterOpening);
     ui->pictimelabel->setEnabled(afterOpening);
     ui->pictimelabel2->setEnabled(afterOpening);
     ui->picinfolabel->setEnabled(afterOpening);
@@ -1920,7 +1970,11 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
             currentaudiotrack=-1;
         }
 
-        ui->imagedisplay->setFocus(Qt::OtherFocusReason);
+        ui->imageDisplay->setFocus(Qt::OtherFocusReason);
+        ui->picinfolabel->setMinimumSize(ui->picinfolabel->sizeHint());
+        ui->picinfolabel2->setMinimumSize(ui->picinfolabel2->sizeHint());
+        ui->pictimelabel->setMinimumSize(ui->pictimelabel->sizeHint());
+        ui->pictimelabel2->setMinimumSize(ui->pictimelabel2->sizeHint());
     } else {
         ui->playStopAction->setEnabled(false);
         ui->viewNormalAction->setChecked(true);
@@ -1929,9 +1983,9 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
 
         audiotrackpopup->clear();
         ui->eventlist->clear();
-        ui->imagedisplay->setBackgroundRole(QPalette::Window);
-        ui->imagedisplay->setMinimumSize(QSize(0,0));
-        ui->imagedisplay->setPixmap(QPixmap());
+        ui->imageDisplay->setBackgroundRole(QPalette::Window);
+        ui->imageDisplay->setMinimumSize(QSize(0,0));
+        ui->imageDisplay->setPixmap(QPixmap());
         ui->pictimelabel->clear();
         ui->pictimelabel2->clear();
         ui->picinfolabel->clear();
@@ -2142,7 +2196,7 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
     if (settings()->jog_interval > 0 && settings()->jog_interval <= 100000)
         ui->jogslider->setTickInterval(int(100000/settings()->jog_interval));
 
-    ui->imagedisplay->setBackgroundRole(QPalette::NoRole);
+    ui->imageDisplay->setBackgroundRole(QPalette::NoRole);
     curpic = 1;
     showimage = true;
     fine=false;
@@ -2151,8 +2205,12 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
     imgp=new imageprovider(*mpg,new tvclipperbusy(this),false,viewscalefactor);
 
     {
-        EventListItem *eli=new EventListItem(QPixmap::fromImage(imgp->getimage(0)), 0,EventListItem::start, 9999999, 2, 0);
-        ui->eventlist->setMinimumWidth(eli->sizeHint().width());
+        QImage initImage = imgp->getimage(0);
+        originalImageHeight = initImage.height();
+
+        EventListItem *eli = new EventListItem(QPixmap::fromImage(initImage), 0,EventListItem::start, 9999999, 2, 0);
+        // ui->eventlist->setMinimumWidth(eli->sizeHint().width());
+        ui->eventlist->setFixedWidth(eli->sizeHint().width());
         delete eli;
     }
 
@@ -2174,7 +2232,7 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
         }
     }
 
-    update_quick_picture_lookup_table();
+    updateQuickPictureLookupTable();
 
     setUiForOpeningFile(true);
 
@@ -2201,30 +2259,31 @@ void tvclipper::addtorecentfiles(const std::list<std::string> &filenames, const 
         settings()->recentfiles.pop_back();
 }
 
-void tvclipper::setviewscalefactor(double factor)
+
+
+void tvclipper::setViewScaleFactor(int requireHeight)
 {
+    double scaleFactor = static_cast<double>(originalImageHeight) / static_cast<double>(requireHeight);
+    setViewScaleFactor(scaleFactor);
+}
 
+void tvclipper::setViewScaleFactor(double factor)
+{
+    if (factor == viewscalefactor)
+        return;
+    if (!imgp)
+        return;
 
-    if (factor<=0.0)
-        factor=1.0;
-    ui->viewFullSizeAction->setChecked(factor==1.0);
-    ui->viewHalfSizeAction->setChecked(factor==2.0);
-    ui->viewQuarterSizeAction->setChecked(factor==4.0);
-    ui->viewCustomSizeAction->setChecked(factor==settings()->viewscalefactor_custom);
-
+    if (factor <= 0.0)
+        factor = 1.0;
 
     settings()->viewscalefactor = factor;
 
+    viewscalefactor = factor;
+    imgp->setviewscalefactor(factor);
+    updateImageDisplay();
 
-    if (factor!=viewscalefactor) {
-        viewscalefactor=factor;
-        if (imgp) {
-            imgp->setviewscalefactor(factor);
-            updateimagedisplay();
-        }
-    }
-
-
+    return;
 }
 
 void tvclipper::keyReleaseEvent() {
@@ -2252,14 +2311,27 @@ void tvclipper::keyPressEvent(QKeyEvent *keyEvent) {
     }
 
     if (keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
-        int delta = settings()->wheel_delta;
+        /*if (keyEvent->modifiers() & Qt::ControlModifier) {
+            //delta = settings()->wheel_increments[WHEEL_INCR_CTRL];
+            int step = ui->jogslider->singleStep();
 
+            if (keyEvent->key() == Qt::Key_Left)
+                step = -step;
+
+            jogslidervalue(step);
+            jogsliderreleased();
+            return;
+        }*/
+
+        int delta = settings()->wheel_increments[WHEEL_INCR_NORMAL];
         if (keyEvent->modifiers() & Qt::ShiftModifier)
-            delta *= (WHEEL_INCR_SHIFT + 1);
-        if (keyEvent->modifiers() & Qt::ControlModifier)
-            delta *= (WHEEL_INCR_CTRL + 1);
+            delta = settings()->wheel_increments[WHEEL_INCR_SHIFT];
         if (keyEvent->modifiers() & Qt::AltModifier)
-            delta *= (WHEEL_INCR_ALT + 1);
+            delta = settings()->wheel_increments[WHEEL_INCR_ALT];
+        if (keyEvent->modifiers() & Qt::ControlModifier) {
+            delta = settings()->wheel_increments[WHEEL_INCR_CTRL];
+            fine = true; // for linslider precise movement -> see tvclipper::linslidervalue(int)
+        }
 
         if (keyEvent->key() == Qt::Key_Left)
             delta = -delta;
@@ -2285,7 +2357,7 @@ void tvclipper::wheelEvent(QWheelEvent *wEvent) {
     if (ui->eventlist->rect().contains(wEvent->pos()))
         return;
 
-    ui->linslider->setValue(curpic + wEvent->delta());
+    ui->linslider->setValue(curpic + (settings()->wheel_delta * wEvent->delta())); //wEvent->delta());
 
     return;
 }
@@ -2297,14 +2369,14 @@ bool tvclipper::eventFilter(QObject *, QEvent *e) {
     }
 
     if (e->type() == QEvent::Wheel) {
-        QWheelEvent *wEvent = static_cast<QWheelEvent *>(e);
+        QWheelEvent *wEvent = dynamic_cast<QWheelEvent *>(e);
         wheelEvent(wEvent);
         wEvent->accept();
         return true;
     }
 
     if (e->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
+        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(e);
         keyPressEvent(keyEvent);
         keyEvent->accept();
         return true;
@@ -2377,45 +2449,39 @@ inline static QString timestr(pts_t pts)
                              int(pts/90)%1000);
 }
 
-void tvclipper::update_time_display()
+void tvclipper::updateTimeDisplay()
 {
-    const mpgIndex::picture &idx=(*mpg)[curpic];
-    const pts_t pts=idx.getpts()-firstpts;
-    const char *AR[]={"forbidden","1:1","4:3","16:9","2.21:1","reserved"};
-    const char *FR[]={"forbidden","23.976","24","25","29.97","30","50","59.94","60","reserved"};
+    const mpgIndex::picture &idx = (*mpg)[curpic];
+    const pts_t pts = idx.getpts() - firstpts;
+    const char *AR[] = { "forbidden", "1:1", "4:3", "16:9", "2.21:1", "reserved" };
+    const char *FR[] = { "forbidden", "23.976", "24", "25", "29.97", "30", "50", "59.94", "60", "reserved" };
 
-    int outpic=0;
-    pts_t outpts=0;
+    int outpic = 0;
+    pts_t outpts = 0;
     QChar mark = ' ';
 
     // find the entry in the quick_picture_lookup table that corresponds to curpic
-    quick_picture_lookup_t::iterator it=
-            std::upper_bound(quick_picture_lookup.begin(),quick_picture_lookup.end(),curpic,quick_picture_lookup_s::cmp_picture());
+    quickPictureLookup_t::iterator it =
+            std::upper_bound(quick_picture_lookup.begin(),quick_picture_lookup.end(),curpic,quickPictureLookup_s::cmp_picture());
 
-    if (it!=quick_picture_lookup.begin())
+    if (it != quick_picture_lookup.begin())
     {
         // curpic is not before the first entry of the table
         --it;
-        if (curpic < it->stoppicture)
-        {
+        if (curpic < it->stoppicture) {
             // curpic is between (START and STOP[ pics of the current entry
-            outpic=curpic-it->stoppicture+it->outpicture;
-            outpts=pts-it->stoppts+it->outpts;
+            outpic = curpic - it->stoppicture + it->outpicture;
+            outpts = pts - it->stoppts+it->outpts;
             mark = '*';
-        }
-        else
-        {
+        } else {
             // curpic is after the STOP-1 pic of the current entry
-            outpic=it->outpicture;
-            outpts=it->outpts;
+            outpic = it->outpicture;
+            outpts = it->outpts;
         }
     }
 
-    QString curtime =
-            QString(QChar(IDX_PICTYPE[idx.getpicturetype()]))
-            + " " + timestr(pts);
-    QString outtime =
-            QString(mark) + " " + timestr(outpts);
+    QString curtime = QString(QChar(IDX_PICTYPE[idx.getpicturetype()])) + " " + timestr(pts);
+    QString outtime = QString(mark) + " " + timestr(outpts);
     ui->pictimelabel->setText(curtime);
     ui->pictimelabel2->setText(outtime);
     ui->goinput->setText(QString::number(curpic));
@@ -2424,21 +2490,18 @@ void tvclipper::update_time_display()
     int res=idx.getresolution();	// are found video resolutions stored in index?
     if (res) {
         // new index with resolution bits set and lookup table at the end
-        ui->picinfolabel->setText(QString::number(mpg->getwidth(res)) + "x"
-                                  + QString::number(mpg->getheight(res)));
+        ui->picinfolabel->setText(QString::number(mpg->getwidth(res)) + "x" + QString::number(mpg->getheight(res)));
     } else {
         // in case of an old index file type (or if we don't want to change the index format/encoding?)
         // ==> get info directly from each image (which could be somewhat slower?!?)
         QImage p = imageprovider(*mpg, new tvclipperbusy(this), true).getimage(curpic,false);
-        ui->picinfolabel->setText(QString::number(p.width()) + "x"
-                                  + QString::number(p.height()));
+        ui->picinfolabel->setText(QString::number(p.width()) + "x" + QString::number(p.height()));
     }
-    ui->picinfolabel2->setText(QString(FR[idx.getframerate()]) + "fps, "
-            + QString(AR[idx.getaspectratio()]));
-
+    ui->picinfolabel2->setText(QString(FR[idx.getframerate()]) + "fps, " + QString(AR[idx.getaspectratio()]));
+    return;
 }
 
-void tvclipper::update_quick_picture_lookup_table() {
+void tvclipper::updateQuickPictureLookupTable() {
     // that's the (only) place where the event list should be scanned for
     // the exported pictures ranges, i.e. for START/STOP/CHAPTER markers!
     quick_picture_lookup.clear();
@@ -2464,50 +2527,48 @@ void tvclipper::update_quick_picture_lookup_table() {
         startpts=0;
     }
 
-    {
-        QListWidgetItem *item;
-        for (int i = 0; (i < ui->eventlist->count()); i++) {
-            item = ui->eventlist->item(i);
+    for (int i = 0; (i < ui->eventlist->count()); i++) {
+        const EventListItem *item = dynamic_cast<const EventListItem*>(ui->eventlist->item(i));
 
-            if (typeid(*item) == typeid(EventListItem)) {
-                const EventListItem &eli = *static_cast<const EventListItem*>(item);
-                switch (eli.geteventtype()) {
-                case EventListItem::start:
-                    if (startpic < 0 || (start_bof && startpic == 0 && !realzero)) {
-                        startpic = eli.getpicture();
-                        startpts = eli.getpts();
-                        if (startpic==0)
-                            realzero=true;
-                        // did we have a chapter in the eventlist directly before?
-                        if (lastchapter == startpic)
-                            chapterlist.push_back(outpts);
-                    }
-                    break;
+        if (item == NULL)
+            continue;
 
-                case EventListItem::stop:
-                    if (startpic >= 0) {
-                        stoppic = eli.getpicture();
-                        stoppts = eli.getpts();
-                        outpics += stoppic - startpic;
-                        outpts += stoppts - startpts;
-
-                        quick_picture_lookup.push_back(quick_picture_lookup_s(startpic, startpts, stoppic, stoppts, outpics, outpts));
-
-                        startpic = -1;
-                    }
-                    break;
-
-                case EventListItem::chapter:
-                    lastchapter = eli.getpicture();
-                    if (startpic >= 0)
-                        chapterlist.push_back(eli.getpts() - startpts + outpts);
-                    break;
-
-                default:
-                    break;
+        switch (item->geteventtype()) {
+            case EventListItem::start:
+                if (startpic < 0 || (start_bof && startpic == 0 && !realzero)) {
+                    startpic = item->getpicture();
+                    startpts = item->getpts();
+                    if (startpic==0)
+                        realzero=true;
+                    // did we have a chapter in the eventlist directly before?
+                    if (lastchapter == startpic)
+                        chapterlist.push_back(outpts);
                 }
-            }
+                break;
+
+            case EventListItem::stop:
+                if (startpic >= 0) {
+                    stoppic = item->getpicture();
+                    stoppts = item->getpts();
+                    outpics += stoppic - startpic;
+                    outpts += stoppts - startpts;
+
+                    quick_picture_lookup.push_back(quickPictureLookup_s(startpic, startpts, stoppic, stoppts, outpics, outpts));
+
+                    startpic = -1;
+                }
+                break;
+
+            case EventListItem::chapter:
+                lastchapter = item->getpicture();
+                if (startpic >= 0)
+                    chapterlist.push_back(item->getpts() - startpts + outpts);
+                break;
+
+            default:
+                break;
         }
+
     }
 
     // last item in list was a (real or virtual) START
@@ -2518,19 +2579,86 @@ void tvclipper::update_quick_picture_lookup_table() {
         outpics+=stoppic-startpic;
         outpts+=stoppts-startpts;
 
-        quick_picture_lookup.push_back(quick_picture_lookup_s(startpic,startpts,stoppic,stoppts,outpics,outpts));
+        quick_picture_lookup.push_back(quickPictureLookup_s(startpic,startpts,stoppic,stoppts,outpics,outpts));
     }
 
-    update_time_display();
+    updateTimeDisplay();
+}
+
+void tvclipper::dragEnterEvent(QDragEnterEvent *event) {
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->accept();
+}
+
+void tvclipper::dragLeaveEvent(QDragLeaveEvent *event) {
+    event->accept();
+}
+
+void tvclipper::dragMoveEvent(QDragMoveEvent *event) {
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->accept();
+}
+
+void tvclipper::dropEvent(QDropEvent *event) {
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    QList<QUrl> urls = event->mimeData()->urls();
+    std::list<std::string> filenames;
+
+    for (QList<QUrl>::const_iterator it = urls.begin(); it != urls.end(); it++) {
+         filenames.push_back(it->path().toStdString());
+    }
+    open(filenames);
+
+    event->accept();
+    return;
+}
+
+void tvclipper::resizeEvent(QResizeEvent *event)
+{
+    if (!ui->viewAdaptSizeAction->isChecked()) {
+        event->ignore();
+        return;
+    }
+
+    setViewScaleFactor(getRequireImageHeight());
+    event->accept();
+    return;
 }
 
 void tvclipper::helpAboutAction_activated()
 {
     QMessageBox::about(this, tr(PROGRAM_NAME),
-                       tr("<head></head><body><span style=\"font-family: Helvetica,Arial,sans-serif;\">"
+                       tr("<!DOCTYPE HTML><html><head></head><body><span style=\"font-family: Helvetica,Arial,sans-serif;\">"
                           "<p>%1</p>"
-                          "eMail: <a href=\"mailto:lukas.vlcek777@gmail.com\">"
-                          "lukas.vlcek777@gmail.com</a></p>"
+                          "<p>Copyright &copy; 2015 Lukáš Vlček<br/>"
+                          "eMail: <a href=\"mailto:lukas.vlcek777@gmail.com\">lukas.vlcek777@gmail.com</a></p>"
+                          "<p>This file is part of %2.</p>"
+                          "%3 is free software: you can redistribute it and/or modify "
+                          "it under the terms of the GNU General Public License as published by "
+                          "the Free Software Foundation, either version 3 of the License, or "
+                          "(at your option) any later version.</p>"
+                          "Foobar is distributed in the hope that it will be useful, "
+                          "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+                          "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the "
+                          "GNU General Public License for more details.</p>"
+                          "<p>You should have received a copy of the GNU General Public License "
+                          "along with Foobar. If not, see "
+                          "<a href=\"http://www.gnu.org/licenses/\">http://www.gnu.org/licenses/</a>.</p>"
+                          "<p>TV Clipper is based on dvbcut Version 0.6.1-18.svn179</p>"
+
+                          "<br/><p>Information of dvbcut</p>"
+                          "<p>dvbcut Version 0.6.1-18.svn179</p>"
+                          "eMail: <a href=\"mailto:dvbcut-user@lists.sourceforge.net?subject=Comment%20about%20dvbcut\">"
+                          "dvbcut-user@lists.sourceforge.net</a></p>"
                           "<p>This program is free software; you can redistribute it and/or "
                           "modify it under the terms of the GNU General Public License as "
                           "published by the Free Software Foundation; either version 2 of "
@@ -2542,73 +2670,24 @@ void tvclipper::helpAboutAction_activated()
                           "<p>You should have received a copy of the GNU General Public License along "
                           "with this program; if not, see "
                           "<a href=\"http://www.gnu.org/licenses/\">http://www.gnu.org/licenses/</a>.</p>"
-                          "</span></body></html>").arg(VERSION_STRING));
+
+                          "</body></html>").arg(VERSION_STRING, PROGRAM_NAME, PROGRAM_NAME));
 }
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QDialog>
-#include <QTextBrowser>
-#include <QPushButton>
-
-class helpDialog : public QDialog {
-public:
-    helpDialog(QWidget *parent, const char *name, QString file)
-        : QDialog(parent)
-    {
-        this->setAccessibleName(name);
-        vbox = new QVBoxLayout(this);
-        vbox->setGeometry(QRect(0, 0, 640, 480));
-        viewer = new QTextBrowser(this);
-        hbox = new QHBoxLayout(this);
-        prev = new QPushButton(tr("Prev"), this);
-        next = new QPushButton(tr("Next"), this);
-        home = new QPushButton(tr("Home"), this);
-        close = new QPushButton(tr("Close"), this);
-        close->setDefault(true);
-        connect(prev, SIGNAL(clicked()), viewer, SLOT(backward()));
-        connect(viewer, SIGNAL(backwardAvailable(bool)), prev, SLOT(setEnabled(bool)));
-        connect(next, SIGNAL(clicked()), viewer, SLOT(forward()));
-        connect(viewer, SIGNAL(forwardAvailable(bool)), next, SLOT(setEnabled(bool)));
-        connect(home, SIGNAL(clicked()), viewer, SLOT(home()));
-        connect(close, SIGNAL(clicked()), this, SLOT(accept()));
-        viewer->setSource(file);
-        setWindowTitle(tr("tvclipper help"));
-        show();
-    }
-    virtual ~helpDialog() {
-        delete prev;
-        delete next;
-        delete home;
-        delete close;
-        delete hbox;
-        delete viewer;
-        delete vbox;
-    }
-private:
-    QVBoxLayout *vbox;
-    QHBoxLayout *hbox;
-    QTextBrowser *viewer;
-    QPushButton *prev, *next, *home, *close;
-};
 
 void tvclipper::helpContentAction_activated()
 {
-    QDir appDir(qApp->applicationDirPath());
-    // first search in the directory containing tvclipper
-    QString helpFile = appDir.absolutePath() + "/tvclipper_en.html";
-#ifndef __WIN32__
-    // Unix/Linux: search in the associated share subdirectory
-    if (!QFile::exists(helpFile)) {
-        QString dirPath = appDir.absolutePath();
-        helpFile = dirPath.remove(appDir.dirName()) + "/share/tvclipper/tvclipper_en.html";
-    }
+// DOCDIR macro is defined with qmake in Makefile before compilation
+#ifdef DOCDIR
+    QString helpFile = DOCDIR "/tvclipper_en.html";
+#else
+    QString helpFile = "doc/tvclipper_en.html";
 #endif
+
+    QFileInfo fInfo(qApp->applicationDirPath() + "/" + helpFile);
+    helpFile = fInfo.canonicalFilePath();
     if (QFile::exists(helpFile)) {
-        helpDialog dlg(this, "helpDialog", helpFile);
-        dlg.exec();
-    }
-    else {
+        QDesktopServices::openUrl(QUrl(helpFile));
+    } else {
         QMessageBox::information(this, tr(PROGRAM_NAME),
                                  tr("Help file %1 not available").arg(helpFile));
     }

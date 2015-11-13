@@ -1,0 +1,74 @@
+tvclipper
+Copyright (c) 2015 Lukáš Vlček
+
+This file is part of TV Clipper.
+
+TV Clipper is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TV Clipper is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+
+------------------------------------------------------------------
+
+TV Clipper INSTALL
+
+In order to compile TV Clipper, you need to have the following libraries
+installed (if they aren't installed in the operating system):
+
+qmake for Qt5
+make
+gcc
+g++
+libqt5core-devel
+libqt5gui-devel
+libqt5widgets-devel
+pkg-config
+ffmpeg-devel (required: libavcodec, libavformat, libavdevice, libavutil, libswscale)
+ffmpeg (shared or static libraries)
+libmad-devel > 0.15.0
+a52dec-devel >= 0.7.3
+libao-devel (optional, for sound output)
+
+
+If you have MPlayer installed on your machine (and it is accessible as
+"mplayer"), you can play the videos inside TV Clipper.
+
+How to compile TV Clipper:
+
+* Unpack the TV Clipper source archive and enter the directory with name "tvclipper/build-tvclipper-Release".
+* For making Makefile and building application type this command:
+  `qmake -qt=5 ../tvclipper/tvclipper.pro -r -spec linux-g++ && make'
+
+If everything works well, you will find the TV Clipper directories in the build subdirectory.
+To install it, type:
+  `make install' (as root).
+
+
+* Note:
+
+Application will be installed to /opt/tvclipper and necessary system files will be installed to /usr/share.
+You can to specify own full or relative paths. Edit file tvclipper/tvclipper/variable.pri or entered the variables like parameters for qmake application.
+Example:
+  qmake ../tvclipper/tvclipper.pro -r -spec linux-g++ PREFIX="/usr" SYSSHARE_PREFIX="/usr" BINDIR="bin"\
+      SHAREDIR="share/tvclipper" SYSSHARE_PREFIX="/usr" SYSSHAREDIR="share" DOCDIR="doc/tvclipper"\
+      ICONDIR="icons" MANDIR="man/man1" APPLICATIONSDIR="applications"\
+      SERVICEMENUDIR="kde4/services/ServiceMenus" PATH_TO_APP_SCALABLE_ICONS="hicolor/scalable/apps"
+
+      
+Requirements for running TV Clipper:
+Qt, version 5 (required libraries: libQt5Core, libQt5Gui, libQt5Widgets)
+libGL
+FFmpeg (only if the application is linked with the shared libraries;
+        required libraries: libavcodec, libavformat, libavdevice, libavutil, libswscale)
+libmad
+liba52
+libao (optional, for sound output)
+oxygen-icon-theme (or package with 'document-export.png' icon, optional)

@@ -1,3 +1,22 @@
+/*  tvclipper
+    Copyright (c) 2015 Lukáš Vlček
+
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TV Clipper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "listitemdelegate.h"
 
 #include <QTextDocument>
@@ -64,19 +83,48 @@ QSize ListItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
 
 QString ListItemDelegate::getHtmlWithColours(QString text, const bool highlighted, const bool isFocusedList) const
 {
+    QString startColor, stopColor, chapterColor, bookmarkColor, textColor;
+    bool customColors = settings()->customColors;
+
     QString colouredText = text;
     if (highlighted && isFocusedList) {
-        colouredText = colouredText.replace(QString(START_COLOUR_MASK), getColourName(DEFAULT_HIGHLIGHT_START_COLOUR));
-        colouredText = colouredText.replace(QString(STOP_COLOUR_MASK), getColourName(DEFAULT_HIGHLIGHT_STOP_COLOUR));
-        colouredText = colouredText.replace(QString(CHAPTER_COLOUR_MASK), getColourName(DEFAULT_HIGHLIGHT_CHAPTER_COLOUR));
-        colouredText = colouredText.replace(QString(BOOKMARK_COLOUR_MASK), getColourName(DEFAULT_HIGHLIGHT_BOOKMARK_COLOUR));
-        colouredText = colouredText.replace(QString(NORMAL_TEXT_COLOUR_MASK), getColourName(DEFAULT_HIGHLIGHT_TEXT_COLOUR));
+        if (customColors) {
+            startColor = settings()->colorStartHighlight;
+            stopColor = settings()->colorStopHighlight;
+            chapterColor = settings()->colorChapterHighlight;
+            bookmarkColor = settings()->colorBookmarkHighlight;
+            textColor = settings()->colorTextHighlight;
+        } else {
+            startColor = getColourName(DEFAULT_HIGHLIGHT_START_COLOUR);
+            stopColor = getColourName(DEFAULT_HIGHLIGHT_STOP_COLOUR);
+            chapterColor = getColourName(DEFAULT_HIGHLIGHT_CHAPTER_COLOUR);
+            bookmarkColor = getColourName(DEFAULT_HIGHLIGHT_BOOKMARK_COLOUR);
+            textColor = getColourName(DEFAULT_HIGHLIGHT_TEXT_COLOUR);
+        }
+        colouredText = colouredText.replace(QString(START_COLOUR_MASK), startColor);
+        colouredText = colouredText.replace(QString(STOP_COLOUR_MASK), stopColor);
+        colouredText = colouredText.replace(QString(CHAPTER_COLOUR_MASK), chapterColor);
+        colouredText = colouredText.replace(QString(BOOKMARK_COLOUR_MASK), bookmarkColor);
+        colouredText = colouredText.replace(QString(NORMAL_TEXT_COLOUR_MASK), textColor);
     } else {
-        colouredText = colouredText.replace(QString(START_COLOUR_MASK), getColourName(DEFAULT_NORMAL_START_COLOUR));
-        colouredText = colouredText.replace(QString(STOP_COLOUR_MASK), getColourName(DEFAULT_NORMAL_STOP_COLOUR));
-        colouredText = colouredText.replace(QString(CHAPTER_COLOUR_MASK), getColourName(DEFAULT_NORMAL_CHAPTER_COLOUR));
-        colouredText = colouredText.replace(QString(BOOKMARK_COLOUR_MASK), getColourName(DEFAULT_NORMAL_BOOKMARK_COLOUR));
-        colouredText = colouredText.replace(QString(NORMAL_TEXT_COLOUR_MASK), getColourName(DEFAULT_NORMAL_TEXT_COLOUR));
+        if (customColors) {
+            startColor = settings()->colorStartNormal;
+            stopColor = settings()->colorStopNormal;
+            chapterColor = settings()->colorChapterNormal;
+            bookmarkColor = settings()->colorBookmarkNormal;
+            textColor = settings()->colorTextNormal;
+        } else {
+            startColor = getColourName(DEFAULT_NORMAL_START_COLOUR);
+            stopColor = getColourName(DEFAULT_NORMAL_STOP_COLOUR);
+            chapterColor = getColourName(DEFAULT_NORMAL_CHAPTER_COLOUR);
+            bookmarkColor = getColourName(DEFAULT_NORMAL_BOOKMARK_COLOUR);
+            textColor = getColourName(DEFAULT_NORMAL_TEXT_COLOUR);
+        }
+        colouredText = colouredText.replace(QString(START_COLOUR_MASK), startColor);
+        colouredText = colouredText.replace(QString(STOP_COLOUR_MASK), stopColor);
+        colouredText = colouredText.replace(QString(CHAPTER_COLOUR_MASK), chapterColor);
+        colouredText = colouredText.replace(QString(BOOKMARK_COLOUR_MASK), bookmarkColor);
+        colouredText = colouredText.replace(QString(NORMAL_TEXT_COLOUR_MASK), textColor);
     }
 
     return colouredText;

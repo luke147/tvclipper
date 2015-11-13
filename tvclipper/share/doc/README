@@ -1,0 +1,61 @@
+tvclipper
+Copyright (c) 2015 Lukáš Vlček
+
+This file is part of TV Clipper.
+
+TV Clipper is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TV Clipper is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+
+---------------------------------------------------------------------------
+
+Author: Lukáš Vlček
+E-mail: lukas.vlcek777@gmail.com
+
+---------------------------------------------------------------------------
+
+TV Clipper 0.7 alpha
+
+See the file "COPYING" for license issues. See the file "INSTALL" file for
+installation instructions.
+
+TV Clipper is a Qt application which enables you to select certain parts of an
+MPEG transport stream (as received on Digital Video Broadcasting, DVB) and
+save these parts into a single MPEG output file. It follows a "keyhole
+surgery" approach. Thus, the input video and audio data is mostly kept
+unchanged, only very few frames at the beginning and/or end of the selected
+range are recoded in order to obtain a valid MPEG file.
+
+TV Clipper needs to create index information on an MPEG file first. Therefore,
+when loading an MPEG transport stream file, it also asks you for a filename
+of an index file. If you choose an existing file, it is loaded and used as
+index if suitable. (That means, that TV Clipper performs some sanity checks on
+the index itself and also checks if the index describes the chosen MPEG
+file.) If you select a file which does not yet exist, TV Clipper creates the
+necessary index in place.
+
+After opening the MPEG file, you can navigate through the video by means of
+a linear and a log scale slider. While the first represents the whole video,
+the latter enables you to precisely select frames close to the current frame.
+At any place in the video, you can add START, STOP, CHAPTER and BOOKMARK
+markers. Markers are shown in the list on the left. With the START and STOP
+markers you determine what parts of the video you want to write to a new
+file. TV Clipper starts at the first START marker and proceeds until it
+encounters a STOP marker. If there are more START markers after that STOP,
+it will continue at the next START marker, and so on. Every START marker,
+which follows a START with no STOP inbetween, is meaningless. So is a STOP
+marker before the first START or after another STOP (with no START
+inbetween).
+
+TV Clipper is based on dvbcut 0.6.1-18 svn179 with patches for fedora 22.
+
+TV Clipper has got support only for Linux.

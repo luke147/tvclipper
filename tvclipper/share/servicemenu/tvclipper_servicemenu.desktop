@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin,video/mpg
+MimeType=video/mpeg;video/mp2t;
+Actions=tvclipperOpenMpegStream
+ 
+[Desktop Action tvclipperOpenMpegStream]
+Type=Application
+Name=Open mpeg stream in tvclipper
+Icon=tvclipper
+Exec=tvclipper "%f"

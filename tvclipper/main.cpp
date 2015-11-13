@@ -1,4 +1,4 @@
-/*  tvclipper
+/*  dvbcut
     Copyright (c) 2005 Sven Over <svenover@svenover.de>
 
     This program is free software; you can redistribute it and/or modify
@@ -14,9 +14,25 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
 
-/* $Id: main.cpp 179 2012-05-21 07:55:16Z too-tired $ */
+ *  tvclipper
+    Copyright (c) 2015 Lukáš Vlček
+
+    This file is part of TV Clipper.
+
+    TV Clipper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TV Clipper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <cstring>
 #include <cstdlib>
@@ -39,6 +55,8 @@ extern "C" {
 #include <QApplication>
 #include <QImage>
 #include <QTextCodec>
+#include <QFileInfo>
+#include <QDir>
 
 #include "tvclipper.h"
 #include "mpgfile.h"
@@ -86,6 +104,47 @@ void usage_exit(int rv = 1) {
     fprintf(stderr,
         "Options may be abbreviated as long as they remain unambiguous.\n\n");
         exit(rv);
+}
+
+void printCopyright() {
+    printf("%s Copyright (c) %d %s\n"
+           "This program comes with ABSOLUTELY NO WARRANTY.\n"
+           "This is free software, and you are welcome to redistribute it\n"
+           "under certain conditions.\n", PROGRAM_NAME, COPYRIGHT_YEAR, AUTHOR_NAME);
+    QFileInfo appFileInfo(argv0);
+    QFileInfo copyingFileInfo(appFileInfo.absoluteDir().absolutePath() + "/" + DOCDIR + "/" + "COPYING");
+    printf("\n%s is free software: you can redistribute it and/or modify\n"
+           "it under the terms of the GNU General Public License as published by\n"
+           "the Free Software Foundation, either version 3 of the License, or\n"
+           "(at your option) any later version.\n\n"
+
+           "%s is distributed in the hope that it will be useful,\n"
+           "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+           "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n"
+           "GNU General Public License for more details.\n\n"
+
+           "You should have received a copy of the GNU General Public License\n"
+           "along with %s. If not, see <http://www.gnu.org/licenses/>.\n\n"
+
+           "For more details read file: %s\n\n"
+           "%s is based on dvbcut.\n\n"
+
+           "dvbcut\n"
+           "Copyright (c) 2005 Sven Over <svenover@svenover.de>\n\n"
+
+           "This program is free software; you can redistribute it and/or modify\n"
+           "it under the terms of the GNU General Public License as published by\n"
+           "the Free Software Foundation; either version 2 of the License, or\n"
+           "(at your option) any later version.\n\n"
+
+           "This program is distributed in the hope that it will be useful,\n"
+           "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+           "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+           "GNU General Public License for more details.\n\n"
+
+           "You should have received a copy of the GNU General Public License\n"
+           "along with this program; if not, write to the Free Software\n"
+           "Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n", PROGRAM_NAME, PROGRAM_NAME, PROGRAM_NAME, copyingFileInfo.canonicalFilePath().toStdString().c_str(), PROGRAM_NAME);
 }
 
 AppParams* readParams(int argc, char *argv[]) {
@@ -240,7 +299,7 @@ void exportInBatchMode(tvclipper *mainWin, AppParams *appParams) {
             mainWin->editConvert(action);
         } else {
             std::vector<int> piclist, prob_item, prob_pos;
-            unsigned int j;
+            unsigned int j = 0;
             size_t pos;
             for (std::vector<std::string>::const_iterator iter = appParams->cutlist.begin(); iter != appParams->cutlist.end(); iter++) {
                 if ((pos = iter->find_first_not_of("0123456789:./"))==std::string::npos) {
@@ -279,6 +338,10 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
 
     AppParams *appParams = readParams(argc, argv);
+
+    printf("%s\n", VERSION_STRING);
+    printCopyright();
+    printf("\n");
 
     /* ------------------------ sanity check --------------------------- */
     if (appParams->batchmode && appParams->generateidx)
