@@ -10,6 +10,6 @@ NoDisplay=false
 Comment=Trim and cut video MPEG2 transport streams into multiple export formats
 Categories=AudioVideo;Player;AudioVideoEditing;Qt;
 StartupWMClass=TV Clipper
-X-DocPath=/opt/tvclipper/doc/tvclipper/tvclipper_en.html
+X-DocPath=/usr/share/doc/tvclipper/tvclipper_en.html
 Exec=/opt/tvclipper/tvclipper %F
 TryExec=/opt/tvclipper/tvclipper

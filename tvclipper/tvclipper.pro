@@ -99,26 +99,22 @@ FORMS    += tvclipper.ui \
     DlgMplayerError.ui \
     DlgProgress.ui
 
-OTHER_FILES += \
+DISTFILES += \
     share/doc/tvclipper_en.html \
-    share/icons/bookmark.svgz \
-    share/icons/chapter.svgz \
-    share/icons/stop.svgz \
-    share/icons/bookmark.png \
-    share/icons/chapter.png \
-    share/icons/stop.png \
-    share/icons/tvclipper.svg \
     share/man/tvclipper.1 \
     share/servicemenu/tvclipper_servicemenu.desktop \
     share/doc/COPYING \
     share/doc/CREDITS \
     desktopMenuFile/tvclipper.desktop \
-    share/desktopMenuFile/tvclipper.desktop \
     share/doc/INSTALL \
     share/doc/README \
-    share/icons/start.png \
-    share/icons/start.svgz
-
+    share/icons/bookmark.svg \
+    share/icons/chapter.svg \
+    share/icons/start.svg \
+    share/icons/stop.svg \
+    share/icons/tvclipper.svg \
+    share/icons/video-export.svg
+# OTHER_FILES = DISTFILES
 
 # *******************************************************************************************************
 # *** variables for installation

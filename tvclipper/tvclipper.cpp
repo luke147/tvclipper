@@ -219,13 +219,15 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
 // SHAREDIR macro is defined with qmake in Makefile before compilation
 #ifdef SHAREDIR
     QFileInfo fInfo;
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/video-export.svg");
+    ui->fileExportAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start.svg");
     ui->editStartAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop.svg");
     ui->editStopAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter.svg");
     ui->editChapterAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark.svg");
     ui->editBookmarkAction->setIcon(QIcon(fInfo.canonicalFilePath()));
 #endif
 }

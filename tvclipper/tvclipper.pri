@@ -141,7 +141,7 @@ defineReplace(getShareFiles) {
     path = "$$1"
 
     filePathReExp = $$clean_path("share/$${path}/.*")
-    for(file, $$list($$OTHER_FILES)) {
+    for(file, $$list($$DISTFILES)) {
         contains(file, $$filePathReExp) {
             fileList += "$$file"
         }
@@ -155,10 +155,10 @@ defineReplace(getFileCopyCommands) {
     destPath = $$shell_path($$clean_path($$OUT_PWD/$$last(ARGS)))
 
     !exists("$$shell_path("$${_PRO_FILE_PWD_}/$$sourcePath")") {
-        # sourcePath contains sub-path in share dir from OTHER_FILES variable
+        # sourcePath contains sub-path in share dir from DISTFILES variable
         fileList = $$getShareFiles("$$sourcePath")
     } else {
-        # sourcePath is file from OTHER_FILES variable
+        # sourcePath is file from DISTFILES variable
         fileList = "$$sourcePath"
     }
     !exists($$destPath) {
@@ -178,10 +178,10 @@ defineReplace(getCopiedFilesToBuild) {
     destPath = $$shell_path($$clean_path($$last(ARGS)))
 
     !exists("$$shell_path($${_PRO_FILE_PWD_}/$$sourcePath)") {
-        # sourcePath contains sub-path in share dir from OTHER_FILES variable
+        # sourcePath contains sub-path in share dir from DISTFILES variable
         fileList = $$getShareFiles("$$sourcePath")
     } else {
-        # sourcePath is file from OTHER_FILES variable
+        # sourcePath is file from DISTFILES variable
         fileList = "$$sourcePath"
     }
 

@@ -135,20 +135,34 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
                                       avcodec_find_decoder(s->codec->codec_id))) {
 #endif
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55, 18, 0)
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55, 52, 102)
+                        AVFrame *frame;
+                        int got_frame_ptr;
+                        s->codec->get_buffer2(s->codec, frame,s->codec->flags);
+#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
                         // todo:
                         // FF_API_OLD_DECODE_AUDIO is not defined, so need to work out how to
                         // calc frame_size, or if decode_audio3 needs it
                         // used to be AVCODEC_MAX_AUDIO_FRAME_SIZE = 192000
                         // trying that
                         int16_t samples[192000/sizeof(int16_t)];
+                        int frame_size = sizeof(samples);
 #else
                         int16_t samples[AVCODEC_MAX_AUDIO_FRAME_SIZE/sizeof(int16_t)];
-#endif
                         int frame_size = sizeof(samples);
+#endif
                         //fprintf(stderr, "** decode audio size=%d\n", sd->inbytes());
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55, 52, 102)
+                        AVPacket avpkt;
+                        av_init_packet(&avpkt);
+                        avpkt.data = (uint8_t*)sd->getdata();
+                        avpkt.size = sd->inbytes();
+                        // HACK for CorePNG to decode as normal PNG by default
+                        avpkt.flags = AV_PKT_FLAG_KEY;
+                        avcodec_decode_audio4(s->codec,frame,&got_frame_ptr, &avpkt);
+#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
                         AVPacket avpkt;
                         av_init_packet(&avpkt);
                         avpkt.data = (uint8_t*)sd->getdata();
@@ -156,12 +170,9 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
                         // HACK for CorePNG to decode as normal PNG by default
                         avpkt.flags = AV_PKT_FLAG_KEY;
                         avcodec_decode_audio3(s->codec,samples,&frame_size, &avpkt);
-#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52, 0, 0)
+#else
                         avcodec_decode_audio2(s->codec,samples,&frame_size,
                                               (uint8_t*) sd->getdata(),sd->inbytes());
-#else
-                        avcodec_decode_audio(s->codec,samples,&frame_size,
-                                             (uint8_t*) sd->getdata(),sd->inbytes());
 #endif
                         avcodec_close(s->codec);
                     }
