@@ -43,7 +43,7 @@ If you have MPlayer installed on your machine (and it is accessible as
 
 How to compile TV Clipper:
 
-* Unpack the TV Clipper source archive and create and enter the directory with name "tvclipper/build-tvclipper-Release".
+* Unpack the TV Clipper source archive and create and enter the directory with name "<tvclipper-directory>/build-tvclipper-Release".
 * For making Makefile and building application type this command:
   `qmake -qt=5 ../tvclipper/tvclipper.pro -r -spec linux-g++ && make'
 
