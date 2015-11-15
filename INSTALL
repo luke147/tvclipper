@@ -44,7 +44,8 @@ If you have MPlayer installed on your machine (and it is accessible as
 How to compile TV Clipper:
 
 * Unpack the TV Clipper source archive and create and enter the directory with name "<tvclipper-directory>/build-tvclipper-Release".
-* For making Makefile and building application type this command:
+* Note that location of project file is "<tvclipper-directory>/tvclipper/tvclipper.pro". It will be work too if you create "<your-path>/your-build-directory".
+* For making Makefile and building application type this command in "<tvclipper-directory>/build-tvclipper-Release" directory:
   `qmake -qt=5 ../tvclipper/tvclipper.pro -r -spec linux-g++ && make'
 
 If everything works well, you will find the TV Clipper directories in the build subdirectory.
