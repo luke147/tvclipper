@@ -31,7 +31,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = tvclipper
 TEMPLATE = app
 TARGET_x = 0
-TARGET_x.y.z = 0.7alpha
+TARGET_x.y.z = 0.7alpha2
 
 SOURCES += main.cpp\
         tvclipper.cpp \

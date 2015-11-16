@@ -25,7 +25,7 @@
 
 #define PROGRAM_NAME        "TV Clipper"
 #define VERSION		"0"
-#define REVISION	"7 alpha"
+#define REVISION	"7 alpha2"
 
 #define VERSION_STRING      PROGRAM_NAME " " VERSION "." REVISION
 
