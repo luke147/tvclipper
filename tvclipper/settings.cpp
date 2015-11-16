@@ -148,6 +148,8 @@ pipe/3/post=
 #define OPTION_START_BOF                    "/start_bof"
 #define OPTION_STOP_EOF                    "/stop_eof"
 
+#define OPTION_MAXIMIZE_WINDOW                    "/maximizeWindow"
+
 #define OPTION_WHEEL_NORMAL_DEF_VAL     25 * 60
 #define OPTION_WHEEL_ALT_DEF_VAL        15 * 25 * 60
 #define OPTION_WHEEL_CTRL_DEF_VAL       1
@@ -219,6 +221,7 @@ pipe/3/post=
 #define OPTION_LABELS_COLOR_TEXT_NORMAL_DEF_VAL              "#000000"
 #define OPTION_LABELS_COLOR_TEXT_HIGHLIGHT_DEF_VAL              "#FFFFFF"
 
+#define OPTION_MAXIMIZE_WINDOW_DEF_VAL                    false
 
 tvclipper_settings::tvclipper_settings(QString organization, QString application)
     : QSettings(organization, application)
@@ -326,7 +329,7 @@ void tvclipper_settings::load_settings()
             }
 
             // adding one item of recent file list
-            recentfiles.push_back(std::pair<std::list<std::string>,std::string>(videoFilenames, idxfilename.toStdString()));
+            recentfiles.push_back(std::pair< std::list<std::string>, std::string >(videoFilenames, idxfilename.toStdString()));
 
             endGroup();	// *itNumber
         }
@@ -404,6 +407,8 @@ void tvclipper_settings::load_settings()
     // minimal length of a chapter
     chapter_minimum = value(QStringLiteral(OPTION_CHAPTERS_MINIMUM), OPTION_CHAPTERS_MINIMUM_DEF_VAL).toInt();
     endGroup();	// auto chapters
+
+    maximizeWindow = value(QStringLiteral(OPTION_MAXIMIZE_WINDOW), OPTION_MAXIMIZE_WINDOW_DEF_VAL).toBool();
 }
 
 void
@@ -520,6 +525,8 @@ tvclipper_settings::save_settings()
     setValue(QStringLiteral(OPTION_CHAPTERS_THRESHOLD), chapter_threshold);
     setValue(QStringLiteral(OPTION_CHAPTERS_MINIMUM), chapter_minimum);
     endGroup();	// chapters
+
+    setValue(QStringLiteral(OPTION_MAXIMIZE_WINDOW), maximizeWindow);
 }
 
 // private settings variable
