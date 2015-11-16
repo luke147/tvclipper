@@ -83,9 +83,7 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
     mpg.setvideoencodingparameters();
     s->codec=mpg.getavcc(VIDEOSTREAM);
     s->codec->rc_buffer_size = 224*1024*8;
-#if LIBAVFORMAT_VERSION_INT >= ((52<<16)+(21<<8)+0)
     s->sample_aspect_ratio = s->codec->sample_aspect_ratio;
-#endif
 
     for (int i=0;i<mpg.getaudiostreams();++i)
         if (audiostreammask & (1u<<i)) {
@@ -122,47 +120,24 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
                     break;
 
                 if (sd->getitemlistsize() > 1) {
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
                     // todo:
                     //int avcodec_open2 	( 	AVCodecContext *  	avctx,
                     //		const AVCodec *  	codec,
                     //		AVDictionary **  	options
                     //	)
-                    if (!avcodec_open2(s->codec,
-                                       avcodec_find_decoder(s->codec->codec_id), NULL)) {
-#else
-                    if (!avcodec_open(s->codec,
-                                      avcodec_find_decoder(s->codec->codec_id))) {
-#endif
-
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55, 18, 0)
-                        // todo:
-                        // FF_API_OLD_DECODE_AUDIO is not defined, so need to work out how to
-                        // calc frame_size, or if decode_audio3 needs it
-                        // used to be AVCODEC_MAX_AUDIO_FRAME_SIZE = 192000
-                        // trying that
-                        int16_t samples[192000/sizeof(int16_t)];
-#else
-                        int16_t samples[AVCODEC_MAX_AUDIO_FRAME_SIZE/sizeof(int16_t)];
-#endif
-                        int frame_size = sizeof(samples);
+                    if (!avcodec_open2(s->codec, avcodec_find_decoder(s->codec->codec_id), NULL)) {
+                        AVFrame frame = AVFrame();
+                        int got_frame_ptr;
+                        s->codec->get_buffer2(s->codec, &frame,s->codec->flags);
                         //fprintf(stderr, "** decode audio size=%d\n", sd->inbytes());
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
                         AVPacket avpkt;
                         av_init_packet(&avpkt);
                         avpkt.data = (uint8_t*)sd->getdata();
                         avpkt.size = sd->inbytes();
                         // HACK for CorePNG to decode as normal PNG by default
                         avpkt.flags = AV_PKT_FLAG_KEY;
-                        avcodec_decode_audio3(s->codec,samples,&frame_size, &avpkt);
-#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52, 0, 0)
-                        avcodec_decode_audio2(s->codec,samples,&frame_size,
-                                              (uint8_t*) sd->getdata(),sd->inbytes());
-#else
-                        avcodec_decode_audio(s->codec,samples,&frame_size,
-                                             (uint8_t*) sd->getdata(),sd->inbytes());
-#endif
+                        avcodec_decode_audio4(s->codec,&frame,&got_frame_ptr, &avpkt);
                         avcodec_close(s->codec);
                     }
                     break;
@@ -170,12 +145,8 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
             }
         }
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
     // error: 'av_set_parameters' was not declared in this scope
     if (!(fmt->flags & AVFMT_NOFILE)&&(avio_open(&avfc->pb, filename, AVIO_FLAG_WRITE) < 0)) {
-#else
-    if ((av_set_parameters(avfc, NULL) < 0) || (!(fmt->flags & AVFMT_NOFILE)&&(url_fopen(&avfc->pb, filename, URL_WRONLY) < 0))) {
-#endif  
         av_free(avfc);
         avfc=0;
         return;
@@ -191,15 +162,9 @@ lavfmuxer::lavfmuxer(const char *format, uint32_t audiostreammask, mpgfile &mpg,
 #endif
     avfc->max_delay= (int)(.7*AV_TIME_BASE);
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
     av_dump_format(avfc, 0, filename, 1);
     fileopened=true;
     avformat_write_header(avfc, NULL);
-#else
-    dump_format(avfc, 0, filename, 1);
-    fileopened=true;
-    av_write_header(avfc);
-#endif
 }
 
 
@@ -209,16 +174,9 @@ lavfmuxer::~lavfmuxer()
         if (fileopened) {
             av_write_trailer(avfc);
             if (!(fmt->flags & AVFMT_NOFILE))
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 35, 0)
                 avio_close(avfc->pb);
-#elif LIBAVFORMAT_VERSION_INT >= ((52<<16)+(0<<8)+0)
-                url_fclose(avfc->pb);
-#else
-                url_fclose(&avfc->pb);
-#endif
         }
 
         av_free(avfc);
     }
 }
-

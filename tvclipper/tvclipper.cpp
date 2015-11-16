@@ -176,8 +176,6 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     connect( editconvertpopup, SIGNAL( triggered(QAction*) ), this, SLOT( editConvert(QAction*) ) );
     connect( editconvertpopup, SIGNAL( aboutToShow() ), this, SLOT( abouttoshoweditconvert() ) );
 
-    setViewScaleFactor(settings()->viewscalefactor);
-
     ListItemDelegate *itemDelegate = new ListItemDelegate(ui->eventlist);
     ui->eventlist->setItemDelegate(itemDelegate);
     ui->eventlist->setUpdatesEnabled(true);
@@ -201,6 +199,9 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
 
     // set caption
     this->setWindowTitle(QString(VERSION_STRING));
+
+    setViewScaleFactor(settings()->viewscalefactor);
+
     double factor = settings()->viewscalefactor;
     ui->viewAdaptSizeAction->setChecked(true);
     if (factor == 1.0) {
@@ -219,15 +220,21 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
 // SHAREDIR macro is defined with qmake in Makefile before compilation
 #ifdef SHAREDIR
     QFileInfo fInfo;
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/video-export.svg");
+    ui->fileExportAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start.svg");
     ui->editStartAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop.svg");
     ui->editStopAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter.svg");
     ui->editChapterAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark.png");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark.svg");
     ui->editBookmarkAction->setIcon(QIcon(fInfo.canonicalFilePath()));
 #endif
+
+   if (settings()->maximizeWindow) {
+       setWindowState(Qt::WindowMaximized);
+   }
 }
 
 // **************************************************************************
@@ -235,6 +242,8 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
 
 tvclipper::~tvclipper()
 {
+    settings()->maximizeWindow = isMaximized();
+
     if (mplayer_process) {
         mplayer_process->terminate();
         delete mplayer_process;
@@ -1370,8 +1379,9 @@ void tvclipper::linslidervalue(int newpic)
         return;
     if (!fine)
         newpic=mpg->lastiframe(newpic);
-    if (!jogsliding)
+    if (!jogsliding) {
         jogmiddlepic=newpic;
+    }
     if (newpic==curpic)
         return;
 
@@ -1975,6 +1985,19 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
         ui->picinfolabel2->setMinimumSize(ui->picinfolabel2->sizeHint());
         ui->pictimelabel->setMinimumSize(ui->pictimelabel->sizeHint());
         ui->pictimelabel2->setMinimumSize(ui->pictimelabel2->sizeHint());
+
+        if (ui->viewAdaptSizeAction->isChecked()) {
+            viewCustomSize();
+        }
+        if (ui->viewFullSizeAction->isChecked()) {
+            viewFullSize();
+        }
+        if (ui->viewHalfSizeAction->isChecked()) {
+            viewHalfSize();
+        }
+        if (ui->viewQuarterSizeAction->isChecked()) {
+            viewQuarterSize();
+        }
     } else {
         ui->playStopAction->setEnabled(false);
         ui->viewNormalAction->setChecked(true);
@@ -2023,8 +2046,6 @@ bool tvclipper::prepareToOpeninMpgFile(std::list<std::string> &filenames, std::s
 
     freeMpgData();
 
-    setUiForOpeningFile(false);
-
     class XmlPrjFileReader *prjReader = new XmlPrjFileReader();
     if (prjReader->isXmlFile(QString::fromStdString(filename))) {
         QString errorStr;
@@ -2052,9 +2073,12 @@ bool tvclipper::prepareToOpeninMpgFile(std::list<std::string> &filenames, std::s
     }
 
     idxfilename = getIdxFileName(QString::fromStdString(idxfilename), QString::fromStdString(filename)).toStdString();
-    if (idxfilename.empty())
+    if (idxfilename.empty()) {
         return false;
+    }
+
     make_canonical(idxfilename);
+    setUiForOpeningFile(false);
 
     return true;
 }
@@ -2226,7 +2250,10 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
                 picnum = it->picNumber.toInt(&okay);
             }
             if (okay && picnum>=0 && picnum<pictures) {
-                EventListItem *item = new EventListItem(QPixmap::fromImage(imgp->getimage(picnum)), ui->eventlist->sizeHint().width(), it->type, picnum, (*mpg)[picnum].getpicturetype(),(*mpg)[picnum].getpts()-firstpts, ui->eventlist);
+                EventListItem *item = new EventListItem(QPixmap::fromImage(imgp->getimage(picnum)),
+                                                        ui->eventlist->sizeHint().width(), it->type, picnum,
+                                                        (*mpg)[picnum].getpicturetype(),
+                                                        (*mpg)[picnum].getpts()-firstpts, ui->eventlist);
                 ui->eventlist->addItem(item);
             }
         }

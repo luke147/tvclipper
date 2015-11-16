@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="svg2"
+   height="512"
+   width="512"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="chapter.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1005"
+     id="namedview24"
+     showgrid="false"
+     inkscape:zoom="0.65186406"
+     inkscape:cx="278.21445"
+     inkscape:cy="120.03747"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3549">
+      <stop
+         id="stop3551"
+         offset="0.0000000"
+         style="stop-color:#f5b70a;stop-opacity:1.0000000;" />
+      <stop
+         id="stop3553"
+         offset="1.0000000"
+         style="stop-color:#ffffff;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2795">
+      <stop
+         style="stop-color:#be0808;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2797" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop2799" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2043">
+      <stop
+         id="stop2045"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1;" />
+      <stop
+         id="stop2047"
+         offset="1.0000000"
+         style="stop-color:#ffffff;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2035">
+      <stop
+         id="stop2037"
+         offset="0"
+         style="stop-color:#2d8b13;stop-opacity:1;" />
+      <stop
+         id="stop2039"
+         offset="1.0000000"
+         style="stop-color:#ffffff;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="553.88873"
+       x2="683.92505"
+       y1="474.50162"
+       x1="382.8382"
+       id="linearGradient2793"
+       xlink:href="#linearGradient2795" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="152.22021"
+       x2="287.05518"
+       y1="474.50162"
+       x1="382.8382"
+       id="linearGradient2807"
+       xlink:href="#linearGradient2043" />
+    <linearGradient
+       gradientTransform="matrix(1.5191187,0,0,1.5191188,-34.510005,-299.21245)"
+       gradientUnits="userSpaceOnUse"
+       y2="487.67722"
+       x2="431.27563"
+       y1="257.76639"
+       x1="63.984154"
+       id="linearGradient3547"
+       xlink:href="#linearGradient3549" />
+    <linearGradient
+       gradientTransform="matrix(1.5191187,0,0,1.5191188,-34.510005,-299.21245)"
+       gradientUnits="userSpaceOnUse"
+       y2="-2.2518198"
+       x2="-120.23666"
+       y1="454.14853"
+       x1="261.73483"
+       id="linearGradient3561"
+       xlink:href="#linearGradient2043" />
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <text
+     sodipodi:linespacing="125%"
+     xml:space="preserve"
+     style="color:#000000;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:664.31427002px;line-height:125%;font-family:'Luxi Sans';text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;display:inline;overflow:visible;visibility:visible;opacity:1;fill:url(#linearGradient3547);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient3561);stroke-width:3.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none"
+     x="10.674031"
+     y="495.87177"
+     id="text2811"
+     transform="scale(0.9992202,1.0007804)"><tspan
+       id="tspan2813"
+       x="10.674031"
+       y="495.87177"
+       style="fill:url(#linearGradient3547);fill-opacity:1;stroke:url(#linearGradient3561);stroke-width:3.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">C</tspan></text>
+</svg>

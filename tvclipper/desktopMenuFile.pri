@@ -17,6 +17,6 @@
 #  along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
 
 
-desktopTryExecLine = "TryExec=$$INST_PREFIX/$$BINDIR/tvclipper"
-desktopExecLine = "Exec=$$INST_PREFIX/$$BINDIR/tvclipper %F"
-desktopDocLine = "X-DocPath=$$INST_PREFIX/$$SHAREDIR/$$DOCDIR/tvclipper_en.html"
+desktopTryExecLine = "TryExec=$$INST_BINDIR/tvclipper"
+desktopExecLine = "Exec=$$INST_BINDIR/tvclipper %F"
+desktopDocLine = "X-DocPath=$$INST_DOCDIR/tvclipper_en.html"

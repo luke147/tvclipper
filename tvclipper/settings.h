@@ -151,6 +151,7 @@ public:
     int chapter_tolerance;
     double chapter_threshold;
     int chapter_minimum;
+    bool maximizeWindow;
 };
 
 // access function
