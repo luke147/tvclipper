@@ -62,21 +62,21 @@
 #define WRITE_FAKE_PICTURES	// #undef to disable writing fake pictures
 
 static inline ssize_t writer(int fd, const void *buf, size_t count)
-  {
-  int written=0;
+{
+    int written=0;
 
-  while (count>0) {
-    int wr=write(fd,buf,count);
-    if (wr<0)
-      return wr;
+    while (count>0) {
+        int wr=write(fd,buf,count);
+        if (wr<0)
+            return wr;
 
-    written+=wr;
-    count-=wr;
-    buf=(const void*)((const char*)buf+wr);
+        written+=wr;
+        count-=wr;
+        buf=(const void*)((const char*)buf+wr);
     }
 
-  return written;
-  }
+    return written;
+}
 
 mpgIndex::~mpgIndex()
 {
@@ -446,224 +446,224 @@ int mpgIndex::generate(const char *savefilename, std::string *errorstring, logou
 int
 mpgIndex::save(int fd, std::string *errorstring, bool closeme) {
 #ifdef WRITE_FAKE_PICTURES
-  int len = (pictures + 7) * sizeof(picture);
+    int len = (pictures + 7) * sizeof(picture);
 #else
-  int len = pictures * sizeof(picture);
+    int len = pictures * sizeof(picture);
 #endif
-  int res = 0;
-  int save = 0;
+    int res = 0;
+    int save = 0;
 
-  if (isatty(fd)) {
-    if (errorstring)
-      *errorstring += std::string("refusing to write index to a tty\n");
-    errno = EINVAL;
-    // Note: do NOT close it even if the caller said so
-    return -1;
-  }
-  if (::writer(fd, (void*)p, len) < 0) {
-    save = errno;
-    if (errorstring)
-      *errorstring += std::string("write: ") + strerror(errno) + "\n";
-    res = -1;
-  }
-  if (closeme)
-    ::close(fd);
-  errno = save;
-  return res;
+    if (isatty(fd)) {
+        if (errorstring)
+            *errorstring += std::string("refusing to write index to a tty\n");
+        errno = EINVAL;
+        // Note: do NOT close it even if the caller said so
+        return -1;
+    }
+    if (::writer(fd, (void*)p, len) < 0) {
+        save = errno;
+        if (errorstring)
+            *errorstring += std::string("write: ") + strerror(errno) + "\n";
+        res = -1;
+    }
+    if (closeme)
+        ::close(fd);
+    errno = save;
+    return res;
 }
 
 int
 mpgIndex::save(const char *filename, std::string *errorstring) {
-  int fd;
+    int fd;
 
-  fd = ::open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-  if (fd == -1) {
-    if (errorstring)
-      *errorstring += std::string(filename) + ": open: " + strerror(errno) + "\n";
-    return -1;
-  }
-  std::string tmp;
-  if (save(fd, &tmp, true) == -1) {
-    if (errorstring)
-      *errorstring += std::string(filename) + ": " + tmp;
-    return -1;
-  }
-  return 0;
+    fd = ::open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    if (fd == -1) {
+        if (errorstring)
+            *errorstring += std::string(filename) + ": open: " + strerror(errno) + "\n";
+        return -1;
+    }
+    std::string tmp;
+    if (save(fd, &tmp, true) == -1) {
+        if (errorstring)
+            *errorstring += std::string(filename) + ": " + tmp;
+        return -1;
+    }
+    return 0;
 }
 
 int mpgIndex::load(const char *filename, std::string *errorstring)
-  {
-  int fd=::open(filename,O_RDONLY|O_BINARY,0666);
-  if (fd<0) {
-    if (errorstring) {
-      int serrno=errno;
-      *errorstring+=std::string("Open (")+filename+"): "+strerror(errno)+"\n";
-      errno=serrno;
-      }
-    return fd;
-    }
-
-  int size=0;
-  int len=0;
-  uint8_t *data=0;
-
-  while(true) {
-    if (len>=size) {
-      size+=90000*sizeof(picture);
-      data=(uint8_t*)realloc((void*)data,size);
-      }
-
-    int rd=::read(fd,data+len,size-len);
-
-    if (rd<0) {
-      int save_errno=errno;
-      if (errorstring)
-        *errorstring+=std::string("Read (")+filename+"): "+strerror(errno)+"\n";
-      if (data)
-        free(data);
-      ::close(fd);
-      errno=save_errno;
-      return -1;
-      }
-
-    if (rd==0)
-      break;
-
-    len+=rd;
-    }
-
-  ::close(fd);
-
-  pictures=len/sizeof(picture);
-  if (pictures==0) {
-    free(p);
-    p=0;
-    realpictures=0;
-    return 0;
-    }
-  if (!((picture*)data)->getseqheader()) {
-    free(p);
-    p=0;
-    pictures=0;
-    realpictures=0;
-    if (errorstring)
-      *errorstring+=std::string("Invalid index file '")+filename+"'\n";
-    fprintf(stderr,"Invalid index file: first frame no sequence header\n");
-    return -2;
-    }
-  p=(picture*)realloc((void*)data,pictures*sizeof(picture));
-
-  // 7 fake pictures at end contain resolution lookup table 
-  // (if new type of index file, after svn-revision 131)
-  if (p[0].getresolution()>0) {
-    pictures-=7;
-    int w, h, nres=0;
-    for (int i=pictures; nres<7; i++) {
-      w=int(p[i].getpos());
-      h=int(p[i].getpts());    
-      if (w==0 || h==0)
-        break;
-      nres++;  
-      WIDTH.push_back(w);         
-      HEIGHT.push_back(h);                
-      //fprintf(stderr, "RESOLUTION[%d]: %d x %d\n", nres, w, h);
-    }  
-  }
-
-  int seqnr[1<<10]={0};
-  int seqpics=0;
-  for(int i=0;;++i) {
-    if (i==pictures || p[i].getseqheader()) {
-      for(int j=0;j<seqpics;++j) {
-        if (seqnr[j]!=1) // this sequence-number did not appear exactly once
-          {
-          if (errorstring)
-            *errorstring+=std::string("Invalid index file (")+filename+")\n";
-          fprintf(stderr,"Invalid index file: sequence number %u appears %u times\n",
-			  j, seqnr[j]);
-          fprintf(stderr, "Picture %u/%u, %u seqpics\n", i, pictures, seqpics);
-          free(p);
-          p=0;
-          pictures=0;
-          realpictures=0;
-          return -2;
-          }
-        seqnr[j]=0;
+{
+    int fd=::open(filename,O_RDONLY|O_BINARY,0666);
+    if (fd<0) {
+        if (errorstring) {
+            int serrno=errno;
+            *errorstring+=std::string("Open (")+filename+"): "+strerror(errno)+"\n";
+            errno=serrno;
         }
-      if (i==pictures)
-        break;
-      seqpics=0;
-      }
-    ++seqnr[p[i].getsequencenumber()];
-    ++seqpics;
+        return fd;
     }
 
-  for(int i=1;i<pictures;i<<=1) {
-    while(i<pictures && !p[i].getseqheader())
-      ++i;
-    if (i==pictures)
-      break;
-    streamhandle s(p[i].getpos().packetposition());
-    streamdata *sd=s.newstream(VIDEOSTREAM,streamtype::mpeg2video,mpg.istransportstream());
-    unsigned int po=p[i].getpos().packetoffset();
-    while (sd->inbytes()<po+4)
-      if (mpg.streamreader(s)<=0)
-        break;
-    if ( (sd->inbytes()<po+4) || (*(const uint32_t*)((const uint8_t*)sd->getdata()+po) != mbo32(0x000001b3)) ) {
-    fprintf(stderr,"index does not match (%08x)\n",(*(const uint32_t*)((const uint8_t*)sd->getdata()+po)));
-      free(p);
-      p=0;
-      pictures=0;
-      realpictures=0;
-      if (errorstring)
-        *errorstring+=std::string("Index file (")+filename+") does not correspond to MPEG file\n";
-      return -3;
-      }
+    int size=0;
+    int len=0;
+    uint8_t *data=0;
+
+    while(true) {
+        if (len >= size) {
+            size += 90000 * sizeof(picture);
+            data=(uint8_t*)realloc((void*)data,size);
+        }
+
+        int rd=::read(fd,data+len,size-len);
+
+        if (rd<0) {
+            int save_errno=errno;
+            if (errorstring)
+                *errorstring+=std::string("Read (")+filename+"): "+strerror(errno)+"\n";
+            if (data)
+                free(data);
+            ::close(fd);
+            errno=save_errno;
+            return -1;
+        }
+
+        if (rd==0)
+            break;
+
+        len+=rd;
     }
-  
-  return check();
-  }
+
+    ::close(fd);
+
+    pictures=len/sizeof(picture);
+    if (pictures==0) {
+        free(p);
+        p=0;
+        realpictures=0;
+        return 0;
+    }
+    if (!((picture*)data)->getseqheader()) {
+        free(p);
+        p=0;
+        pictures=0;
+        realpictures=0;
+        if (errorstring)
+            *errorstring+=std::string("Invalid index file '")+filename+"'\n";
+        fprintf(stderr,"Invalid index file: first frame no sequence header\n");
+        return -2;
+    }
+    p=(picture*)realloc((void*)data,pictures*sizeof(picture));
+
+    // 7 fake pictures at end contain resolution lookup table
+    // (if new type of index file, after svn-revision 131)
+    if (p[0].getresolution()>0) {
+        pictures-=7;
+        int w, h, nres=0;
+        for (int i=pictures; nres<7; i++) {
+            w=int(p[i].getpos());
+            h=int(p[i].getpts());
+            if (w==0 || h==0)
+                break;
+            nres++;
+            WIDTH.push_back(w);
+            HEIGHT.push_back(h);
+            //fprintf(stderr, "RESOLUTION[%d]: %d x %d\n", nres, w, h);
+        }
+    }
+
+    int seqnr[1<<10]={0};
+    int seqpics=0;
+    for(int i=0;;++i) {
+        if (i==pictures || p[i].getseqheader()) {
+            for(int j=0;j<seqpics;++j) {
+                if (seqnr[j]!=1) // this sequence-number did not appear exactly once
+                {
+                    if (errorstring)
+                        *errorstring+=std::string("Invalid index file (")+filename+")\n";
+                    fprintf(stderr,"Invalid index file: sequence number %u appears %u times\n",
+                            j, seqnr[j]);
+                    fprintf(stderr, "Picture %u/%u, %u seqpics\n", i, pictures, seqpics);
+                    free(p);
+                    p=0;
+                    pictures=0;
+                    realpictures=0;
+                    return -2;
+                }
+                seqnr[j]=0;
+            }
+            if (i==pictures)
+                break;
+            seqpics=0;
+        }
+        ++seqnr[p[i].getsequencenumber()];
+        ++seqpics;
+    }
+
+    for(int i=1;i<pictures;i<<=1) {
+        while(i<pictures && !p[i].getseqheader())
+            ++i;
+        if (i==pictures)
+            break;
+        streamhandle s(p[i].getpos().packetposition());
+        streamdata *sd=s.newstream(VIDEOSTREAM,streamtype::mpeg2video,mpg.istransportstream());
+        unsigned int po=p[i].getpos().packetoffset();
+        while (sd->inbytes()<po+4)
+            if (mpg.streamreader(s)<=0)
+                break;
+        if ( (sd->inbytes()<po+4) || (*(const uint32_t*)((const uint8_t*)sd->getdata()+po) != mbo32(0x000001b3)) ) {
+            fprintf(stderr,"index does not match (%08x)\n",(*(const uint32_t*)((const uint8_t*)sd->getdata()+po)));
+            free(p);
+            p=0;
+            pictures=0;
+            realpictures=0;
+            if (errorstring)
+                *errorstring+=std::string("Index file (")+filename+") does not correspond to MPEG file\n";
+            return -3;
+        }
+    }
+
+    return check();
+}
 
 int mpgIndex::check()
-  {
-  int firstiframe;
+{
+    int firstiframe;
 
-  for(firstiframe=0;firstiframe<pictures;++firstiframe)
-    if (p[firstiframe].isiframe())
-      break;
+    for(firstiframe=0;firstiframe<pictures;++firstiframe)
+        if (p[firstiframe].isiframe())
+            break;
 
-  if (firstiframe>=pictures) {
-    realpictures=0;
-    skipfirst=0;
-    return 0;
+    if (firstiframe>=pictures) {
+        realpictures=0;
+        skipfirst=0;
+        return 0;
     }
 
-  int sequencebegin=0;
-  for (int i=firstiframe;i>0;--i)
-    if (p[i].getseqheader()) {
-      sequencebegin=i;
-      break;
-      }
+    int sequencebegin=0;
+    for (int i=firstiframe;i>0;--i)
+        if (p[i].getseqheader()) {
+            sequencebegin=i;
+            break;
+        }
 
-  skipfirst=sequencebegin;
-  if (p[firstiframe].getsequencenumber()>0) {
-    int fifseqnr=p[firstiframe].getsequencenumber();
+    skipfirst=sequencebegin;
+    if (p[firstiframe].getsequencenumber()>0) {
+        int fifseqnr=p[firstiframe].getsequencenumber();
 
-    for(int i=sequencebegin;(i<pictures)&&(!p[i].getseqheader()||i==sequencebegin);++i)
-      if (p[i].getsequencenumber()<fifseqnr)
-        ++skipfirst;
+        for(int i=sequencebegin;(i<pictures)&&(!p[i].getseqheader()||i==sequencebegin);++i)
+            if (p[i].getsequencenumber()<fifseqnr)
+                ++skipfirst;
     }
 
-  realpictures=pictures-skipfirst;
-  if (realpictures<1)
-    return 0;
+    realpictures=pictures-skipfirst;
+    if (realpictures<1)
+        return 0;
 
-  while (realpictures>0)
-    if (p[indexnr(realpictures-1)].isbframe())
-      --realpictures;
-    else
-      break;
+    while (realpictures>0)
+        if (p[indexnr(realpictures-1)].isbframe())
+            --realpictures;
+        else
+            break;
 
-  return realpictures;
-  }
+    return realpictures;
+}
 

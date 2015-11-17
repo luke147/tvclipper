@@ -40,6 +40,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <ctime>
 #include "mpgfile.h"
 #include "ui_tvclipper.h"
 #include "pts.h"
@@ -98,6 +99,7 @@ private:
     QString appName;
     QString orgName;
     int originalImageHeight;
+    std::clock_t prevTimeForLinSlider;
 
 private:
     void getFilesToOpen(std::list<std::string> &filenames);

@@ -27,6 +27,8 @@
 #include <memory>
 #include <algorithm>
 #include <typeinfo>
+#include <time.h>
+#include <ctime>
 
 #include <qlabel.h>
 #include <qpixmap.h>
@@ -137,7 +139,7 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
       curpic(~0), showimage(true), fine(false),
       jogsliding(false), jogmiddlepic(0),
       mplayer_process(0), imgp(0), busy(0),
-      viewscalefactor(1.0), nogui(false)
+      viewscalefactor(1.0), nogui(false), prevTimeForLinSlider(0)
 {
     this->appName = appName;
     this->orgName = orgName;
@@ -1377,6 +1379,12 @@ void tvclipper::linslidervalue(int newpic)
 {
     if (!mpg || newpic==curpic)
         return;
+    if (!jogsliding) {
+        std::clock_t currentTime = std::clock();
+         if ((currentTime - prevTimeForLinSlider) < 2048) {
+            return;
+        }
+    }
     if (!fine)
         newpic=mpg->lastiframe(newpic);
     if (!jogsliding) {
@@ -1392,6 +1400,7 @@ void tvclipper::linslidervalue(int newpic)
     updateTimeDisplay();
     updateImageDisplay();
 
+    prevTimeForLinSlider = std::clock();
     return;
 }
 
@@ -2110,7 +2119,7 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
         busy.setbusy(false);
 
         if (!mpg) {
-            critical("Failed to open file - tvclipper", errormessage);
+            critical("Failed to open file - " PROGRAM_NAME, errormessage);
             ui->fileOpenAction->setEnabled(true);
             return;
         }
