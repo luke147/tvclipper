@@ -53,6 +53,10 @@
 #define DOCDIR "doc"
 #endif
 
+#ifndef ICON_TYPE
+#define ICON_TYPE "png"
+#endif
+
 #define TVCLIPPER_QSETTINGS_DOMAIN "tvclipper"
 #define TVCLIPPER_QSETTINGS_PRODUCT "tvclipper"
 #define TVCLIPPER_QSETTINGS_ORGANIZATION "tvclipper"
