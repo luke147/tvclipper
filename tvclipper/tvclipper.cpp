@@ -27,7 +27,7 @@
 #include <memory>
 #include <algorithm>
 #include <typeinfo>
-#include <time.h>
+// #include <time.h>
 #include <ctime>
 
 #include <qlabel.h>
@@ -133,13 +133,13 @@ void tvclipper::setbusy(bool b)
 
 tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::WindowFlags flags)
     :QMainWindow(parent),
-      audiotrackpopup(0), recentfilespopup(0), editconvertpopup(0), originalImageHeight(0), audiotrackmenu(0),
+      audiotrackpopup(0), recentfilespopup(0), editconvertpopup(0), originalImageHeight(0), prevTimeForLinSlider(0), audiotrackmenu(0),
       buf(8 << 20, 128 << 20),
       mpg(0), pictures(0),
       curpic(~0), showimage(true), fine(false),
       jogsliding(false), jogmiddlepic(0),
       mplayer_process(0), imgp(0), busy(0),
-      viewscalefactor(1.0), nogui(false), prevTimeForLinSlider(0)
+      viewscalefactor(1.0), nogui(false)
 {
     this->appName = appName;
     this->orgName = orgName;
@@ -221,17 +221,19 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
 
 // SHAREDIR macro is defined with qmake in Makefile before compilation
 #ifdef SHAREDIR
+#ifdef ICON_TYPE
     QFileInfo fInfo;
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/video-export.svg");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/video-export." ICON_TYPE);
     ui->fileExportAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start.svg");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/start." ICON_TYPE);
     ui->editStartAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop.svg");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/stop." ICON_TYPE);
     ui->editStopAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter.svg");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/chapter." ICON_TYPE);
     ui->editChapterAction->setIcon(QIcon(fInfo.canonicalFilePath()));
-    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark.svg");
+    fInfo.setFile(qApp->applicationDirPath() + "/" + SHAREDIR "/icons/bookmark." ICON_TYPE);
     ui->editBookmarkAction->setIcon(QIcon(fInfo.canonicalFilePath()));
+#endif
 #endif
 
    if (settings()->maximizeWindow) {

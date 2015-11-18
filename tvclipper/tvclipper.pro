@@ -113,14 +113,22 @@ DISTFILES += \
     share/icons/start.svg \
     share/icons/stop.svg \
     share/icons/tvclipper.svg \
-    share/icons/video-export.svg
+    share/icons/video-export.svg \
+    share/icons/bookmark.png \
+    share/icons/chapter.png \
+    share/icons/start.png \
+    share/icons/stop.png \
+    share/icons/video-export.png
+
 # OTHER_FILES = DISTFILES
 
 # *******************************************************************************************************
 # *** variables for installation
 
 # Don't edit value of variables with "def" prefix in the name! Edit value of variables in variables.pri.
+defIconType = "png"
 defBuildPath = "build"
+ICON_TYPE = $$lower($$getFirstValOrDefVal("$$ICON_TYPE", "$$defIconType"))
 BUILD_PATH = $$getFirstValOrDefVal("$$BUILD_PATH", "$$defBuildPath")
 BUILD_PATH = $$shell_path("$$clean_path("$${BUILD_PATH}")/")
 
@@ -289,12 +297,14 @@ unix: {
 # in BASH: parameter 'DOCDIR="value"' is expand like DOCDIR="value"
     PATH_DEFINES += "$$shell_quote(DOCDIR=\"$$relativeDocPath\")"
     PATH_DEFINES += "$$shell_quote(SHAREDIR=\"$$relativeSharePath\")"
+    ICON_TYPE_DEFINE = "$$shell_quote(ICON_TYPE=\"$$ICON_TYPE\")"
 }
 win32: {
     PATH_DEFINES += "DOCDIR=\"$$relativeDocPath\""
     PATH_DEFINES += "SHAREDIR=\"$$relativeSharePath\""
+    ICON_TYPE_DEFINE = "ICON_TYPE=\"$$ICON_TYPE\""
 }
-DEFINES += $$PATH_DEFINES
+DEFINES += $$PATH_DEFINES $$ICON_TYPE_DEFINE
 message("DEFINES: $$DEFINES")
 
 include("desktopMenuFile.pri")
@@ -313,7 +323,7 @@ QMAKE_DISTCLEAN += "$$getCopiedFilesToBuild($$shell_path("servicemenu"), $$shell
 QMAKE_DISTCLEAN += "$$getCopiedFilesToBuild($$shell_path("share/icons/tvclipper.svg"), $$shell_path("$$BUILD_PATH_TO_APP_SCALABLE_ICONS"))"
 QMAKE_DISTCLEAN += "$$getCopiedFilesToBuild($$shell_path("icons"), $$shell_path("$$BUILD_SHAREDIR/icons"))"
 
-message("QMAKE_DISTCLEAN: $$QMAKE_DISTCLEAN")
+message("file list for 'make distclean' command: $$escape_expand(\\n\\t)$$QMAKE_DISTCLEAN")
 
 # ***********************************************************************************************
 # *** installation settings
