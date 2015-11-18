@@ -19,9 +19,9 @@
 
 # if variables are empty:
 # it means that install directory is: /opt/<app-name>
-# necessary system files will be installed to system subdirectories to directory: [SYSSHAREDIR]/[SYSSHARE_PREFIX] (default is: /usr/share)
+# necessary system files will be installed to system subdirectories to directory: [SYSSHARE_PREFIX]/[SYSSHAREDIR] (default is: /usr/share)
 
-ICON_TYPE = "png" # types: svg, png
+# ICON_TYPE = "png" # types: svg, png
 
 unix: {
     # Empty variables means install to directory: /opt/<app-name>
