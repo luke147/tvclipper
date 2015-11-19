@@ -123,7 +123,7 @@ defineTest(setFFmpegLibs) {
 }
 
 defineReplace(getFirstValOrDefVal) {
-    value = $$1
+    value = $$first(ARGS)
     count(ARGS, 2) {
         defaultValue = $$last(ARGS)
     }
