@@ -126,9 +126,9 @@ DISTFILES += \
 # *** variables for installation
 
 # Don't edit value of variables with "def" prefix in the name! Edit value of variables in variables.pri.
-defIconTypes = "png"
+defIconType = "png"
 defBuildPath = "build"
-ICON_TYPE = $$getFirstValOrDefVal("$$lower($$ICON_TYPE)", "$$defIconTypes")
+ICON_TYPE = $$getFirstValOrDefVal("$$lower($$ICON_TYPE)", "$$defIconType")
 BUILD_PATH = $$getFirstValOrDefVal("$$BUILD_PATH", "$$defBuildPath")
 BUILD_PATH = $$shell_path("$$clean_path("$${BUILD_PATH}")/")
 
