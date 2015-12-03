@@ -54,14 +54,16 @@ DlgExport::~DlgExport()
 
 void DlgExport::fileselector()
 {
-    QString selectFilter = tr("MPEG program streams (*.mpg)");
+    QString selectFilter = "MPEG program streams (*.mpg)";
     QString newfilename = QFileDialog::getSaveFileName(this,
-                                                       tr("Export video..."),
+                                                       tr("Enter filename for videofile exporting ..."),
                                                        ui->filenameline->text(),
-                                                       tr("MPEG program streams (*.mpg);All files (*)"),
+                                                       QString("%1;All files (*)").arg(selectFilter),
                                                        &selectFilter,
                                                        0);
 
     if (!newfilename.isEmpty())
         ui->filenameline->setText(newfilename);
+
+    return;
 }

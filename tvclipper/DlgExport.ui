@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>tvclipper: export video</string>
+   <string extracomment="export dialog name">TV Clipper: export video</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
