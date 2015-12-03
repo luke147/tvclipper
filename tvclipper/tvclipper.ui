@@ -1097,6 +1097,9 @@
    </property>
   </action>
   <action name="helpAboutAction">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>&amp;About</string>
    </property>
@@ -1114,6 +1117,9 @@
    </property>
   </action>
   <action name="helpContentAction">
+   <property name="icon">
+    <iconset theme="help-contents"/>
+   </property>
    <property name="text">
     <string>&amp;Contents</string>
    </property>
