@@ -71,4 +71,4 @@ FFmpeg (only if the application is linked with the shared libraries;
 libmad
 liba52
 libao (optional, for sound output)
-oxygen-icon-theme (or package with 'document-export.png' icon, optional)
+oxygen-icon-theme (optional, or package with icon: 'dialog-error', 'dialog-warning')

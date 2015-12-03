@@ -34,11 +34,10 @@
     along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <cstring>
 #include <stdint.h>
 #include <algorithm>
-#include <string>
-#include <sstream>
+#include <QString>
+#include <QObject>
 
 #include "playaudio.h"
 #include "exception.h"
@@ -202,7 +201,7 @@ protected:
     const void *m_data;
     uint32_t m_len;
     audioout &m_aout;
-    std::string m_error;
+    QString m_error;
 
     static enum mad_flow input(void *data,struct mad_stream *stream)
     {
@@ -257,12 +256,10 @@ protected:
     {
         mp2dec *This=reinterpret_cast<mp2dec*>(data);
 
-        std::ostringstream out;
-
-        out << "MP2 decoding error " << int(stream->error) << " (" << mad_stream_errorstr(stream)
-            << ") at byte offset " << int(stream->this_frame - reinterpret_cast<const unsigned char*>(This->m_data));
-
-        This->m_error=out.str();
+        This->m_error = QObject::tr("MP2 decoding error %1 (%2) at byte offset %3")
+                                .arg(QString::number(static_cast<int>(stream->error)),
+                                     mad_stream_errorstr(stream),
+                                     QString::number(static_cast<int>(stream->this_frame - reinterpret_cast<const unsigned char*>(This->m_data))));
         return MAD_FLOW_CONTINUE;
     }
 
@@ -279,10 +276,10 @@ public:
     {
         if (mad_decoder_run(&m_decoder,MAD_DECODER_MODE_SYNC)!=0)
         {
-            if (m_error.empty())
-                throw tvclipper_exception("Error decoding/playing MP2 audio");
+            if (m_error.isEmpty())
+                throw tvclipper_exception(QObject::tr("Error decoding/playing MP2 audio"));
             else
-                throw tvclipper_exception("Error decoding/playing MP2 audio: "+m_error);
+                throw tvclipper_exception(QObject::tr("Error decoding/playing MP2 audio: ") + m_error);
         }
     }
 };

@@ -338,7 +338,7 @@ bool mpegmuxer::flush(bool flushall)
         pack *p=s->packlist.front();
 
         if (s->getfill()<0) {
-            fprintf(stderr,"stream %d filllevel: %d\n",s->getid(),s->getfill());
+            fprintf(stderr, tr("stream %d filllevel: %d\n").toStdString().c_str(), s->getid(), s->getfill());
         }
 
         if (!s->bufferremovals.empty()) {
@@ -383,7 +383,7 @@ bool mpegmuxer::flush(bool flushall)
         p->setscr(scr);
         scr+=packsize?scrpack:int(27.e6/double(muxrate*50)*p->getsize()+0.9999);
         if (scr>p->getmaxscr())
-            fprintf(stderr,"Muxer problem: %s > %s (dts:%s) s->getbuffree():%d\n",
+            fprintf(stderr,tr("Muxer problem: %s > %s (dts:%s) s->getbuffree():%d\n").toStdString().c_str(),
                     ptsstring(scr2pts(scr)).c_str(),
                     ptsstring(scr2pts(p->getmaxscr())).c_str(),
                     ptsstring(p->getdts()).c_str(),
@@ -665,7 +665,7 @@ void mpegmuxer::packetizer(int str,pts_t maxdts)
         }
 
         if (len) {
-            fprintf(stderr,"str=%d len=%d aulist.size=%zu packlist.size=%zu\n",
+            fprintf(stderr, tr("str=%d len=%d aulist.size=%zu packlist.size=%zu\n").toStdString().c_str(),
                     str,len,s->aulist.size(),s->packlist.size());
             assert(len==0);
         }
@@ -777,10 +777,10 @@ bool mpegmuxer::pack::write(int fd) {
         return true;
     }
     if (n == 0) {
-        fprintf(stderr, "zero-length write - disk full?\n");
+        fprintf(stderr, tr("zero-length write - disk full?\n").toStdString().c_str());
     }
     else {
-        perror("write");
+        perror(tr("write").toStdString().c_str());
     }
     return false;
 }

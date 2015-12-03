@@ -39,7 +39,7 @@
 
 #include <QString>
 #include <string>
-#include <vector>
+#include <QVector>
 
 #include <QSettings>
 #include <QPalette>
@@ -56,6 +56,9 @@
 #ifndef ICON_TYPE
 #define ICON_TYPE "png"
 #endif
+
+#define IDXFILE_EXT_WITH_DOT ".idx"
+#define PRJFILE_EXT_WITH_DOT ".tvclipper"
 
 #define TVCLIPPER_QSETTINGS_DOMAIN "tvclipper"
 #define TVCLIPPER_QSETTINGS_PRODUCT "tvclipper"
@@ -109,8 +112,8 @@ public:
     QString idxfilter;
     QString prjfilter;
     QString loadfilter;
-    std::vector< std::pair<std::list<std::string>, std::string> > recentfiles;
-    unsigned int recentfiles_max;
+    QVector< QPair<QStringList, QString> > recentfiles;
+    int recentfiles_max;
     double viewscalefactor;
     int wheel_increments[sizeof(WHEEL_INCR)];
     int wheel_threshold;
@@ -147,10 +150,10 @@ public:
     int snapshot_width;
     int snapshot_range;
     int snapshot_samples;
-    std::vector<QString> pipe_command;
-    std::vector<QString> pipe_post;
-    std::vector<QString> pipe_label;
-    std::vector<int> pipe_format;
+    QVector<QString> pipe_command;
+    QVector<QString> pipe_post;
+    QVector<QString> pipe_label;
+    QVector<int> pipe_format;
     int chapter_interval;
     int chapter_tolerance;
     double chapter_threshold;

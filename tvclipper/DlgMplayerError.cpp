@@ -21,18 +21,18 @@
 
 DlgMplayerError::DlgMplayerError(QWidget *parent)
     :QDialog(parent)
-  {
+{
     ui = new Ui::DlgMplayerError();
     ui->setupUi(this);
     this->setVisible(true);
-  }
+}
 
 DlgMplayerError::~DlgMplayerError()
-  {
+{
     delete ui;
-  }
-  
+}
+
 void DlgMplayerError::setText(QString text)
-  {
+{
     ui->textBrowser->setText(text);
-  }
+}

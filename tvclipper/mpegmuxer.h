@@ -40,6 +40,7 @@
 #define MINPACKSIZE 64
 #define DTSMAXDELAY 90000
 
+#include <QCoreApplication>
 #include <list>
 #include "defines.h"
 #include "muxer.h"
@@ -54,6 +55,8 @@ typedef int64_t scr_t;
 */
 class mpegmuxer : public muxer
 {
+    Q_DECLARE_TR_FUNCTIONS(mpegmuxer)
+
 public:
     class bufferremoval
     {

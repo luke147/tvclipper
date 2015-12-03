@@ -27,7 +27,6 @@
 #include <memory>
 #include <algorithm>
 #include <typeinfo>
-// #include <time.h>
 #include <ctime>
 
 #include <qlabel.h>
@@ -161,19 +160,19 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     ui->playMenu->removeAction(ui->playAudio2Action);
 #endif // ! HAVE_LIB_AO
 
-    audiotrackpopup=new QMenu(QString("Audio track"), this);
+    audiotrackpopup=new QMenu(tr("Audio track"), this);
     ui->playMenu->addSeparator();
     audiotrackmenu=ui->playMenu->addMenu(audiotrackpopup);
     connect( audiotrackpopup, SIGNAL( triggered(QAction*) ), this, SLOT( audiotrackchosen(QAction*) ) );
 
 
-    recentfilespopup=new QMenu(QString("Open recent..."), this);
+    recentfilespopup=new QMenu(tr("Open recent..."), this);
     ui->fileMenu->insertMenu(ui->fileSaveAction, recentfilespopup);
     connect( recentfilespopup, SIGNAL( triggered(QAction*) ), this, SLOT( loadrecentfile(QAction*) ) );
     connect( recentfilespopup, SIGNAL( aboutToShow() ), this, SLOT( abouttoshowrecentfiles() ) );
 
 
-    editconvertpopup=new QMenu(QString("Convert bookmarks"), this);
+    editconvertpopup=new QMenu(tr("Convert bookmarks"), this);
     ui->editMenu->insertMenu(ui->editBookmarkAction, editconvertpopup);
     connect( editconvertpopup, SIGNAL( triggered(QAction*) ), this, SLOT( editConvert(QAction*) ) );
     connect( editconvertpopup, SIGNAL( aboutToShow() ), this, SLOT( abouttoshoweditconvert() ) );
@@ -184,8 +183,8 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
 
     QAction *actionGoTo = new QAction(ui->eventlist);
     QAction *actionDelete = new QAction(ui->eventlist);
-    actionGoTo->setText(QString("Go to"));
-    actionDelete->setText(QString("Delete"));
+    actionGoTo->setText(tr("Go to"));
+    actionDelete->setText(tr("Delete"));
     actionGoTo->setShortcut(QKeySequence(Qt::Key_Return));
     actionDelete->setShortcut(QKeySequence(QKeySequence::Delete));
     actionGoTo->setShortcutContext(Qt::WidgetShortcut);
@@ -272,6 +271,19 @@ tvclipper::~tvclipper()
         delete ui;
 }
 
+QString tvclipper::getNonExistFilename(QString filename, QString extWithDoth) {
+    QString newFilename;
+    QFileInfo fInfo(filename);
+    QString prefix = fInfo.completeBaseName();
+    int nr = 1;
+    do {
+        newFilename = fInfo.absoluteDir().absolutePath() + QDir::separator() + prefix + "_" + ((nr > 1) ? QString::number(nr) : "") + extWithDoth;
+        fInfo.setFile(newFilename);
+    } while (fInfo.exists());
+
+    return newFilename;
+}
+
 // **************************************************************************
 // ***  slots (actions)
 
@@ -288,41 +300,33 @@ void tvclipper::fileOpen()
 
 void tvclipper::fileSaveAs()
 {
-    if (prjfilen.empty() && !mpgfilen.empty() && !mpgfilen.front().empty()) {
-        std::string prefix = mpgfilen.front();
-        int lastdot = prefix.rfind(".");
-        int lastslash = prefix.rfind("/");
-        if (lastdot >= 0 && lastdot > lastslash)
-            prefix = prefix.substr(0, lastdot);
-        prjfilen = prefix + ".tvclipper";
-        int nr = 0;
-        while (QFileInfo(QString::fromStdString(prjfilen)).exists())
-            prjfilen = prefix + "_" + QString::number(++nr).toStdString() + ".tvclipper";
+    QFileInfo fInfo;
+    if (prjfilen.isEmpty() && !mpgfilen.isEmpty() && !mpgfilen.front().isEmpty()) {
+        prjfilen = getNonExistFilename(mpgfilen.front(), prjfile_ext_with_dot);
     }
 
     QString s = QFileDialog::getSaveFileName(ui->tvclipperWidget,
-                                           "Save project as...",
-                                           QString::fromStdString(prjfilen),
+                                           tr("Save project as..."),
+                                           prjfilen,
                                            settings()->prjfilter,
                                            NULL,
                                            NULL);
     if (s.isNull())
         return;
 
-    if (QFileInfo(s).exists() && question(
-                "File exists - tvclipper",
-                s + "\nalready exists. Overwrite?") !=
+    fInfo.setFile(s);
+    if (fInfo.exists() && question(QString(PROGRAM_NAME " - ") + tr("File exists"), tr("File %1\nalready exists. Overwrite?").arg(s)) !=
             QMessageBox::Yes)
         return;
 
-    prjfilen=s.toStdString();
-    if (!prjfilen.empty())
+    prjfilen=s;
+    if (!prjfilen.isEmpty())
         fileSave();
 }
 
 void tvclipper::fileSave()
 {
-    if (prjfilen.empty()) {
+    if (prjfilen.isEmpty()) {
         fileSaveAs();
         return;
     }
@@ -341,11 +345,11 @@ void tvclipper::fileSave()
     }
 
 
-    class XmlPrjFileWriter prjWriter = XmlPrjFileWriter(mpgfilen, QString::fromStdString(idxfilen), QString::fromStdString(expfilen), QString::number(exportformat), marks);
-    bool okay = prjWriter.write(QString::fromStdString(prjfilen));
+    class XmlPrjFileWriter prjWriter = XmlPrjFileWriter(mpgfilen, idxfilen, expfilen, QString::number(exportformat), marks);
+    bool okay = prjWriter.write(prjfilen);
     if (!okay) {
-        QMessageBox::critical(this, PROGRAM_NAME " - Failed to write project file",
-                              QString::fromStdString(prjfilen) + ": \nCould not open file",
+        QMessageBox::critical(this, QString(PROGRAM_NAME " - ") + tr("Failed to write project file"),
+                              prjfilen + tr(": \nCould not open file"),
                               QMessageBox::Abort,
                               QMessageBox::NoButton);
     }
@@ -379,7 +383,7 @@ void tvclipper::chapterSnapshotsSave()
     }
 
     if (!found) {
-        statusBar()->showMessage(QString("*** No chapters to save! ***"));
+        statusBar()->showMessage(tr("*** No chapters to save! ***"));
         return;
     }
 
@@ -400,10 +404,10 @@ void tvclipper::snapshotSave(std::vector<int> piclist, int range, int samples)
     // get unique filename
     if (picfilen.isEmpty()) {
         if(settings()->snapshot_prefix.isEmpty()) {
-            if (!prjfilen.empty())
-                prefix = QString::fromStdString(prjfilen);
-            else if (!mpgfilen.empty() && !mpgfilen.front().empty())
-                prefix = QString::fromStdString(mpgfilen.front());
+            if (!prjfilen.isEmpty())
+                prefix = prjfilen;
+            else if (!mpgfilen.isEmpty() && !mpgfilen.front().isEmpty())
+                prefix = mpgfilen.front();
         } else
             prefix = settings()->snapshot_prefix;
 
@@ -420,9 +424,9 @@ void tvclipper::snapshotSave(std::vector<int> piclist, int range, int samples)
     }
 
     QString s = QFileDialog::getSaveFileName(ui->tvclipperWidget,
-                                             "Save picture as...",
+                                             tr("Save picture as..."),
                                              picfilen,
-                                             QString("Images (*."+ext+")"),
+                                             tr("Images (*.%1").arg(ext),
                                              NULL,
                                              NULL);
     if (s.isEmpty())
@@ -546,33 +550,33 @@ int tvclipper::chooseBestPicture(int startpic, int range, int samples)
 
 bool tvclipper::saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selectedAudio)
 {
-    if (expfilen.empty()) {
-        QString newexpfilen;
+    if (expfilen.isEmpty()) {
+        QString newExpFilen;
 
-        if (!prjfilen.empty())
-            newexpfilen = QString::fromStdString(prjfilen);
-        else if (!mpgfilen.empty() && !mpgfilen.front().empty())
-            newexpfilen = QString::fromStdString(mpgfilen.front());
+        if (!prjfilen.isEmpty())
+            newExpFilen = prjfilen;
+        else if (!mpgfilen.isEmpty() && !mpgfilen.front().isEmpty())
+            newExpFilen = mpgfilen.front();
         else
             return false;
 
-        if (!newexpfilen.isEmpty()) {
-            QFileInfo fInfo = QFileInfo(newexpfilen);
-            newexpfilen = fInfo.dir().absolutePath() + QDir::separator() + fInfo.completeBaseName();
+        if (!newExpFilen.isEmpty()) {
+            QFileInfo fInfo = QFileInfo(newExpFilen);
+            newExpFilen = fInfo.dir().absolutePath() + QDir::separator() + fInfo.completeBaseName();
 
-            expfilen=newexpfilen.toStdString()+".mpg";
+            expfilen=newExpFilen+".mpg";
             int nr = 0;
-            while (QFileInfo(QString::fromStdString(expfilen)).exists())
-                expfilen = newexpfilen.toStdString() + "_" + QString::number(++nr).toStdString() + ".mpg";
+            while (QFileInfo(expfilen).exists())
+                expfilen = newExpFilen + "_" + QString::number(++nr) + ".mpg";
         }
     }
 
-    std::auto_ptr<DlgExport> expd(new DlgExport(QString::fromStdString(expfilen),this));
+    std::auto_ptr<DlgExport> expd(new DlgExport(expfilen,this));
 
 #ifndef __WIN32__
     // add possible user configured pipe commands
     pipe_items_start=expd->ui->muxercombo->count();
-    for (unsigned int i = 0; i < settings()->pipe_command.size(); ++i)
+    for (int i = 0; i < settings()->pipe_command.size(); ++i)
         expd->ui->muxercombo->addItem(settings()->pipe_label[i]);
 #endif
 
@@ -593,8 +597,8 @@ bool tvclipper::saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selec
         settings()->export_format = expd->ui->muxercombo->currentIndex();
         expfmt = expd->ui->muxercombo->currentIndex();
 
-        expfilen=expd->ui->filenameline->text().toStdString();
-        if (expfilen.empty())
+        expfilen=expd->ui->filenameline->text();
+        if (expfilen.isEmpty())
             return false;
         expd->hide();
     } else if (exportformat >= 0 && exportformat < expd->ui->muxercombo->count()) {
@@ -606,13 +610,13 @@ bool tvclipper::saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selec
     return true;
 }
 
-void tvclipper::createChapterList(std::string &chapterstring, std::string &chaptercolumn)
+void tvclipper::createChapterList(QString &chapterstring, QString &chaptercolumn)
 {
     if (!chapterlist.empty()) {
         int nchar = 0;
         char chapter[16];
         pts_t lastch = -1;
-        for (std::list<pts_t>::const_iterator it=chapterlist.begin(); it!=chapterlist.end(); ++it)
+        for (QList<pts_t>::const_iterator it=chapterlist.begin(); it!=chapterlist.end(); ++it)
             if (*it != lastch) {
                 lastch = *it;
                 // formatting the chapter string
@@ -635,7 +639,7 @@ void tvclipper::createChapterList(std::string &chapterstring, std::string &chapt
     return;
 }
 
-bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], int expfmt, int ip, std::string expcmd, std::string chapterstring, std::string chaptercolumn, size_t pos)
+bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], int expfmt, int ip, QString expcmd, QString chapterstring, QString chaptercolumn, int pos)
 {
     DlgProgress *prgwin = 0;
     logoutput *log;
@@ -643,7 +647,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
         log = new logoutput;
     } else {
         prgwin = new DlgProgress(this);
-        prgwin->setWindowTitle(QString("export - " + QString::fromStdString(expfilen)));
+        prgwin->setWindowTitle(tr("Export") + " - " + expfilen);
         log = prgwin;
     }
 
@@ -656,22 +660,21 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
         if (selectedAudio == a)
             audiostreammask |= 1u << a;
 
-    std::string out_file = (child_pid < 0) ? expfilen :
-                                             std::string("pipe:") + QString::number(pipe_fds[1]).toStdString();
+    QString out_file = (child_pid < 0) ? expfilen : QString("pipe:") + QString::number(pipe_fds[1]);
 
     switch(expfmt) {
     case 1:
-        mux = std::unique_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.c_str(),false,0));
+        mux = std::unique_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.toStdString().c_str(),false,0));
         break;
     case 2:
-        mux = std::unique_ptr<muxer>(new lavfmuxer("dvd",audiostreammask,*mpg,out_file.c_str()));
+        mux = std::unique_ptr<muxer>(new lavfmuxer("dvd",audiostreammask,*mpg,out_file.toStdString().c_str()));
         break;
     case 3:
-        mux = std::unique_ptr<muxer>(new lavfmuxer("mpegts",audiostreammask,*mpg,out_file.c_str()));
+        mux = std::unique_ptr<muxer>(new lavfmuxer("mpegts",audiostreammask,*mpg,out_file.toStdString().c_str()));
         break;
     case 0:
     default:
-        mux = std::unique_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.c_str()));
+        mux = std::unique_ptr<muxer>(new mpegmuxer(audiostreammask,*mpg,out_file.toStdString().c_str()));
         break;
     }
 
@@ -683,7 +686,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
             while (waitpid(child_pid, &wstatus, 0)==-1 && errno==EINTR);
         }
 #endif
-        log->printerror("Unable to set up muxer!");
+        log->printerror(tr("Unable to set up muxer!").toStdString().c_str());
         if (nogui)
             delete log;
         else {
@@ -705,7 +708,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
         stoppic=quick_picture_lookup[num].stoppicture;
         stoppts=quick_picture_lookup[num].stoppts;
 
-        log->printheading("%d. Exporting %d pictures: %s .. %s",
+        log->printheading(tr("%d. Exporting %d pictures: %s .. %s").toStdString().c_str(),
                           num+1,stoppic-startpic,ptsstring(startpts).c_str(),ptsstring(stoppts).c_str());
         mpg->savempg(*mux,startpic,stoppic,savedpic,quick_picture_lookup.back().outpicture,log);
 
@@ -715,11 +718,11 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 
     mux.reset();
 
-    log->printheading("Saved %d pictures (%02d:%02d:%02d.%03d)",savedpic,
+    log->printheading(tr("Saved %d pictures (%02d:%02d:%02d.%03d)").toStdString().c_str(),savedpic,
                       int(savedtime/(3600*90000)),
                       int(savedtime/(60*90000))%60,
                       int(savedtime/90000)%60,
-                      int(savedtime/90)%1000	);
+                      int(savedtime/90)%1000);
 
 #ifndef __WIN32__
     if (child_pid > 0) {
@@ -730,56 +733,55 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 
     // do some post processing if requested
     if (ip>=0 && !settings()->pipe_post[ip].isEmpty()) {
-        expcmd = std::string(settings()->pipe_post[ip].toStdString());
+        expcmd = settings()->pipe_post[ip];
 
-        if ((pos=expcmd.find("%OUTPUT%"))!=std::string::npos)
+        pos=expcmd.indexOf("%OUTPUT%");
+        if (pos != -1)
             expcmd.replace(pos,8,expfilen);
-        if ((pos=expcmd.find("%CHAPTERS%"))!=std::string::npos)
+        pos=expcmd.indexOf("%CHAPTERS%");
+        if (pos != -1)
             expcmd.replace(pos,10,chapterstring);
 
-        pos=expcmd.find(' ');
-        std::string which="which "+expcmd.substr(0,pos)+" >/dev/null";
+        pos = expcmd.indexOf(' ');
+        QString which = QString("which ") + expcmd.mid(0,pos) + " >/dev/null";
 
         log->print("");
-        log->printheading("Performing post processing");
-        int irc = system(which.c_str());
+        log->printheading(tr("Performing post processing").toStdString().c_str());
+        int irc = QProcess::execute(which);
 
         if(irc!=0) {
-            critical("Command not found - tvclipper","Problems with post processing command:\n"+expcmd.substr(0,pos));
-            log->print("Command not found!");
+            critical(PROGRAM_NAME " - " + tr("Command not found"), tr("Problems with post processing command:") + "\n" + expcmd.mid(0,pos));
+            log->print(tr("Command not found!").toStdString().c_str());
         } else {
-            int irc = system(expcmd.c_str());
+            int irc = QProcess::execute(expcmd);
             if(irc!=0) {
-                critical("Post processing error - tvclipper","Post processing command:\n"+
-                         QString::fromStdString(expcmd)+"\n returned non-zero exit code: " +QString::number(irc));
-                log->print("Command reported some problems... please check!");
+                critical(PROGRAM_NAME " - " + tr("Post processing error)"), tr("Post processing command:\n%1\n returned non-zero exit code: %2").arg(expcmd, QString::number(irc)));
+                log->print(tr("Command reported some problems... please check!").toStdString().c_str());
             }
             //else
-            //  log->print("Everything seems to be OK...");
+            //  log->print(tr("Everything seems to be OK...").toStdString().c_str());
         }
     }
 #endif
 
     // print plain list of chapter marks
     log->print("");
-    log->printheading("Chapter list");
-    log->print(chaptercolumn.c_str());
+    log->printheading(tr("Chapter list").toStdString().c_str());
+    log->print(chaptercolumn.toStdString().c_str());
 
     // simple dvdauthor xml file with chapter marks
-    std::string filename,destname;
-    if (expfilen.rfind("/")<expfilen.length())
-        filename=expfilen.substr(expfilen.rfind("/")+1);
-    else
-        filename=expfilen;
-    destname=filename.substr(0,filename.rfind("."));
+    QString filename,destname;
+    QFileInfo fInfo(expfilen);
+    filename = fInfo.fileName();
+    destname = fInfo.completeBaseName();
     log->print("");
-    log->printheading("Simple XML-file for dvdauthor with chapter marks");
-    log->print("<dvdauthor dest=\"%s\">",destname.c_str());
+    log->printheading(tr("Simple XML-file for dvdauthor with chapter marks").toStdString().c_str());
+    log->print("<dvdauthor dest=\"%s\">",destname.toStdString().c_str());
     log->print("  <vmgm />");
     log->print("  <titleset>");
     log->print("    <titles>");
     log->print("      <pgc>");
-    log->print("        <vob file=\"%s\" chapters=\"%s\" />",filename.c_str(),chapterstring.c_str());
+    log->print("        <vob file=\"%s\" chapters=\"%s\" />",filename.toStdString().c_str(),chapterstring.toStdString().c_str());
     log->print("      </pgc>");
     log->print("    </titles>");
     log->print("  </titleset>");
@@ -801,7 +803,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 void tvclipper::fileExport()
 {
     int expfmt = 0, pipe_items_start = 0, selectedAudio = 0;
-    std::string chapterstring = "", chaptercolumn = "";
+    QString chapterstring = "", chaptercolumn = "";
 
     if (!saveExportDlgInfo(expfmt, pipe_items_start, selectedAudio))
         return;
@@ -810,8 +812,8 @@ void tvclipper::fileExport()
 
     int child_pid = -1;
     int pipe_fds[2];
-    std::string expcmd;
-    size_t pos;
+    QString expcmd;
+    int pos;
     int ip = expfmt - pipe_items_start;
 
 #ifndef __WIN32__
@@ -819,32 +821,29 @@ void tvclipper::fileExport()
     if(ip >= 0) {
         expfmt=settings()->pipe_format[ip];
         if (settings()->pipe_command[ip].contains('|'))
-            expcmd = std::string(settings()->pipe_command[ip].toStdString());
+            expcmd = settings()->pipe_command[ip];
         else
-            expcmd = "|"+std::string(settings()->pipe_command[ip].toStdString());
+            expcmd = "|"+settings()->pipe_command[ip];
 
-        pos = expcmd.find("%OUTPUT%");
-        if (pos != std::string::npos)
+        pos = expcmd.indexOf("%OUTPUT%");
+        if (pos != -1)
             expcmd.replace(pos, 8, expfilen);
     } else
         expcmd = expfilen;
 
     // chapter tag can also be used with input field pipes!
-    pos = expcmd.find("%CHAPTERS%");
-    if (pos != std::string::npos)
+    pos = expcmd.indexOf("%CHAPTERS%");
+    if (pos != -1)
         expcmd.replace(pos,10,chapterstring);
 
-    pos = expcmd.find('|');
-    if (pos != std::string::npos) {
+    pos = expcmd.indexOf('|');
+    if (pos != -1) {
         pos++;
-        size_t end = expcmd.find(' ',pos);
-        //if (!QFileInfo(expcmd.substr(pos,end-pos)).exists() ||
-        //    !QFileInfo(expcmd.substr(pos,end-pos)).isExecutable()) {
-        // better test if command is found in $PATH, so one don't needs to give the full path name
-        std::string which = "which " + expcmd.substr(pos,end-pos) + " >/dev/null";
-        int irc = system(which.c_str());
+        int end = expcmd.indexOf(' ',pos);
+        QString which = "which " + expcmd.mid(pos,end-pos) + " >/dev/null";
+        int irc = QProcess::execute(which);
         if(irc!=0) {
-            critical("Command not found - tvclipper","Problems with piped output to:\n"+expcmd.substr(pos,end-pos));
+            critical(tr("Command not found") + " - " PROGRAM_NAME, tr("Problems with piped output to:") + "\n" + expcmd.mid(pos,end-pos));
             return;
         }
 
@@ -860,7 +859,7 @@ void tvclipper::fileExport()
             for (int fd=0; fd<256; ++fd)
                 if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO)
                     ::close(fd);
-            execl("/bin/sh", "sh", "-c", expcmd.c_str()+pos, (char *)0);
+            execl("/bin/sh", "sh", "-c", expcmd.toStdString().c_str()+pos, (char *)0);
             _exit(127);
         }
         ::close(pipe_fds[0]);
@@ -870,8 +869,8 @@ void tvclipper::fileExport()
         }
     } else
 #endif
-        if (QFileInfo(QString::fromStdString(expfilen)).exists()) {
-            if (question("File exists - tvclipper", QString::fromStdString(expfilen) + "\nalready exists. Overwrite?") == QMessageBox::No)
+        if (QFileInfo(expfilen).exists()) {
+            if (question("File exists - tvclipper", expfilen + "\nalready exists. Overwrite?") == QMessageBox::No)
                 return;
         }
 
@@ -1043,7 +1042,7 @@ void tvclipper::editSuggest()
         found++;
     }
     if (!found)
-        statusBar()->showMessage(QString("*** No aspect ratio changes detected! ***"));
+        statusBar()->showMessage(tr("*** No aspect ratio changes detected! ***"));
 }
 
 void tvclipper::editImport()
@@ -1055,17 +1054,17 @@ void tvclipper::editImport()
         found++;
     }
     if (!found)
-        statusBar()->showMessage(QString("*** No valid bookmarks available/found! ***"));
+        statusBar()->showMessage(tr("*** No valid bookmarks available/found! ***"));
 }
 
 
 void tvclipper::abouttoshoweditconvert()
 {
     editconvertpopup->clear();
-    editconvertpopup->addAction(QString("START / STOP"));
-    editconvertpopup->addAction(QString("STOP / START"));
-    editconvertpopup->addAction(QString("4 : 3"));
-    editconvertpopup->addAction(QString("16 : 9"));
+    editconvertpopup->addAction(tr("START / STOP"));
+    editconvertpopup->addAction(tr("STOP / START"));
+    editconvertpopup->addAction(tr("4 : 3"));
+    editconvertpopup->addAction(tr("16 : 9"));
 }
 
 // convert Bookmarks to START/STOP markers
@@ -1095,7 +1094,7 @@ void tvclipper::editConvert(QAction *action)
 
 
     if (!found) {
-        statusBar()->showMessage(QString("*** No bookmarks to convert! ***"));
+        statusBar()->showMessage(tr("*** No bookmarks to convert! ***"));
         return;
     }
 
@@ -1308,10 +1307,10 @@ void tvclipper::playPlay()
     }
 
     // for now, pass all filenames from the current one up to the last one
-    std::list<std::string>::const_iterator it = mpgfilen.begin();
+    QStringList::const_iterator it = mpgfilen.begin();
     for (int i = 0; it != mpgfilen.end(); ++i, ++it)
         if (i >= partindex)
-            arguments << QString::fromStdString(*it);
+            arguments << *it;
 
     mplayer_process=new QProcess(this);
     mplayer_process->setReadChannel(QProcess::StandardOutput);
@@ -1833,8 +1832,8 @@ void tvclipper::abouttoshowrecentfiles()
 {
     recentfilespopup->clear();
     QString menuitem;
-    for(unsigned int id=0; id<settings()->recentfiles.size(); id++) {
-        menuitem=QString(QString::fromStdString(settings()->recentfiles[id].first.front()));
+    for(int id=0; id<settings()->recentfiles.size(); id++) {
+        menuitem=settings()->recentfiles[id].first.front();
         if(settings()->recentfiles[id].first.size()>1)
             menuitem += " ... (+" + QString::number(settings()->recentfiles[id].first.size()-1) + ")";
         recentfilespopup->addAction(menuitem);
@@ -1849,10 +1848,10 @@ void tvclipper::loadrecentfile(QAction *action)
     open(settings()->recentfiles[(unsigned)id].first, settings()->recentfiles[(unsigned)id].second);
 }
 
-void tvclipper::getFilesToOpen(std::list<std::string> &filenames)
+void tvclipper::getFilesToOpen(QStringList &filenames)
 {
     QStringList fn = QFileDialog::getOpenFileNames(ui->tvclipperWidget,
-                                                   QString("Open files..."),
+                                                   tr("Open files..."),
                                                    settings()->lastdir,
                                                    settings()->loadfilter,
                                                    NULL,
@@ -1861,7 +1860,7 @@ void tvclipper::getFilesToOpen(std::list<std::string> &filenames)
         return;
     }
     for (QStringList::const_iterator it = fn.begin(); it != fn.end(); ++it) {
-        filenames.push_back(it->toStdString());
+        filenames.push_back(*it);
     }
 
     // remember last directory if requested
@@ -1879,19 +1878,19 @@ QString tvclipper::getIdxFileName(QString idxfilename, QString mpgFilename)
     if (!idxfilename.isEmpty())
         return idxfilename;
 
-    idxfilename = mpgFilename + ".idx";
+    idxfilename = mpgFilename + idxfile_ext_with_dot;
     if (nogui)
         return idxfilename;
 
     QUrl u = QUrl::fromLocalFile(idxfilename);
     QString relname = u.toString(); // for file://file-path // u.path(); // for just file path
-    QFileDialog fDialog(ui->tvclipperWidget, QString("Choose the name of the index file"), QFileInfo(relname).absoluteDir().absolutePath(), settings()->idxfilter);
+    QFileDialog fDialog(ui->tvclipperWidget, tr("Choose the name of the index file"), QFileInfo(relname).absoluteDir().absolutePath(), settings()->idxfilter);
     fDialog.setFileMode(QFileDialog::AnyFile);
     fDialog.setAcceptMode(QFileDialog::AcceptOpen);
     fDialog.selectUrl(u);
     QGridLayout *dlgLayout = dynamic_cast<QGridLayout*>(fDialog.layout());
     QLabel infoLabel(dlgLayout->widget());
-    infoLabel.setText(QString("Indexing file will be created if it doesn't exists."));
+    infoLabel.setText(tr("Indexing file will be created if it doesn't exists."));
     dlgLayout->addWidget(&infoLabel, dlgLayout->rowCount(), 0, 1, 0);
 
 
@@ -2032,9 +2031,9 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
     return;
 }
 
-bool tvclipper::prepareToOpeninMpgFile(std::list<std::string> &filenames, std::string &idxfilename, std::string &expfilename, EventMarks &eventMarks)
+bool tvclipper::prepareToOpeninMpgFile(QStringList &filenames, QString &idxfilename, QString &expfilename, EventMarks &eventMarks)
 {
-    std::string filename;
+    QString filename;
 
     if (filenames.empty()) {
         getFilesToOpen(filenames);
@@ -2045,12 +2044,12 @@ bool tvclipper::prepareToOpeninMpgFile(std::list<std::string> &filenames, std::s
       return false;
 
     prjfilen = "";
-    make_canonical(filenames);
+    makeCanonical(filenames);
 
     filename = filenames.front();
 
     // a valid file name has been entered
-    setWindowTitle(QString(VERSION_STRING " - " + QString::fromStdString(filename)));
+    setWindowTitle(QString(VERSION_STRING " - ") + filename);
 
     // reset inbuffer
     buf.reset();
@@ -2058,37 +2057,39 @@ bool tvclipper::prepareToOpeninMpgFile(std::list<std::string> &filenames, std::s
     freeMpgData();
 
     class XmlPrjFileReader *prjReader = new XmlPrjFileReader();
-    if (prjReader->isXmlFile(QString::fromStdString(filename))) {
+    if (prjReader->isXmlFile(filename)) {
         QString errorStr;
-        bool okay = prjReader->read(QString::fromStdString(filename), nogui, errorStr);
+        bool okay = prjReader->read(filename, nogui, errorStr);
         if (!okay) {
-            critical(PROGRAM_NAME " - Failed to read project file", QString::fromStdString(filename) + ":\n" + errorStr);
+            critical(PROGRAM_NAME " - " + tr("Failed to read project file"), filename + ":\n" + errorStr);
             ui->fileOpenAction->setEnabled(true);
             return false;
         }
 
         filenames = prjReader->mpgList;
-        idxfilename = prjReader->idxFile.toStdString();
-        expfilename = prjReader->expFile.toStdString();
+        idxfilename = prjReader->idxFile;
+        expfilename = prjReader->expFile;
         eventMarks = prjReader->eventMarks;
         {
             bool okay;
             exportformat = prjReader->expFormat.toInt(&okay);
             if (!okay)
                 exportformat = 0;
-
         }
 
         prjfilen = filename;
         filename = filenames.front();
     }
 
-    idxfilename = getIdxFileName(QString::fromStdString(idxfilename), QString::fromStdString(filename)).toStdString();
-    if (idxfilename.empty()) {
+    idxfilename = getIdxFileName(idxfilename, filename);
+    if (idxfilename.isEmpty()) {
         return false;
     }
 
-    make_canonical(idxfilename);
+    makeCanonical(idxfilename);
+    if (idxfilename.isEmpty()) {
+        return false;
+    }
     setUiForOpeningFile(false);
 
     return true;
@@ -2097,10 +2098,10 @@ bool tvclipper::prepareToOpeninMpgFile(std::list<std::string> &filenames, std::s
 // **************************************************************************
 // ***  public functions
 
-void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, std::string expfilename)
+void tvclipper::open(QStringList filenames, QString idxfilename, QString expfilename)
 {
     EventMarks eventMarks;
-    std::string filename;
+    QString filename;
     if ( !prepareToOpeninMpgFile(filenames, idxfilename, expfilename, eventMarks) )
         return;
 
@@ -2110,8 +2111,8 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
     busy.setbusy(true);
 
     {
-        std::string errormessage;
-        std::list<std::string>::const_iterator it = filenames.begin();
+        QString errormessage;
+        QStringList::const_iterator it = filenames.begin();
         while (it != filenames.end() && buf.open(*it, &errormessage))
             ++it;
         buf.setsequential(cache_friendly);
@@ -2121,7 +2122,7 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
         busy.setbusy(false);
 
         if (!mpg) {
-            critical("Failed to open file - " PROGRAM_NAME, errormessage);
+            critical(PROGRAM_NAME " - " + tr("Failed to open file"), errormessage);
             ui->fileOpenAction->setEnabled(true);
             return;
         }
@@ -2129,32 +2130,32 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
 
     pictures=-1;
 
-    if (!idxfilename.empty()) {
-        std::string errorstring;
+    if (!idxfilename.isEmpty()) {
+        QString errorstring;
         busy.setbusy(true);
-        pictures=mpg->loadindex(idxfilename.c_str(),&errorstring);
+        pictures=mpg->loadindex(idxfilename.toStdString().c_str(),&errorstring);
         int serrno=errno;
         busy.setbusy(false);
         if (nogui && pictures > 0)
-            fprintf(stderr,"Loaded index with %d pictures!\n",pictures);
+            fprintf(stderr, tr("Loaded index with %d pictures!\n").toStdString().c_str(), pictures);
         if (pictures == -1 && serrno != ENOENT) {
             delete mpg;
             mpg=0;
-            critical("Failed to open file - tvclipper",errorstring);
+            critical(PROGRAM_NAME " - " + tr("Failed to open file"), errorstring);
             ui->fileOpenAction->setEnabled(true);
             return;
         }
         if (pictures==-2) {
             delete mpg;
             mpg=0;
-            critical("Invalid index file - tvclipper", errorstring);
+            critical(PROGRAM_NAME " - " + tr("Invalid index file"), errorstring);
             ui->fileOpenAction->setEnabled(true);
             return;
         }
         if (pictures<=-3) {
             delete mpg;
             mpg=0;
-            critical("Index file mismatch - tvclipper", errorstring);
+            critical(PROGRAM_NAME " - " + tr("Index file mismatch"), errorstring);
             ui->fileOpenAction->setEnabled(true);
             return;
         }
@@ -2163,13 +2164,13 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
     if (pictures < 0) {
         progressstatusbar psb(statusBar());
         psb.setprogress(500);
-        psb.print("Indexing '%s'...",filename.c_str());
-        std::string errorstring;
+        psb.print(tr("Indexing '%1'...").arg(filename));
+        QString errorstring;
         busy.setbusy(true);
-        pictures=mpg->generateindex(idxfilename.empty()?0:idxfilename.c_str(),&errorstring,&psb);
+        pictures=mpg->generateindex(idxfilename.isEmpty()?0:idxfilename.toStdString().c_str(),&errorstring,&psb);
         busy.setbusy(false);
         if (nogui && pictures > 0)
-            fprintf(stderr,"Generated index with %d pictures!\n",pictures);
+            fprintf(stderr, tr("Generated index with %1 pictures!\n").arg(pictures).toStdString().c_str());
 
         if (psb.cancelled()) {
             delete mpg;
@@ -2182,20 +2183,19 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
         if (pictures<0) {
             delete mpg;
             mpg=0;
-            critical("Error creating index - tvclipper",
-                     QString("Cannot create index for\n")+QString::fromStdString(filename)+":\n"+QString::fromStdString(errorstring));
+            critical(PROGRAM_NAME " - " + tr("Error creating index"),
+                     tr("Cannot create index for\n") + filename + ":\n" + errorstring);
             ui->fileOpenAction->setEnabled(true);
             return;
-        } else if (!errorstring.empty()) {
-            critical("Error saving index file - tvclipper", QString::fromStdString(errorstring));
+        } else if (!errorstring.isEmpty()) {
+            critical(PROGRAM_NAME " - " + tr("Error saving index file"), errorstring);
         }
     }
 
     if (pictures<1) {
         delete mpg;
         mpg=0;
-        critical("Invalid MPEG file - tvclipper",
-                 QString("The chosen file\n")+QString::fromStdString(filename)+"\ndoes not contain any video");
+        critical(tr("Invalid MPEG file"), tr("The chosen file\n%1\ndoes not contain any video").arg(filename));
         ui->fileOpenAction->setEnabled(true);
         return;
     }
@@ -2207,12 +2207,12 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
     idxfilen=idxfilename;
     expfilen=expfilename;
     picfilen=QString::null;
-    if (prjfilen.empty())
-        addtorecentfiles(mpgfilen,idxfilen);
+    if (prjfilen.isEmpty())
+        addToRecentFiles(mpgfilen,idxfilen);
     else {
-        std::list<std::string> dummy_list;
+        QStringList dummy_list;
         dummy_list.push_back(prjfilen);
-        addtorecentfiles(dummy_list);
+        addToRecentFiles(dummy_list);
     }
 
     firstpts=(*mpg)[0].getpts();
@@ -2280,10 +2280,10 @@ void tvclipper::open(std::list<std::string> filenames, std::string idxfilename, 
 // **************************************************************************
 // ***  protected functions
 
-void tvclipper::addtorecentfiles(const std::list<std::string> &filenames, const std::string &idxfilename)
+void tvclipper::addToRecentFiles(const QStringList &filenames, const QString &idxfilename)
 {
 
-    for(std::vector<std::pair<std::list<std::string>,std::string> >::iterator it=settings()->recentfiles.begin();
+    for(QVector< QPair<QStringList,QString> >::iterator it=settings()->recentfiles.begin();
         it!=settings()->recentfiles.end();)
         // checking the size and the first/last filename should be enough... but maybe I'm to lazy! ;-)
         if (it->first.size()==filenames.size() && it->first.front()==filenames.front() && it->first.back()==filenames.back())
@@ -2291,9 +2291,9 @@ void tvclipper::addtorecentfiles(const std::list<std::string> &filenames, const 
         else
             ++it;
 
-    settings()->recentfiles.insert(settings()->recentfiles.begin(),std::pair<std::list<std::string>,std::string>(filenames,idxfilename));
+    settings()->recentfiles.insert(settings()->recentfiles.begin(),QPair<QStringList,QString>(filenames,idxfilename));
 
-    while (settings()->recentfiles.size()>settings()->recentfiles_max)
+    while (settings()->recentfiles.size() > settings()->recentfiles_max)
         settings()->recentfiles.pop_back();
 }
 
@@ -2349,18 +2349,6 @@ void tvclipper::keyPressEvent(QKeyEvent *keyEvent) {
     }
 
     if (keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
-        /*if (keyEvent->modifiers() & Qt::ControlModifier) {
-            //delta = settings()->wheel_increments[WHEEL_INCR_CTRL];
-            int step = ui->jogslider->singleStep();
-
-            if (keyEvent->key() == Qt::Key_Left)
-                step = -step;
-
-            jogslidervalue(step);
-            jogsliderreleased();
-            return;
-        }*/
-
         int delta = settings()->wheel_increments[WHEEL_INCR_NORMAL];
         if (keyEvent->modifiers() & Qt::ShiftModifier)
             delta = settings()->wheel_increments[WHEEL_INCR_SHIFT];
@@ -2395,7 +2383,7 @@ void tvclipper::wheelEvent(QWheelEvent *wEvent) {
     if (ui->eventlist->rect().contains(wEvent->pos()))
         return;
 
-    ui->linslider->setValue(curpic + (settings()->wheel_delta * wEvent->delta())); //wEvent->delta());
+    ui->linslider->setValue(curpic + (settings()->wheel_delta * wEvent->delta()));
 
     return;
 }
@@ -2430,52 +2418,47 @@ bool tvclipper::eventFilter(QObject *, QEvent *e) {
     return false;
 }
 
-int tvclipper::question(const QString & caption, const QString & text)
+int tvclipper::question(const QString &caption, const QString &text)
 {
     if (nogui) {
-        fprintf(stderr, "%s\n%s\n(assuming No)\n", caption.toStdString().c_str(), text.toStdString().c_str());
+        fprintf(stderr, tr("%s\n%s\n(assuming No)\n").toStdString().c_str(), caption.toStdString().c_str(), text.toStdString().c_str());
         return QMessageBox::No;
     }
     return QMessageBox::question(this, caption, text, QMessageBox::Yes,
                                  QMessageBox::No | QMessageBox::Default | QMessageBox::Escape);
 }
 
-int tvclipper::critical(const QString & caption, const std::string & text) {
-    return critical(caption,  QString::fromStdString(text));
-}
-
 int tvclipper::critical(const QString & caption, const QString & text)
 {
     if (nogui) {
-        fprintf(stderr, "%s\n%s\n(aborting)\n", caption.toStdString().c_str(), text.toStdString().c_str());
+        fprintf(stderr, tr("%s\n%s\n(aborting)\n").toStdString().c_str(), caption.toStdString().c_str(), text.toStdString().c_str());
         return QMessageBox::Abort;
     }
-    return QMessageBox::critical(this, caption, text,
-                                 QMessageBox::Abort, QMessageBox::NoButton);
+    return QMessageBox::critical(this, caption, text, QMessageBox::Abort, QMessageBox::NoButton);
 }
 
-void tvclipper::make_canonical(std::string &filename)
+void tvclipper::makeCanonical(QString &filename)
 {
-    if (filename[0] != '/') {
-        char resolved_path[PATH_MAX];
-        char *rp = realpath(filename.c_str(), resolved_path);
-        if (rp)
-            filename = rp;
+
+    QFileInfo fInfo = QFileInfo(filename);
+    if (fInfo.isRelative()) {
+        filename = fInfo.canonicalFilePath();
     }
+
+    return;
 }
 
-void tvclipper::make_canonical(std::list<std::string> &filenames)
+void tvclipper::makeCanonical(QStringList &filenames)
 {
-    std::list<std::string>::const_iterator it = filenames.begin();
-    std::list<std::string> newlist;
+    QStringList newlist;
 
-    while (it != filenames.end()) {
-        std::string tmp = *it;
-        make_canonical(tmp);
+    for (QStringList::const_iterator it = filenames.begin();it != filenames.end(); it++) {
+        QString tmp = *it;
+        makeCanonical(tmp);
         newlist.push_back(tmp);
-        ++it;
     }
     filenames = newlist;
+    return;
 }
 
 inline static QString timestr(pts_t pts)
@@ -2491,8 +2474,10 @@ void tvclipper::updateTimeDisplay()
 {
     const mpgIndex::picture &idx = (*mpg)[curpic];
     const pts_t pts = idx.getpts() - firstpts;
-    const char *AR[] = { "forbidden", "1:1", "4:3", "16:9", "2.21:1", "reserved" };
-    const char *FR[] = { "forbidden", "23.976", "24", "25", "29.97", "30", "50", "59.94", "60", "reserved" };
+    const char *strForbidden = tr("forbidden").toStdString().c_str();
+    const char *strReserved = tr("reserved").toStdString().c_str();
+    const char *AR[] = { strForbidden, "1:1", "4:3", "16:9", "2.21:1", strReserved };
+    const char *FR[] = { strForbidden, "23.976", "24", "25", "29.97", "30", "50", "59.94", "60", strReserved };
 
     int outpic = 0;
     pts_t outpts = 0;
@@ -2649,10 +2634,10 @@ void tvclipper::dropEvent(QDropEvent *event) {
     }
 
     QList<QUrl> urls = event->mimeData()->urls();
-    std::list<std::string> filenames;
+    QStringList filenames;
 
     for (QList<QUrl>::const_iterator it = urls.begin(); it != urls.end(); it++) {
-         filenames.push_back(it->path().toStdString());
+         filenames.push_back(it->path());
     }
     open(filenames);
 

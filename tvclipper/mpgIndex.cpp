@@ -88,7 +88,7 @@ mpgIndex::~mpgIndex()
     }
 }
 
-int mpgIndex::generate(const char *savefilename, std::string *errorstring, logoutput *log)
+int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput *log)
 {
     int fd = -1;
     bool usestdout = false;
@@ -104,7 +104,7 @@ int mpgIndex::generate(const char *savefilename, std::string *errorstring, logou
             fd = ::open(savefilename,O_WRONLY|O_CREAT|O_TRUNC|O_BINARY,0666);
         if (fd < 0) {
             if (errorstring)
-                *errorstring+=std::string("Open (")+savefilename+"): "+strerror(errno)+"\n";
+                *errorstring += tr("Open (%1): ").arg(savefilename) + strerror(errno) + "\n";
             return fd;
         }
     }
@@ -173,7 +173,7 @@ int mpgIndex::generate(const char *savefilename, std::string *errorstring, logou
             int len=(seqheaderpic-pictureswritten)*sizeof(picture);
             if (::writer(fd,(void*)&p[pictureswritten],len)<0) {
                 if (errorstring)
-                    *errorstring+=std::string("Write (")+savefilename+"): "+strerror(errno)+"\n";
+                    *errorstring += tr("Write (%1): ").arg(savefilename) + strerror(errno) + "\n";
                 if (!usestdout)
                     ::close(fd);
                 fd=-1;
@@ -423,7 +423,7 @@ int mpgIndex::generate(const char *savefilename, std::string *errorstring, logou
         int len=(pictures-pictureswritten)*sizeof(picture);
         if (::writer(fd,(void*)&p[pictureswritten],len)<0) {
             if (errorstring)
-                *errorstring+=std::string("Write (")+savefilename+"): "+strerror(errno)+"\n";
+                *errorstring += tr("Write (%1): ").arg(savefilename) + strerror(errno) + "\n";
             if (!usestdout)
                 ::close(fd);
             fd=-1;
@@ -444,7 +444,7 @@ int mpgIndex::generate(const char *savefilename, std::string *errorstring, logou
 }
 
 int
-mpgIndex::save(int fd, std::string *errorstring, bool closeme) {
+mpgIndex::save(int fd, QString *errorstring, bool closeme) {
 #ifdef WRITE_FAKE_PICTURES
     int len = (pictures + 7) * sizeof(picture);
 #else
@@ -455,7 +455,7 @@ mpgIndex::save(int fd, std::string *errorstring, bool closeme) {
 
     if (isatty(fd)) {
         if (errorstring)
-            *errorstring += std::string("refusing to write index to a tty\n");
+            *errorstring += tr("refusing to write index to a tty\n");
         errno = EINVAL;
         // Note: do NOT close it even if the caller said so
         return -1;
@@ -463,7 +463,7 @@ mpgIndex::save(int fd, std::string *errorstring, bool closeme) {
     if (::writer(fd, (void*)p, len) < 0) {
         save = errno;
         if (errorstring)
-            *errorstring += std::string("write: ") + strerror(errno) + "\n";
+            *errorstring += tr("write: ") + strerror(errno) + "\n";
         res = -1;
     }
     if (closeme)
@@ -473,31 +473,31 @@ mpgIndex::save(int fd, std::string *errorstring, bool closeme) {
 }
 
 int
-mpgIndex::save(const char *filename, std::string *errorstring) {
+mpgIndex::save(const char *filename, QString *errorstring) {
     int fd;
 
     fd = ::open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
     if (fd == -1) {
         if (errorstring)
-            *errorstring += std::string(filename) + ": open: " + strerror(errno) + "\n";
+            *errorstring += QString(filename) + tr(": open: ") + strerror(errno) + "\n";
         return -1;
     }
-    std::string tmp;
+    QString tmp;
     if (save(fd, &tmp, true) == -1) {
         if (errorstring)
-            *errorstring += std::string(filename) + ": " + tmp;
+            *errorstring += QString(filename) + ": " + tmp;
         return -1;
     }
     return 0;
 }
 
-int mpgIndex::load(const char *filename, std::string *errorstring)
+int mpgIndex::load(const char *filename, QString *errorstring)
 {
     int fd=::open(filename,O_RDONLY|O_BINARY,0666);
     if (fd<0) {
         if (errorstring) {
             int serrno=errno;
-            *errorstring+=std::string("Open (")+filename+"): "+strerror(errno)+"\n";
+            *errorstring += tr("Open (")+filename+"): "+strerror(errno)+"\n";
             errno=serrno;
         }
         return fd;
@@ -518,7 +518,7 @@ int mpgIndex::load(const char *filename, std::string *errorstring)
         if (rd<0) {
             int save_errno=errno;
             if (errorstring)
-                *errorstring+=std::string("Read (")+filename+"): "+strerror(errno)+"\n";
+                *errorstring += tr("Read (%1): ").arg(filename) + strerror(errno) + "\n";
             if (data)
                 free(data);
             ::close(fd);
@@ -547,8 +547,8 @@ int mpgIndex::load(const char *filename, std::string *errorstring)
         pictures=0;
         realpictures=0;
         if (errorstring)
-            *errorstring+=std::string("Invalid index file '")+filename+"'\n";
-        fprintf(stderr,"Invalid index file: first frame no sequence header\n");
+            *errorstring += tr("Invalid index file '%1'\n").arg(filename);
+        fprintf(stderr,tr("Invalid index file: first frame no sequence header\n").toStdString().c_str());
         return -2;
     }
     p=(picture*)realloc((void*)data,pictures*sizeof(picture));
@@ -578,10 +578,9 @@ int mpgIndex::load(const char *filename, std::string *errorstring)
                 if (seqnr[j]!=1) // this sequence-number did not appear exactly once
                 {
                     if (errorstring)
-                        *errorstring+=std::string("Invalid index file (")+filename+")\n";
-                    fprintf(stderr,"Invalid index file: sequence number %u appears %u times\n",
-                            j, seqnr[j]);
-                    fprintf(stderr, "Picture %u/%u, %u seqpics\n", i, pictures, seqpics);
+                        *errorstring += tr("Invalid index file (%1)\n").arg(filename);
+                    fprintf(stderr,tr("Invalid index file: sequence number %u appears %u times\n").toStdString().c_str(), j, seqnr[j]);
+                    fprintf(stderr, tr("Picture %u/%u, %u seqpics\n").toStdString().c_str(), i, pictures, seqpics);
                     free(p);
                     p=0;
                     pictures=0;
@@ -610,13 +609,13 @@ int mpgIndex::load(const char *filename, std::string *errorstring)
             if (mpg.streamreader(s)<=0)
                 break;
         if ( (sd->inbytes()<po+4) || (*(const uint32_t*)((const uint8_t*)sd->getdata()+po) != mbo32(0x000001b3)) ) {
-            fprintf(stderr,"index does not match (%08x)\n",(*(const uint32_t*)((const uint8_t*)sd->getdata()+po)));
+            fprintf(stderr,tr("index does not match (%08x)\n").toStdString().c_str(),(*(const uint32_t*)((const uint8_t*)sd->getdata()+po)));
             free(p);
             p=0;
             pictures=0;
             realpictures=0;
             if (errorstring)
-                *errorstring+=std::string("Index file (")+filename+") does not correspond to MPEG file\n";
+                *errorstring += tr("Index file (%1) does not correspond to MPEG file\n").arg(filename);
             return -3;
         }
     }

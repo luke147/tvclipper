@@ -35,32 +35,59 @@
 */
 
 #include "exception.h"
-#include <qstring.h>
-#include <qmessagebox.h>
+#include <QObject>
+#include <QMessageBox>
+#include <QDebug>
 
-tvclipper_exception::tvclipper_exception(const std::string &__arg) : _M_msg(__arg), _M_extype()
+tvclipper_exception::tvclipper_exception(const QString &__arg) : _M_msg(__arg), _M_extype()
 {
 }
 
+tvclipper_exception::tvclipper_exception(const tvclipper_exception &e)
+{
+    this->_M_extype = e.type();
+    this->_M_msg = e.msg();
+}
+/*
 tvclipper_exception::tvclipper_exception(const char* __arg) : _M_msg(__arg), _M_extype()
 {
 }
-
+*/
 tvclipper_exception::~tvclipper_exception() throw()
 {
 }
 
-const char *tvclipper_exception::what() const throw()
+const char* tvclipper_exception::what() const throw()
 {
-  return _M_msg.c_str();
+    return _M_msg.toStdString().c_str();
+}
+
+void tvclipper_exception::raise() const {
+    throw *this;
+}
+
+const QString &tvclipper_exception::msg() const throw()
+{
+    return _M_msg;
+}
+
+const QString &tvclipper_exception::type() const throw()
+{
+    return _M_extype;
 }
 
 void tvclipper_exception::show() const
 {
-  std::string extype(type());
+    QString extype = type();
 
-  if (extype.empty())  
-    extype="TVCLIPPER error";
+    if (extype.isEmpty())
+        extype = QObject::tr("TVCLIPPER error");
 
-  QMessageBox::critical(NULL,QString::fromStdString(extype),what(),QMessageBox::Abort,QMessageBox::NoButton);
+    QString text = what();
+    qCritical() << extype << ": " << text;
+    QMessageBox::critical(NULL, extype, text, QMessageBox::Close, QMessageBox::Close);
+}
+
+tvclipper_exception *tvclipper_exception::clone() const {
+    return new tvclipper_exception(*this);
 }

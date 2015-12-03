@@ -51,7 +51,7 @@ protected:
     bool cancelwasclicked;
     bool waitingforclose;
 
-    static QString quotetext(const char* text);
+    static QString quoteText(const char* text);
     void closeEvent(QCloseEvent *e);
     Ui::DlgProgress *ui;
 

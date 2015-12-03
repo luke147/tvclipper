@@ -185,14 +185,14 @@ inbuffer::~inbuffer() {
     close();
 }
 
-bool inbuffer::open(std::string filename, std::string *errmsg) {
+bool inbuffer::open(QString filename, QString *errmsg) {
     int fd;
     bool okay;
 
-    fd = ::open(filename.c_str(), O_RDONLY | O_BINARY);
+    fd = ::open(filename.toStdString().c_str(), O_RDONLY | O_BINARY);
     if (fd == -1) {
         if (errmsg)
-            *errmsg = filename + ": open: " + strerror(errno);
+            *errmsg = tr("opening file (%1): %2").arg(filename, strerror(errno));
         return false;
     }
 
@@ -206,7 +206,7 @@ bool inbuffer::open(std::string filename, std::string *errmsg) {
     return true;
 }
 
-bool inbuffer::open(int fd, std::string *errmsg, bool closeme, std::string filename) {
+bool inbuffer::open(int fd, QString *errmsg, bool closeme, QString filename) {
     infile f;
 
     f.fd = fd;
@@ -215,7 +215,7 @@ bool inbuffer::open(int fd, std::string *errmsg, bool closeme, std::string filen
     if (pipe_mode) {
         // no more files please!
         if (errmsg)
-            *errmsg = std::string("open: can't add more input files");
+            *errmsg = tr("open: can't add more input files");
         if (f.closeme)
             ::close(f.fd);
         return false;
@@ -228,7 +228,7 @@ bool inbuffer::open(int fd, std::string *errmsg, bool closeme, std::string filen
     if (::fstat(f.fd, &st) == -1) {
 #endif /* __WIN32__ */
         if (errmsg)
-            *errmsg = std::string("fstat: ") + strerror(errno);
+            *errmsg = tr("fstat: ") + strerror(errno);
         if (f.closeme)
             ::close(f.fd);
         return false;
@@ -252,7 +252,7 @@ bool inbuffer::open(int fd, std::string *errmsg, bool closeme, std::string filen
         return true;
     }
     if (errmsg)
-        *errmsg = std::string("not a regular file");
+        *errmsg = tr("not a regular file");
     if (f.closeme)
         ::close(f.fd);
 
@@ -261,7 +261,7 @@ bool inbuffer::open(int fd, std::string *errmsg, bool closeme, std::string filen
 
 void inbuffer::close() {
     // close all files
-    for (std::vector<infile>::const_iterator i = files.begin(); i != files.end(); i++) {
+    for (QVector<infile>::const_iterator i = files.begin(); i != files.end(); i++) {
         if (i->closeme)
             ::close(i->fd);
     }
@@ -290,14 +290,14 @@ void inbuffer::reset() {
 }
 
 int inbuffer::pipedata(unsigned int amount, long long position) {
-    std::vector<infile>::const_iterator i = files.begin();
+    QVector<infile>::const_iterator i = files.begin();
     assert(i != files.end());
 
     // allocate read buffer
     if (!d) {
         d = (void*) calloc(1, size);
         if (!d) {
-            fprintf(stderr, "inbuffer::pipedata: can't allocate %ld bytes: %s\n",
+            fprintf(stderr, tr("inbuffer::pipedata: can't allocate %ld bytes: %s\n").toStdString().c_str(),
                     (long)size, strerror(errno));
             abort();
         }
@@ -362,7 +362,7 @@ int inbuffer::providedata(unsigned int amount, long long position) {
         return pipedata(amount, position);
     }
 
-    std::vector<infile>::const_iterator i = files.begin();
+    QVector<infile>::const_iterator i = files.begin();
     assert(i != files.end());	// otherwise we would have returned already
     while (position >= i->end) {
 #ifdef POSIX_FADV_DONTNEED
@@ -426,7 +426,7 @@ int inbuffer::providedata(unsigned int amount, long long position) {
     if (!d) {
         d = (void*) calloc(1, size);
         if (!d) {
-            fprintf(stderr, "inbuffer::providedata: can't allocate %ld bytes: %s\n",
+            fprintf(stderr, tr("inbuffer::providedata: can't allocate %ld bytes: %s\n").toStdString().c_str(),
                     (long)size, strerror(errno));
             abort();
         }
@@ -493,7 +493,7 @@ int inbuffer::providedata(unsigned int amount) {
 }
 
 int inbuffer::getfilenum(tvclipper_off_t offset, tvclipper_off_t &fileoff) {
-    std::vector<infile>::const_iterator it = files.begin();
+    QVector<infile>::const_iterator it = files.begin();
     unsigned int num = 0;
     while (it != files.end()) {
         if (offset < it->end) {
@@ -506,8 +506,7 @@ int inbuffer::getfilenum(tvclipper_off_t offset, tvclipper_off_t &fileoff) {
     return -1;
 }
 
-std::string 
-inbuffer::getfilename(int filenum) {
+QString inbuffer::getfilename(int filenum) {
     return files.at(filenum).name;
 }
 

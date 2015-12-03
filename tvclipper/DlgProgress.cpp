@@ -111,7 +111,7 @@ void DlgProgress::print(const char *fmt, ...)
         return;
 
     if (*text) {
-        ui->logBrowser->insertHtml(QString("<span class=\"text\" style=\"white-space: pre;\">") + quotetext(text) + QString("<br/></span>"));
+        ui->logBrowser->insertHtml(QString("<span class=\"text\" style=\"white-space: pre;\">") + quoteText(text) + QString("<br/></span>"));
     } else
         ui->logBrowser->insertHtml(QString("<br>"));
     free(text);
@@ -126,7 +126,7 @@ void DlgProgress::printheading(const char *fmt, ...)
     if (vasprintf(&text,fmt,ap)<0 || (text==0))
         return;
 
-    ui->logBrowser->insertHtml(QString("<h4 style=\"text-decoration: underline;\" class=\"heading\">")+quotetext(text)+"<br/></h4>");
+    ui->logBrowser->insertHtml(QString("<h4 style=\"text-decoration: underline;\" class=\"heading\">") + quoteText(text) + "<br/></h4>");
 
     free(text);
     qApp->processEvents();
@@ -140,7 +140,7 @@ void DlgProgress::printinfo(const char *fmt, ...)
     if (vasprintf(&text,fmt,ap)<0 || (text==0))
         return;
 
-    ui->logBrowser->insertHtml(QString("<span>")+quotetext(text)+"<br/></span>");
+    ui->logBrowser->insertHtml(QString("<span>") + quoteText(text) + "<br/></span>");
     free(text);
     qApp->processEvents();
 }
@@ -156,7 +156,7 @@ void DlgProgress::printerror(const char *fmt, ...)
     QImage image = errorIcon.pixmap(16, 16).toImage();
     ui->logBrowser->textCursor().insertImage(image);
 
-    ui->logBrowser->insertHtml(QString("<span style=\"color: red; font-weight: bold;\">")+quotetext(text)+"<br/></span>");
+    ui->logBrowser->insertHtml(QString("<span style=\"color: red; font-weight: bold;\">") + quoteText(text) + "<br/></span>");
     free(text);
     qApp->processEvents();
 }
@@ -172,7 +172,7 @@ void DlgProgress::printwarning(const char *fmt, ...)
     QImage image = warningIcon.pixmap(16, 16).toImage();
     ui->logBrowser->textCursor().insertImage(image);
 
-    ui->logBrowser->insertHtml(QString("<span>")+quotetext(text)+"<br/></span>");
+    ui->logBrowser->insertHtml(QString("<span>") + quoteText(text) + "<br/></span>");
     free(text);
     qApp->processEvents();
 }
@@ -192,7 +192,7 @@ void DlgProgress::clickedcancel()
     }
 }
 
-QString DlgProgress::quotetext(const char *text)
+QString DlgProgress::quoteText(const char *text)
 {
     return QString(text).replace('&',QString("&amp;")).replace('<',QString("&lt;")).replace('>',QString("&gt;"));
 }

@@ -128,7 +128,7 @@ DISTFILES += \
 # Don't edit value of variables with "def" prefix in the name! Edit value of variables in variables.pri.
 defIconType = "png"
 defBuildPath = "build"
-ICON_TYPE = $$lower($$getFirstValOrDefVal("$$ICON_TYPE", "$$defIconType"))
+ICON_TYPE = $$getFirstValOrDefVal("$$lower($$ICON_TYPE)", "$$defIconType")
 BUILD_PATH = $$getFirstValOrDefVal("$$BUILD_PATH", "$$defBuildPath")
 BUILD_PATH = $$shell_path("$$clean_path("$${BUILD_PATH}")/")
 
@@ -355,3 +355,5 @@ CONFIG(release, debug|release) {
 message("commands before linking: $$escape_expand(\\n\\t)$$QMAKE_PRE_LINK")
 message("commands after linking: $$escape_expand(\\n\\t)$$QMAKE_POST_LINK")
 message("INSTALLS: $$INSTALLS")
+
+TRANSLATIONS = tr/tvclipper_cz.ts

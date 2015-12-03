@@ -291,11 +291,11 @@ void tvclipper_settings::load_settings()
     recentfiles_max = value(QStringLiteral(OPTION_RECENTFILES_MAX), OPTION_RECENTFILES_MAX_DEF_VAL).toInt();
 
     recentfiles.clear();
-    std::list<std::string> videoFilenames;
+    QStringList videoFilenames;
 
     {
         QStringList recentFileNumbers = childGroups();
-        unsigned int currentNumber = 0;
+        int currentNumber = 0;
         for (QStringList::const_iterator itNumber = recentFileNumbers.begin();
              itNumber != recentFileNumbers.end() && currentNumber < recentfiles_max;
              itNumber++, currentNumber++)
@@ -320,7 +320,7 @@ void tvclipper_settings::load_settings()
                     endGroup();	// *itNumber
                     continue;
                 }
-                videoFilenames.push_back( videoFilename.toStdString() );
+                videoFilenames.push_back( videoFilename );
             }
 
             if (videoFilenames.empty()) {
@@ -329,7 +329,7 @@ void tvclipper_settings::load_settings()
             }
 
             // adding one item of recent file list
-            recentfiles.push_back(std::pair< std::list<std::string>, std::string >(videoFilenames, idxfilename.toStdString()));
+            recentfiles.push_back(QPair< QStringList, QString >(videoFilenames, idxfilename));
 
             endGroup();	// *itNumber
         }
@@ -462,14 +462,14 @@ tvclipper_settings::save_settings()
     setValue(QStringLiteral(OPTION_RECENTFILES_MAX), int(recentfiles_max));
 
     // saving the updated list of recent files
-    for (unsigned int i = 0; i < recentfiles.size(); ++i) {
+    for (int i = 0; i < recentfiles.size(); ++i) {
         QString key = "/" + QString::number(i);
         beginGroup(key);
         int j = 0;
-        for(std::list<std::string>::iterator it = settings()->recentfiles[i].first.begin(); it!=settings()->recentfiles[i].first.end(); it++, j++) {
-            setValue("/" + QString::number(j), QString::fromStdString(*it));
+        for(QStringList::iterator it = settings()->recentfiles[i].first.begin(); it!=settings()->recentfiles[i].first.end(); it++, j++) {
+            setValue("/" + QString::number(j), *it);
         }
-        setValue(QStringLiteral(OPTION_RECENTFILES_FILE_IDX), QString::fromStdString(recentfiles[i].second));
+        setValue(QStringLiteral(OPTION_RECENTFILES_FILE_IDX), recentfiles[i].second);
         endGroup();	// key
     }
     endGroup();	// recentfiles
@@ -508,7 +508,7 @@ tvclipper_settings::save_settings()
     endGroup();	// snapshots
 
     beginGroup(QStringLiteral(OPTIONS_PIPE));
-    for (unsigned int i = 0; i < pipe_command.size(); ++i) {
+    for (int i = 0; i < pipe_command.size(); ++i) {
         QString key = "/" + QString::number(i);
         beginGroup(key);
         setValue(QStringLiteral(OPTION_PIPE_COMMAND), pipe_command[i]);

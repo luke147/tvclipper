@@ -57,6 +57,8 @@
 
 #include <stdio.h>
 
+#include <QString>
+
 const int mpgfile::frameratescr[16]=
 {
     1080000,1126125,1125000,1080000,900900,900000,540000,450450,450000,
@@ -73,7 +75,7 @@ mpgfile::~mpgfile()
 {}
 
 /// Factory function
-mpgfile* mpgfile::open(inbuffer *b, std::string *errormessage) {
+mpgfile* mpgfile::open(inbuffer *b, QString *errormessage) {
     int initialoffset;
 
     if (errormessage)
@@ -81,7 +83,7 @@ mpgfile* mpgfile::open(inbuffer *b, std::string *errormessage) {
 
     if (b->providedata(64 << 10) < (64 << 10)) {
         if (errormessage)
-            *errormessage = "File too short";
+            *errormessage = tr("File too short");
         return 0;
     }
 
@@ -96,7 +98,7 @@ mpgfile* mpgfile::open(inbuffer *b, std::string *errormessage) {
         return new psfile(*b, initialoffset);
 
     if (errormessage)
-        *errormessage = "Unknown file type";
+        *errormessage = tr("Unknown file type");
 
     return 0;
 }
@@ -435,7 +437,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
         pts_t delta_pts = (pts_t)(stop - start) * framerate / 300;
         double mux_rate = (double)bytes * 9e4 / (double)delta_pts;
         if (log)
-            log->printinfo("Estimated mux rate: %.2f MB/s", mux_rate * 1e-6);
+            log->printinfo(tr("Estimated mux rate: %.2f MB/s").toStdString().c_str(), mux_rate * 1e-6);
     }
 
     while (seekpic>0 && idx[seekpic].getpts()>=videostartpts-180000)
@@ -707,11 +709,18 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                 float starts=float(audiostartpts[a]-videostartpts)/90.;
                 float stops=float(audiostoppts[a]-videostoppts)/90.;
                 float shift=float(audiooffset[a]-videooffset)/90.;
-                log->printinfo("Audio channel %d: starts %.3f milliseconds %s video",
-                               a+1, fabsf(starts-shift), (starts>=shift) ? "after":"before");
-                log->printinfo("Audio channel %d: stops %.3f milliseconds %s video",
-                               a+1, fabsf(stops-shift), (stops>=shift) ? "after":"before");
-                log->printinfo("Audio channel %d: delayed %.3f milliseconds",
+                if (starts>=shift) {
+                    log->printinfo(tr("Audio channel %d: starts %.3f milliseconds after video").toStdString().c_str(),
+                                   a+1, fabsf(starts-shift));
+                    log->printinfo(tr("Audio channel %d: stops %.3f milliseconds after video").toStdString().c_str(),
+                                   a+1, fabsf(stops-shift));
+                } else {
+                    log->printinfo(tr("Audio channel %d: starts %.3f milliseconds before video").toStdString().c_str(),
+                                   a+1, fabsf(starts-shift));
+                    log->printinfo(tr("Audio channel %d: stops %.3f milliseconds before video").toStdString().c_str(),
+                                   a+1, fabsf(stops-shift));
+                }
+                log->printinfo(tr("Audio channel %d: delayed %.3f milliseconds").toStdString().c_str(),
                                a+1, shift);
                 log->print("");
             }
@@ -724,7 +733,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
 void mpgfile::recodevideo(muxer &mux, int start, int stop, pts_t offset,int savedpics,int savepics, logoutput *log)
 {
     if (log)
-        log->printinfo("Recoding %d pictures", stop-start);
+        log->printinfo(tr("Recoding %d pictures").toStdString().c_str(), stop-start);
 
     std::list<avframe*> framelist;
     decodegop(start,stop,framelist);
@@ -843,12 +852,12 @@ void mpgfile::fixtimecode(uint8_t *buf, int len, pts_t pts)
 // general purpose utility function to 
 // read a binary file to memory for further processing  
 // ATTENTION: BE SURE YOU HAVE ENOUGH!!! */
-ssize_t mpgfile::readfile(std::string filename, uint8_t **buffer) {
+ssize_t mpgfile::readfile(QString filename, uint8_t **buffer) {
 
     FILE *pFile;
     size_t len, lSize;
 
-    pFile = fopen(filename.c_str() , "rb");
+    pFile = fopen(filename.toStdString().c_str() , "rb");
     if (pFile==NULL) return -1;
 
     // obtain file size
@@ -875,5 +884,3 @@ ssize_t mpgfile::readfile(std::string filename, uint8_t **buffer) {
     return len;
 
 }
-
-

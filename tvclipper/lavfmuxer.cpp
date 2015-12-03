@@ -34,7 +34,8 @@
     along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern "C" {
+extern "C"
+{
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }

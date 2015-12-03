@@ -37,11 +37,12 @@
 #ifndef _TVCLIPPER_LOGOUTPUT_H
 #define _TVCLIPPER_LOGOUTPUT_H
 
-/**
-@author Sven Over
-*/
+#include <QCoreApplication>
+
 class logoutput
 {
+    Q_DECLARE_TR_FUNCTIONS(logoutput)
+
 protected:
     int currentprogress;
 

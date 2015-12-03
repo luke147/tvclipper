@@ -37,24 +37,25 @@
 #ifndef _TVCLIPPER_EXCEPTION_H
 #define _TVCLIPPER_EXCEPTION_H
 
-#include <exception>
-#include <string>
+#include <QException>
+#include <QString>
 
-class tvclipper_exception : public std::exception
+class tvclipper_exception : public QException
 {
 protected:
-  std::string _M_msg;
-  std::string _M_extype;
+  QString _M_msg;
+  QString _M_extype;
 public:
-  explicit tvclipper_exception(const std::string &__arg);
-  explicit tvclipper_exception(const char* __arg);
+  explicit tvclipper_exception(const QString &__arg);
+  tvclipper_exception(const tvclipper_exception &e);
+  // explicit tvclipper_exception(const char* __arg);
   virtual ~tvclipper_exception() throw();
   
-  virtual const char *what() const throw();
-  
-  const std::string &msg() const throw() { return _M_msg; }
-  const std::string &type() const throw() { return _M_extype; }
-  
+  const char* what() const throw();
+  void raise() const;
+  const QString &msg() const throw();
+  const QString &type() const throw();
+  tvclipper_exception* clone() const;
   void show() const;
 };
 

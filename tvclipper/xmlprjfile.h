@@ -45,18 +45,18 @@ public:
     }
 };
 
-typedef std::list<EventMark> EventMarks;
+typedef QList<EventMark> EventMarks;
 
 class XmlPrjFile
 {
 public:
     XmlPrjFile();
-    XmlPrjFile(std::list<std::string> mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks);
+    XmlPrjFile(QStringList mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks);
     virtual ~XmlPrjFile();
 
 public:
     QFile *xmlFile;
-    std::list<std::string> mpgList;
+    QStringList mpgList;
     QString idxFile;
     QString expFile;
     QString expFormat;
@@ -81,7 +81,7 @@ private: //private methods
 class XmlPrjFileWriter : public XmlPrjFile
 {
 public: // public methods
-    XmlPrjFileWriter(std::list<std::string> mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks);
+    XmlPrjFileWriter(QStringList mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks);
     ~XmlPrjFileWriter();
     bool write(QString prjFilename);
 

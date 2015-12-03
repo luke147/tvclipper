@@ -47,7 +47,7 @@ XmlPrjFile::XmlPrjFile()
     eventMarks = EventMarks();
 }
 
-XmlPrjFile::XmlPrjFile(std::list<std::string> mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks)
+XmlPrjFile::XmlPrjFile(QStringList mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks)
 {
     xmlFile = new QFile();
 
@@ -159,7 +159,7 @@ bool XmlPrjFileReader::read(QString prjFileName, bool NoIdxAndExpFiles, QString 
             continue;
 
         if (xmlDoc->name().toString() == MPGFILE_TAG) {
-            mpgList.push_back(readStringAttribValue(QString(FILE_PATH_ATTRIBUTE)).toStdString());
+            mpgList.push_back(readStringAttribValue(QString(FILE_PATH_ATTRIBUTE)));
             continue;
         }
 
@@ -203,7 +203,7 @@ bool XmlPrjFileReader::read(QString prjFileName, bool NoIdxAndExpFiles, QString 
     return true;
 }
 
-XmlPrjFileWriter::XmlPrjFileWriter(std::list<std::string> mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks)
+XmlPrjFileWriter::XmlPrjFileWriter(QStringList mpgList, QString idxFile, QString expFile, QString expFormat, EventMarks eventMarks)
     : XmlPrjFile(mpgList, idxFile, expFile, expFormat, eventMarks)
 {
     xmlDoc = new QXmlStreamWriter();
@@ -232,8 +232,8 @@ bool XmlPrjFileWriter::write(QString prjFilename)
     xmlDoc->writeCharacters(QString("\n"));
     xmlDoc->writeStartElement(QString(START_DOC_TAG));
 
-    for (std::list<std::string>::const_iterator it = mpgList.begin(); it != mpgList.end(); it++) {
-        okay = writeFileNameToElem(QString(MPGFILE_TAG), QString::fromStdString(*it));
+    for (QStringList::const_iterator it = mpgList.begin(); it != mpgList.end(); it++) {
+        okay = writeFileNameToElem(QString(MPGFILE_TAG), *it);
         if (!okay)
             return false;
     }

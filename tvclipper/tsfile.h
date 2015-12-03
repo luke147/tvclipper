@@ -124,8 +124,8 @@ protected:
   bool check_si_tables();
   size_t get_si_table(uint8_t*, size_t,  size_t&, int, int);
 
-  int isTOPFIELD(const uint8_t*, int, std::string);  
-  int isTF7700HDPVR(std::string);  
+  int isTOPFIELD(const uint8_t*, int, QString);  
+  int isTF7700HDPVR(QString);
   enum bookmarktype { none, byte, time, pic };
   bookmarktype bmtype;                      // indicates type of read bookmarks 
   std::vector<int> pic_bookmarks;           // to store the bookmarks as frame numbers (returned by getbookmarks)

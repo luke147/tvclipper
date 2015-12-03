@@ -37,6 +37,7 @@
 #ifndef _TVCLIPPER_MPGFILE_H
 #define _TVCLIPPER_MPGFILE_H
 
+#include <QCoreApplication>
 #include <string>
 #include <vector>
 #include <list>
@@ -58,6 +59,8 @@ class logoutput;
 
 class mpgfile
 {
+    Q_DECLARE_TR_FUNCTIONS(mpgfile)
+
 public:
 
 protected:
@@ -74,7 +77,7 @@ protected:
 public:
     virtual ~mpgfile();
 
-    static mpgfile *open(inbuffer *b, std::string *errormessage = 0);
+    static mpgfile *open(inbuffer *b, QString *errormessage = NULL);
     virtual int streamreader(class streamhandle &s)=0;
     virtual int mplayeraudioid(int audiostream)=0;
     virtual bool istransportstream()
@@ -203,19 +206,19 @@ public:
         s[videostream()].setvideoencodingparameters();
     }
 
-    int generateindex(const char *savefilename=0, std::string *errorstring=0, logoutput *log=0)
+    int generateindex(const char *savefilename = NULL, QString *errorstring = NULL, logoutput *log=0)
     {
         int rv=idx.generate(savefilename,errorstring,log);
         pictures=(rv>0)?rv:0;
         return rv;
     }
-    int loadindex(const char *filename, std::string *errorstring=0)
+    int loadindex(const char *filename, QString *errorstring = NULL)
     {
         int rv=idx.load(filename,errorstring);
         pictures=(rv>0)?rv:0;
         return rv;
     }
-    int saveindex(const char *filename, std::string *errorstring=0)
+    int saveindex(const char *filename, QString *errorstring = NULL)
     {
         return idx.save(filename,errorstring);
     }
@@ -237,7 +240,7 @@ public:
     void recodevideo(muxer &mux, int start, int stop, pts_t offset,
                      int progresspics=0, int progresstotal=0, logoutput *log=0);
     void fixtimecode(uint8_t *buf, int len, pts_t pts);
-    ssize_t readfile(std::string filename, uint8_t **buffer);
+    ssize_t readfile(QString filename, uint8_t **buffer);
 
     tvclipper_off_t getfilesize()
     {

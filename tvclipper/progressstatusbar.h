@@ -68,7 +68,8 @@ public:
     return cancelwasclicked;
     }
   void finish();
-  void print(const char *fmt, ...);
+  void print(const char *format, ...);
+  void print(const QString text);
 
 public slots:
   void setprogress(int permille);

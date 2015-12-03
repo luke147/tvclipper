@@ -44,6 +44,8 @@
 #include "types.h"
 #include "pts.h"
 #include "defines.h"
+#include <QCoreApplication>
+#include <QString>
 
 #define IDX_PICTYPE_I 1
 #define IDX_PICTYPE_P 2
@@ -58,6 +60,8 @@ class logoutput;
 */
 class mpgIndex
   {
+    Q_DECLARE_TR_FUNCTIONS(mpgIndex)
+
 public:
   struct picture
     {
@@ -159,10 +163,10 @@ public:
 
   ~mpgIndex();
 
-  int generate(const char *savefilename=0, std::string *errorstring=0, logoutput *log=0);
-  int save(int fd, std::string *errorstring = 0, bool closeme = false);
-  int save(const char *filename, std::string *errorstring=0);
-  int load(const char *filename, std::string *errorstring=0);
+  int generate(const char *savefilename=0, QString *errorstring=0, logoutput *log=0);
+  int save(int fd, QString *errorstring = 0, bool closeme = false);
+  int save(const char *filename, QString *errorstring = NULL);
+  int load(const char *filename, QString *errorstring = NULL);
   
   int getwidth(int res) const
   {

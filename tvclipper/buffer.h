@@ -38,9 +38,12 @@
 #ifndef _TVCLIPPER_BUFFER_H_
 #define _TVCLIPPER_BUFFER_H_
 
-#include <vector>
-#include <string>
+#include <QVector>
 #include "port.h"
+
+#include <QCoreApplication>
+#include <QString>
+
 
 class buffer
   {
@@ -159,6 +162,8 @@ public:
   };
 
 class inbuffer {
+    Q_DECLARE_TR_FUNCTIONS(inbuffer)
+
  protected:
     void *d;
     unsigned int size, mmapsize, readpos, writepos;
@@ -168,9 +173,9 @@ class inbuffer {
         tvclipper_off_t end;
         bool closeme;
         int fd;
-        std::string name;
+        QString name;
     };
-    std::vector<infile> files;
+    QVector<infile> files;
     bool eof;
     tvclipper_off_t pos;
     tvclipper_off_t filesize;
@@ -185,8 +190,8 @@ class inbuffer {
 public:
     inbuffer(unsigned int _size, unsigned int mmapsize = 0);
     ~inbuffer();
-    bool open(int fd, std::string *errmsg = 0, bool closeme = false, std::string filename="");
-    bool open(std::string filename, std::string *errmsg = 0);
+    bool open(int fd, QString *errmsg = 0, bool closeme = false, QString filename = "");
+    bool open(QString filename, QString *errmsg = 0);
     void reset();
 
     const void *data() const { return (void*)((char*)d + readpos); }
@@ -208,7 +213,7 @@ public:
     tvclipper_off_t getfilesize() const { return filesize; }
     tvclipper_off_t getfilepos() const { return pos + readpos; }
     int getfilenum(tvclipper_off_t offset, tvclipper_off_t &fileoff);
-    std::string getfilename(int filenum);
+    QString getfilename(int filenum);
     void setsequential(bool flag) { sequential = flag; }
 };
 

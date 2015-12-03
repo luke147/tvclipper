@@ -37,9 +37,9 @@
 #ifndef _TVCLIPPER_TVCLIPPER_H
 #define _TVCLIPPER_TVCLIPPER_H
 
-#include <string>
-#include <vector>
-#include <list>
+#include <QString>
+#include <QVector>
+#include <QList>
 #include <ctime>
 #include "mpgfile.h"
 #include "ui_tvclipper.h"
@@ -102,14 +102,14 @@ private:
     std::clock_t prevTimeForLinSlider;
 
 private:
-    void getFilesToOpen(std::list<std::string> &filenames);
+    void getFilesToOpen(QStringList &filenames);
     void freeMpgData();
     void setUiForOpeningFile(bool afterOpening);
     QString getIdxFileName(QString idxfilename, QString mpgFilename);
-    bool prepareToOpeninMpgFile(std::list<std::string> &filenames, std::string &idxfilename, std::string &expfilename, EventMarks &eventMarks);
+    bool prepareToOpeninMpgFile(QStringList &filenames, QString &idxfilename, QString &expfilename, EventMarks &eventMarks);
     bool saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selectedAudio);
-    void createChapterList(std::string &chapterstring, std::string &chaptercolumn);
-    bool exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], int expfmt, int ip, std::string expcmd, std::string chapterstring, std::string chaptercolumn, size_t pos);
+    void createChapterList(QString &chapterstring, QString &chaptercolumn);
+    bool exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], int expfmt, int ip, QString expcmd, QString chapterstring, QString chaptercolumn, int pos);
     void keyPressEvent(QKeyEvent *keyEvent);
     void keyReleaseEvent();
     void wheelEvent(QWheelEvent *wEvent);
@@ -117,7 +117,7 @@ private:
 
 protected:
     quickPictureLookup_t quick_picture_lookup;
-    std::list<pts_t> chapterlist;
+    QList<pts_t> chapterlist;
 
     QAction* audiotrackmenu;
     inbuffer buf;
@@ -131,9 +131,9 @@ protected:
     bool fine;
     bool jogsliding;
     int jogmiddlepic;
-    std::string prjfilen,idxfilen,expfilen;
+    QString prjfilen,idxfilen,expfilen;
     QString picfilen;
-    std::list<std::string> mpgfilen;
+    QStringList mpgfilen;
     QProcess *mplayer_process;
     bool mplayer_success;
     QString mplayer_out;
@@ -151,7 +151,7 @@ protected:
 protected:
     //   QPixmap getpixmap(int picture, bool allgop=false);
     void exportvideo(const char *fmt);
-    void addtorecentfiles(const std::list<std::string> &filenames, const std::string &idxfilename=std::string());
+    void addToRecentFiles(const QStringList &filenames, const QString &idxfilename = QString(""));
     void setViewScaleFactor(double factor);
     void setViewScaleFactor(int requireHeight);
 
@@ -164,11 +164,10 @@ protected:
     // QMessagebox interface
     int question(const QString & caption, const QString & text);
     int critical(const QString & caption, const QString & text);
-    int critical(const QString & caption, const std::string & text);
 
     // filename handling
-    void make_canonical(std::string &filename);
-    void make_canonical(std::list<std::string> &filenames);
+    void makeCanonical(QString &filename);
+    void makeCanonical(QStringList &filenames);
 
     // generic event item adder
     void addEventListItem(int pic, EventListItem::eventtype type);
@@ -191,13 +190,14 @@ protected slots:
 public:
     ~tvclipper();
     explicit tvclipper(QString orgName, QString appName, QWidget *parent = NULL, Qt::WindowFlags flags = Qt::Window);
-    void open(std::list<std::string> filenames = std::list<std::string>(), std::string idxfilename = std::string(), std::string expfilename = std::string());
+    void open(QStringList filenames = QStringList(), QString idxfilename = QString(), QString expfilename = QString());
     void setbusy(bool b=true);
     void batchmode(bool b=true) { nogui = b; }
     void exportoptions(int format=0, bool bof=true, bool eof=true) { exportformat = format; start_bof=bof; stop_eof=eof; }
     // static tvclipper *New(std::string filename=std::string(), std::string idxfilename=std::string());
     void addStartStopItems(std::vector<int>, int option=0);
     int getTimePerFrame() { return timeperframe>0 && timeperframe<5000 ? timeperframe : 3003; }
+    QString getNonExistFilename(QString filename, QString extWithDoth);
 
 public slots:
     void fileNew();

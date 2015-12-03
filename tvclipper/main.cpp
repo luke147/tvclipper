@@ -57,12 +57,14 @@ extern "C" {
 #include <QTextCodec>
 #include <QFileInfo>
 #include <QDir>
+#include <QMessageBox>
 
 #include "tvclipper.h"
 #include "mpgfile.h"
 #include "mpgIndex.h"
 #include "version.h"
 #include "settings.h"
+#include "exception.h"
 
 
 class AppParams {
@@ -70,40 +72,61 @@ public:
     bool generateidx;
     bool batchmode, start_bof, stop_eof;
     int exportformat;
-    std::string idxfilename, expfilename;
-    std::vector<std::string> cutlist;
-    std::list<std::string> filenames;
+    QString idxfilename, expfilename;
+    std::vector<QString> cutlist;
+    QStringList filenames;
+    const uint npos = ~0;
 
     AppParams(void): generateidx(false), batchmode(false), start_bof(true), stop_eof(true), exportformat(0) {}
+
+    size_t findFirstOfOrNotFind(const QString &text, const QString &chars, bool find)
+    {
+        bool founded = false;
+        size_t pos = 0;
+
+        for (QString::const_iterator it = text.constBegin(); it != text.constEnd(); it++, pos++)
+        {
+            if(chars.contains(*it) == find) {
+                founded = true;
+                break;
+            }
+        }
+        if (!founded) {
+            pos = ~0;
+        }
+
+        return pos;
+    }
 };
 
 static char *argv0;
 
 void usage_exit(int rv = 1) {
     fprintf(stderr,
-        "Usage (" VERSION_STRING "):\n"
-        "  %s -generateidx [-idx <idxfilename>] [<mpgfilename> ...]\n"
-        "  %s -batch [ OPTIONS ] <prjfilename> | <mpgfilename> ...\n\n"
-        "OPTIONS: -cut 4:3|16:9|TS|TS2|<list>, -exp <expfilename>,\n"
-        "         -format <num>, -automarker <num>\n\n",
-        argv0, argv0);
+        "%s\n"
+        "\t%s -generateidx [-idx <idxfilename>] [<mpgfilename> ...]\n"
+        "\t%s -batch [ OPTIONS ] <prjfilename> | <mpgfilename> ...\n\n"
+        "%s\n"
+        "\t-cut 4:3|16:9|TS|TS2|<list>, -exp <expfilename>,\n"
+        "\t-format <num>, -automarker <num>\n\n",
+        QObject::tr("Usage %1:").arg(VERSION_STRING).toStdString().c_str(), argv0, argv0, QObject::tr("Options:").toStdString().c_str());
     fprintf(stderr,
-        "If no input files are specified, `tvclipper -generateidx' reads from\n"
-        "standard input.  By default, it also writes the index to standard\n"
-        "output, but you can specify another destination with `-idx'.\n\n");
+            QObject::tr("If no input files are specified, `tvclipper -generateidx' reads from\n"
+                        "standard input.  By default, it also writes the index to standard\n"
+                        "output, but you can specify another destination with `-idx'.\n\n").toStdString().c_str());
     fprintf(stderr,
-        "In batch mode you can use `-cut' to keep only 4:3 resp. 16:9 frames or\n"
-        "create automatically alternating START/STOP cut markers for the bookmarks\n"
-        "imported from the input transport stream (TS, TS2) or for a given list of\n"
-        "frame numbers / time stamps (you can use any of ',-|;' as separators).\n"
-        "Without any (valid) cut markers the whole file will be converted!\n\n");
+            QObject::tr("In batch mode you can use `-cut' to keep only 4:3 resp. 16:9 frames or\n"
+                        "create automatically alternating START/STOP cut markers for the bookmarks\n"
+                        "imported from the input transport stream (TS, TS2) or for a given list of\n"
+                        "frame numbers / time stamps (you can use any of ',-|;' as separators).\n"
+                        "Without any (valid) cut markers the whole file will be converted!\n\n").toStdString().c_str());
     fprintf(stderr,
-        "The -exp switch specifies the name of the exported file, with -format\n"
-        "the default export format (0=MPEG program stream/DVD) can be changed and\n"
-        "-automarker sets START/STOP markers at BOF/EOF (0=none,1=BOF,2=EOF,3=both).\n\n");
+            QObject::tr("The -exp switch specifies the name of the exported file, with -format\n"
+                        "the default export format (0=MPEG program stream/DVD) can be changed and\n"
+                        "-automarker sets START/STOP markers at BOF/EOF (0=none,1=BOF,2=EOF,3=both).\n\n").toStdString().c_str());
     fprintf(stderr,
-        "Options may be abbreviated as long as they remain unambiguous.\n\n");
-        exit(rv);
+            QObject::tr("Options may be abbreviated as long as they remain unambiguous.\n\n").toStdString().c_str());
+    exit(rv);
 }
 
 void printCopyright() {
@@ -155,7 +178,7 @@ AppParams* readParams(int argc, char *argv[]) {
             // process input files
             // (that way files also can come first / options last and
             // argument processing only happens once and only in this loop!)
-            appParams->filenames.push_back(std::string(argv[i]));
+            appParams->filenames.push_back(argv[i]);
             continue;
         }
 
@@ -198,7 +221,7 @@ AppParams* readParams(int argc, char *argv[]) {
             char *pch = strtok(argv[i],",-|;");
             while (pch) {
                 if (strlen(pch))
-                    appParams->cutlist.push_back((std::string)pch);
+                    appParams->cutlist.push_back(pch);
                 pch = strtok(NULL,",-|;");
             }
             continue;
@@ -210,9 +233,9 @@ AppParams* readParams(int argc, char *argv[]) {
     return appParams;
 }
 
-int genIdx(std::list<std::string> filenames, std::string idxfilename) {
-    std::string mpgfilename = "<stdin>";
-    std::string errormessage;
+int genIdx(QStringList filenames, QString idxfilename) {
+    QString mpgfilename = "<stdin>";
+    QString errormessage;
     inbuffer buf(8 << 20, 128 << 20);
     bool okay = true;
     int rv;
@@ -222,11 +245,11 @@ int genIdx(std::list<std::string> filenames, std::string idxfilename) {
         okay = buf.open(STDIN_FILENO, &errormessage);
     } else {
         mpgfilename = filenames.front();  // use first one (for now)
-        if (idxfilename.empty()) {
-            idxfilename = mpgfilename + ".idx";
+        if (idxfilename.isEmpty()) {
+            idxfilename = mpgfilename + idxfile_ext_with_dot;
         }
 
-        for (std::list<std::string>::iterator it = filenames.begin(); it != filenames.end(); it++) {
+        for (QStringList::iterator it = filenames.begin(); it != filenames.end(); it++) {
             bool o = buf.open(*it, &errormessage);
             if (!o)
                 okay = o;
@@ -234,38 +257,38 @@ int genIdx(std::list<std::string> filenames, std::string idxfilename) {
     }
 
     if (!okay) {
-        fprintf(stderr, "%s: %s\n", argv0, errormessage.c_str());
+        fprintf(stderr, "%s: %s\n", argv0, errormessage.toStdString().c_str());
         return 1;
     }
     buf.setsequential(tvclipper::cache_friendly);
 
     mpgfile *mpg = mpgfile::open(&buf, &errormessage);
     if (mpg == 0) {
-        fprintf(stderr, "%s: %s\n", argv0, errormessage.c_str());
+        fprintf(stderr, "%s: %s\n", argv0, errormessage.toStdString().c_str());
         return 1;
     }
 
     mpgIndex idx(*mpg);
     int pics = idx.generate();
     if (pics <= 0) {
-        fprintf(stderr, "%s: %s: %s\n", argv0, mpgfilename.c_str(), (pics < 0) ? strerror(errno) : "no pictures found");
+        fprintf(stderr, "%s: %s: %s\n", argv0, mpgfilename.toStdString().c_str(), (pics < 0) ? strerror(errno) : QObject::tr("no pictures found").toStdString().c_str());
         if (mpg)
             delete mpg;
         return 1;
     }
 
-    if (idxfilename.empty()) {
+    if (idxfilename.isEmpty()) {
         rv = idx.save(STDOUT_FILENO);
         idxfilename = "<stdout>";
     } else {
-        rv = idx.save(idxfilename.c_str());
+        rv = idx.save(idxfilename.toStdString().c_str());
     }
 
     if (mpg)
         delete mpg;
 
     if (rv < 0) {
-        fprintf(stderr, "%s: %s: %s\n", argv0, idxfilename.c_str(), strerror(errno));
+        fprintf(stderr, "%s: %s: %s\n", argv0, idxfilename.toStdString().c_str(), strerror(errno));
         return 1;
     }
 
@@ -300,23 +323,25 @@ void exportInBatchMode(tvclipper *mainWin, AppParams *appParams) {
         } else {
             std::vector<int> piclist, prob_item, prob_pos;
             unsigned int j = 0;
-            size_t pos;
-            for (std::vector<std::string>::const_iterator iter = appParams->cutlist.begin(); iter != appParams->cutlist.end(); iter++) {
-                if ((pos = iter->find_first_not_of("0123456789:./"))==std::string::npos) {
-                    if (iter->find_first_of(":./")!=std::string::npos)
-                        piclist.push_back(string2pts(*iter)/mainWin->getTimePerFrame()); // pts divided by 3600(PAL) or 3003(NTSC)
+            for (std::vector<QString>::const_iterator iter = appParams->cutlist.begin(); iter != appParams->cutlist.end(); iter++) {
+                size_t pos;
+                pos = appParams->findFirstOfOrNotFind(*iter, "0123456789:./", false);
+                if (pos == appParams->npos) {
+                    if (appParams->findFirstOfOrNotFind(*iter, ":./", true) != appParams->npos)
+                        piclist.push_back(string2pts(iter->toStdString())/mainWin->getTimePerFrame()); // pts divided by 3600(PAL) or 3003(NTSC)
                     else
-                        piclist.push_back(atoi(iter->c_str()));                       // integers are treated as frame numbers!
+                        piclist.push_back(iter->toInt());                       // integers are treated as frame numbers!
                 } else {
-                  prob_item.push_back(j);
-                  prob_pos.push_back(pos);
+                    prob_item.push_back(j);
+                    prob_pos.push_back(pos);
                 }
+
                 if (piclist.size()%2)
-                    fprintf(stderr,"*** Cut list contains an odd number of entries! ***\n");
+                    fprintf(stderr, QObject::tr("*** Cut list contains an odd number of entries! ***\n").toStdString().c_str());
                 if (!prob_item.empty()) {
-                    fprintf(stderr,"*** Problems parsing parameter provided with option `-cut'! ***\n");
+                    fprintf(stderr, QObject::tr("*** Problems parsing parameter provided with option `-cut'! ***\n").toStdString().c_str());
                     for (j=0; j<prob_item.size(); j++) {
-                        fprintf(stderr,"    '%s' ==> discarded!\n",appParams->cutlist[prob_item[j]].c_str());
+                        fprintf(stderr, QObject::tr("\t'%s' ==> discarded!\n").toStdString().c_str(),appParams->cutlist[prob_item[j]].toStdString().c_str());
                         for (int i = 0; i < (5 + prob_pos[j]); i++)
                             fprintf(stderr," ");
                         fprintf(stderr,"^\n");
@@ -332,6 +357,7 @@ void exportInBatchMode(tvclipper *mainWin, AppParams *appParams) {
 
 int main(int argc, char *argv[]) {
     int rv = 1;
+    tvclipper *mainWin = NULL;
 
     argv0 = argv[0];
 
@@ -364,7 +390,7 @@ int main(int argc, char *argv[]) {
 
     av_register_all();
 
-    tvclipper *mainWin = new tvclipper(a.organizationName(), a.applicationName());
+    mainWin = new tvclipper(a.organizationName(), a.applicationName());
     mainWin->batchmode(appParams->batchmode);
     mainWin->exportoptions(appParams->exportformat, appParams->start_bof, appParams->stop_eof);
 
