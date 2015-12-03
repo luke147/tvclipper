@@ -32,7 +32,12 @@
      <item>
       <widget class="QPushButton" name="cancelbutton">
        <property name="text">
-        <string>cancel</string>
+        <string>&amp;Cancel</string>
+       </property>
+       <property name="icon">
+        <iconset theme="dialog-cancel">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>

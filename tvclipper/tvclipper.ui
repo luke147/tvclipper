@@ -496,7 +496,7 @@
      <x>0</x>
      <y>0</y>
      <width>822</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="fileMenu">
@@ -634,8 +634,12 @@
   </action>
   <action name="fileCloseAction">
    <property name="icon">
-    <iconset>
-     <normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image3</normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image3</iconset>
+    <iconset theme="window-close">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close</string>
    </property>
    <property name="iconText">
     <string>Close</string>
@@ -657,7 +661,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Play audio: last 2 seconds</string>
+    <string>Play audio: l&amp;ast 2 seconds</string>
    </property>
    <property name="iconText">
     <string>Audio -&gt;|</string>
@@ -679,7 +683,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Play audio: next 2 seconds</string>
+    <string>Play audio: n&amp;ext 2 seconds</string>
    </property>
    <property name="iconText">
     <string>Audio |-&gt;</string>
@@ -700,6 +704,9 @@
      <normaloff/>
     </iconset>
    </property>
+   <property name="text">
+    <string>&amp;Play</string>
+   </property>
    <property name="iconText">
     <string>Play</string>
    </property>
@@ -719,6 +726,9 @@
      <normaloff/>
     </iconset>
    </property>
+   <property name="text">
+    <string>&amp;Stop</string>
+   </property>
    <property name="iconText">
     <string>Stop</string>
    </property>
@@ -732,6 +742,9 @@
   <action name="editStartAction">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set st&amp;art marker</string>
    </property>
    <property name="iconText">
     <string>Set start marker</string>
@@ -747,6 +760,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="text">
+    <string>Set st&amp;op marker</string>
+   </property>
    <property name="iconText">
     <string>Set stop marker</string>
    </property>
@@ -760,6 +776,9 @@
   <action name="editChapterAction">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set &amp;chapter marker</string>
    </property>
    <property name="iconText">
     <string>Set chapter marker</string>
@@ -775,6 +794,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="text">
+    <string>Set &amp;bookmark</string>
+   </property>
    <property name="iconText">
     <string>Set bookmark</string>
    </property>
@@ -788,6 +810,9 @@
   <action name="editAutoChaptersAction">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>A&amp;uto chapters</string>
    </property>
    <property name="iconText">
     <string>Auto chapters</string>
@@ -803,6 +828,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="text">
+    <string>Su&amp;ggest bookmarks</string>
+   </property>
    <property name="iconText">
     <string>Suggest bookmarks</string>
    </property>
@@ -817,6 +845,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="text">
+    <string>I&amp;mport bookmarks</string>
+   </property>
    <property name="iconText">
     <string>Import bookmarks</string>
    </property>
@@ -829,8 +860,12 @@
   </action>
   <action name="fileNewAction">
    <property name="icon">
-    <iconset>
-     <normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image12</normaloff>../../tvclipper-0.6.1-18.svn179.fc22.src/tvclipper-svn179/src/image12</iconset>
+    <iconset theme="window-new">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New</string>
    </property>
    <property name="iconText">
     <string>New</string>
@@ -842,6 +877,9 @@
   <action name="fileExportAction">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Export video...</string>
    </property>
    <property name="iconText">
     <string>Export video...</string>
@@ -860,6 +898,9 @@
    <property name="checked">
     <bool>true</bool>
    </property>
+   <property name="text">
+    <string>&amp;Normal</string>
+   </property>
    <property name="iconText">
     <string>Normal</string>
    </property>
@@ -874,6 +915,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="text">
+    <string>&amp;Unscaled</string>
+   </property>
    <property name="iconText">
     <string>Unscaled</string>
    </property>
@@ -887,6 +931,9 @@
   <action name="viewDifferenceAction">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;difference to current picture</string>
    </property>
    <property name="iconText">
     <string>Show difference to current picture</string>
@@ -905,6 +952,9 @@
    <property name="checked">
     <bool>false</bool>
    </property>
+   <property name="text">
+    <string>&amp;Full size</string>
+   </property>
    <property name="iconText">
     <string>Full size</string>
    </property>
@@ -918,6 +968,9 @@
   <action name="viewQuarterSizeAction">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Quarter size</string>
    </property>
    <property name="iconText">
     <string>Quarter size</string>
@@ -937,7 +990,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Adapt size</string>
+    <string>&amp;Adapt size</string>
    </property>
    <property name="iconText">
     <string>Adapt size</string>
@@ -950,6 +1003,14 @@
    </property>
   </action>
   <action name="zoomInAction">
+   <property name="icon">
+    <iconset theme="zoom-in">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Zoom &amp;in</string>
+   </property>
    <property name="iconText">
     <string>Zoom in</string>
    </property>
@@ -961,6 +1022,14 @@
    </property>
   </action>
   <action name="zoomOutAction">
+   <property name="icon">
+    <iconset theme="zoom-out">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Zoom &amp;out</string>
+   </property>
    <property name="iconText">
     <string>Zoom out</string>
    </property>
@@ -974,6 +1043,9 @@
   <action name="viewHalfSizeAction">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Half size</string>
    </property>
    <property name="iconText">
     <string>Half size</string>
@@ -994,6 +1066,9 @@
      <normaloff/>
     </iconset>
    </property>
+   <property name="text">
+    <string>Save Sna&amp;pshot</string>
+   </property>
    <property name="iconText">
     <string>Save Snapshot</string>
    </property>
@@ -1007,6 +1082,9 @@
   <action name="chapterSnapshotsSaveAction">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save C&amp;hapter Snapshots</string>
    </property>
    <property name="iconText">
     <string>Save Chapter Snapshots</string>

@@ -48,7 +48,12 @@
      <item>
       <widget class="QPushButton" name="okaybutton">
        <property name="text">
-        <string>okay</string>
+        <string>&amp;Okay</string>
+       </property>
+       <property name="icon">
+        <iconset theme="dialog-ok">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
