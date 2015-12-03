@@ -65,24 +65,27 @@
      </item>
      <item row="1" column="1" colspan="2">
       <widget class="QComboBox" name="muxercombo">
+       <property name="currentText">
+        <string notr="true">MPEG program stream/DVD (TVCLIPPER multiplexer)</string>
+       </property>
        <item>
         <property name="text">
-         <string>MPEG program stream/DVD (TVCLIPPER multiplexer)</string>
+         <string notr="true">MPEG program stream/DVD (TVCLIPPER multiplexer)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>MPEG program stream (TVCLIPPER multiplexer)</string>
+         <string notr="true">MPEG program stream (TVCLIPPER multiplexer)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>MPEG program stream/DVD (libavformat)</string>
+         <string notr="true">MPEG program stream/DVD (libavformat)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>MPEG transport stream (libavformat)</string>
+         <string notr="true">MPEG transport stream (libavformat)</string>
         </property>
        </item>
       </widget>

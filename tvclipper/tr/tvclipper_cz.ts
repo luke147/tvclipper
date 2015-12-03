@@ -24,37 +24,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="70"/>
-        <source>MPEG program stream/DVD (TVCLIPPER multiplexer)</source>
+        <location filename="../DlgExport.ui" line="105"/>
+        <source>Audio channels:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="75"/>
-        <source>MPEG program stream (TVCLIPPER multiplexer)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../DlgExport.ui" line="80"/>
-        <source>MPEG program stream/DVD (libavformat)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../DlgExport.ui" line="85"/>
-        <source>MPEG transport stream (libavformat)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../DlgExport.ui" line="102"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../DlgExport.ui" line="175"/>
+        <location filename="../DlgExport.ui" line="178"/>
         <source>&amp;OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="196"/>
+        <location filename="../DlgExport.ui" line="199"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>

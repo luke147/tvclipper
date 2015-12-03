@@ -28,8 +28,8 @@ unix: {
     # You can specify absolute or relative paths. Examples for relative path are below.
 
     # for finding liba52 library
-    SYSTEM_LIBDIR = "/usr/lib/x86_64-linux-gnu" # [SYSTEM_LIBDIR]/liba52.so  (in Debian x86_64: '/usr/lib/x86_64-linux-gnu'; in Mageia '/usr/lib' or '/usr/lib64')
-    SYSTEM_INCLUDEDIR = "/usr/include"          # [SYSTEM_INCLUDEDIR]/a52dec/a52.h
+    # SYSTEM_LIBDIR = "/usr/lib/x86_64-linux-gnu" # [SYSTEM_LIBDIR]/liba52.so  (in Debian x86_64: '/usr/lib/x86_64-linux-gnu'; in Mageia '/usr/lib' or '/usr/lib64')
+    # SYSTEM_INCLUDEDIR = "/usr/include"          # [SYSTEM_INCLUDEDIR]/a52dec/a52.h
 
     # PREFIX = "/usr"
     # BINDIR = "bin"               # [PREFIX]/[BINDIR]

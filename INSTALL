@@ -56,7 +56,7 @@ To install it, type:
 Application will be installed to /opt/tvclipper and necessary system files will be installed to /usr/share.
 You can to specify own full or relative paths. Edit file tvclipper/tvclipper/variable.pri or entered the variables like parameters for qmake application.
 Example:
-  qmake ../tvclipper/tvclipper.pro -r -spec linux-g++ PREFIX="/usr" SYSSHARE_PREFIX="/usr" BINDIR="bin"\
+  qmake -qt=5 ../tvclipper/tvclipper.pro -r -spec linux-g++ PREFIX="/usr" SYSSHARE_PREFIX="/usr" BINDIR="bin"\
       SHAREDIR="share/tvclipper" SYSSHARE_PREFIX="/usr" SYSSHAREDIR="share" DOCDIR="doc/tvclipper"\
       ICONDIR="icons" MANDIR="man/man1" APPLICATIONSDIR="applications"\
       SERVICEMENUDIR="kde4/services/ServiceMenus" PATH_TO_APP_SCALABLE_ICONS="hicolor/scalable/apps"
