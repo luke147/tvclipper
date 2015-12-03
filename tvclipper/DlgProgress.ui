@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>tvclipper</string>
+   <string>TV Clipper: Exporting progress</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
