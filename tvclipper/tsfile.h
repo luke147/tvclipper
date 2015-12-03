@@ -64,6 +64,8 @@
 
 class tsfile : public mpgfile
   {
+    Q_DECLARE_TR_FUNCTIONS(tsfile)
+
 protected:
   struct tspacket {
     uint8_t data[MAXPACKETSIZE];

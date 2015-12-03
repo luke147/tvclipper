@@ -14,47 +14,47 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="38"/>
+        <location filename="../DlgExport.ui" line="46"/>
         <source>Export as:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="51"/>
+        <location filename="../DlgExport.ui" line="59"/>
         <source>Output format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="62"/>
+        <location filename="../DlgExport.ui" line="70"/>
         <source>MPEG program stream/DVD (TVCLIPPER multiplexer)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="67"/>
+        <location filename="../DlgExport.ui" line="75"/>
         <source>MPEG program stream (TVCLIPPER multiplexer)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="72"/>
+        <location filename="../DlgExport.ui" line="80"/>
         <source>MPEG program stream/DVD (libavformat)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="77"/>
+        <location filename="../DlgExport.ui" line="85"/>
         <source>MPEG transport stream (libavformat)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="94"/>
+        <location filename="../DlgExport.ui" line="102"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="167"/>
+        <location filename="../DlgExport.ui" line="175"/>
         <source>&amp;OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../DlgExport.ui" line="183"/>
+        <location filename="../DlgExport.ui" line="196"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -88,7 +88,7 @@
     </message>
     <message>
         <location filename="../DlgMplayerError.ui" line="51"/>
-        <source>okay</source>
+        <source>&amp;Okay</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -101,7 +101,7 @@
     </message>
     <message>
         <location filename="../DlgProgress.ui" line="35"/>
-        <source>cancel</source>
+        <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -489,6 +489,7 @@ the default export format (0=MPEG program stream/DVD) can be changed and
     </message>
     <message>
         <location filename="../tvclipper.ui" line="548"/>
+        <location filename="../tvclipper.ui" line="708"/>
         <source>&amp;Play</source>
         <translation type="unfinished"></translation>
     </message>
@@ -538,291 +539,400 @@ the default export format (0=MPEG program stream/DVD) can be changed and
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="641"/>
+        <location filename="../tvclipper.ui" line="642"/>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="645"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="644"/>
+        <location filename="../tvclipper.ui" line="648"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="660"/>
-        <source>Play audio: last 2 seconds</source>
+        <location filename="../tvclipper.ui" line="664"/>
+        <source>Play audio: l&amp;ast 2 seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="663"/>
+        <location filename="../tvclipper.ui" line="667"/>
         <source>Audio -&gt;|</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="666"/>
+        <location filename="../tvclipper.ui" line="670"/>
         <source>Shift+&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="682"/>
-        <source>Play audio: next 2 seconds</source>
+        <location filename="../tvclipper.ui" line="686"/>
+        <source>Play audio: n&amp;ext 2 seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="685"/>
+        <location filename="../tvclipper.ui" line="689"/>
         <source>Audio |-&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="688"/>
+        <location filename="../tvclipper.ui" line="692"/>
         <source>&lt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="704"/>
+        <location filename="../tvclipper.ui" line="711"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="707"/>
+        <location filename="../tvclipper.ui" line="714"/>
         <source>P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="723"/>
+        <location filename="../tvclipper.ui" line="730"/>
+        <source>&amp;Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="733"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="726"/>
+        <location filename="../tvclipper.ui" line="736"/>
         <source>Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="737"/>
+        <location filename="../tvclipper.ui" line="747"/>
+        <source>Set st&amp;art marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="750"/>
         <source>Set start marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="740"/>
+        <location filename="../tvclipper.ui" line="753"/>
         <source>A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="751"/>
+        <location filename="../tvclipper.ui" line="764"/>
+        <source>Set st&amp;op marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="767"/>
         <source>Set stop marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="754"/>
+        <location filename="../tvclipper.ui" line="770"/>
         <source>N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="765"/>
+        <location filename="../tvclipper.ui" line="781"/>
+        <source>Set &amp;chapter marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="784"/>
         <source>Set chapter marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="768"/>
+        <location filename="../tvclipper.ui" line="787"/>
         <source>C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="779"/>
+        <location filename="../tvclipper.ui" line="798"/>
+        <source>Set &amp;bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="801"/>
         <source>Set bookmark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="782"/>
+        <location filename="../tvclipper.ui" line="804"/>
         <source>B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="793"/>
+        <location filename="../tvclipper.ui" line="815"/>
+        <source>A&amp;uto chapters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="818"/>
         <source>Auto chapters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="796"/>
+        <location filename="../tvclipper.ui" line="821"/>
         <source>Ctrl+C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="807"/>
+        <location filename="../tvclipper.ui" line="832"/>
+        <source>Su&amp;ggest bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="835"/>
         <source>Suggest bookmarks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="810"/>
+        <location filename="../tvclipper.ui" line="838"/>
         <source>M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="821"/>
+        <location filename="../tvclipper.ui" line="849"/>
+        <source>I&amp;mport bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="852"/>
         <source>Import bookmarks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="824"/>
+        <location filename="../tvclipper.ui" line="855"/>
         <source>I</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="836"/>
+        <location filename="../tvclipper.ui" line="868"/>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="871"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="847"/>
+        <location filename="../tvclipper.ui" line="882"/>
+        <source>&amp;Export video...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="885"/>
         <source>Export video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="850"/>
+        <location filename="../tvclipper.ui" line="888"/>
         <source>E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="864"/>
+        <location filename="../tvclipper.ui" line="902"/>
+        <source>&amp;Normal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="905"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="867"/>
+        <location filename="../tvclipper.ui" line="908"/>
         <source>Ctrl+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="878"/>
+        <location filename="../tvclipper.ui" line="919"/>
+        <source>&amp;Unscaled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="922"/>
         <source>Unscaled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="881"/>
+        <location filename="../tvclipper.ui" line="925"/>
         <source>Ctrl+U</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="892"/>
+        <location filename="../tvclipper.ui" line="936"/>
+        <source>Show &amp;difference to current picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="939"/>
         <source>Show difference to current picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="895"/>
+        <location filename="../tvclipper.ui" line="942"/>
         <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="909"/>
+        <location filename="../tvclipper.ui" line="956"/>
+        <source>&amp;Full size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="959"/>
         <source>Full size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="912"/>
+        <location filename="../tvclipper.ui" line="962"/>
         <source>Ctrl+1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="923"/>
+        <location filename="../tvclipper.ui" line="973"/>
+        <source>&amp;Quarter size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="976"/>
         <source>Quarter size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="926"/>
+        <location filename="../tvclipper.ui" line="979"/>
         <source>Ctrl+4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="940"/>
-        <location filename="../tvclipper.ui" line="943"/>
+        <location filename="../tvclipper.ui" line="993"/>
+        <source>&amp;Adapt size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="996"/>
         <source>Adapt size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="946"/>
+        <location filename="../tvclipper.ui" line="999"/>
         <source>Ctrl+3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="954"/>
-        <source>Zoom in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="957"/>
-        <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="965"/>
-        <source>Zoom out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="968"/>
-        <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="979"/>
-        <source>Half size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="982"/>
-        <source>Ctrl+2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="998"/>
-        <source>Save Snapshot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tvclipper.ui" line="1001"/>
-        <source>G</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../tvclipper.ui" line="1012"/>
-        <source>Save Chapter Snapshots</source>
+        <source>Zoom &amp;in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../tvclipper.ui" line="1015"/>
+        <source>Zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1018"/>
+        <source>Ctrl++</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1031"/>
+        <source>Zoom &amp;out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1034"/>
+        <source>Zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1037"/>
+        <source>Ctrl+-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1048"/>
+        <source>&amp;Half size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1051"/>
+        <source>Half size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1054"/>
+        <source>Ctrl+2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1070"/>
+        <source>Save Sna&amp;pshot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1073"/>
+        <source>Save Snapshot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1076"/>
+        <source>G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1087"/>
+        <source>Save C&amp;hapter Snapshots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1090"/>
+        <source>Save Chapter Snapshots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tvclipper.ui" line="1093"/>
         <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="1023"/>
-        <location filename="../tvclipper.ui" line="1026"/>
+        <location filename="../tvclipper.ui" line="1104"/>
+        <location filename="../tvclipper.ui" line="1107"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="1029"/>
-        <location filename="../tvclipper.ui" line="1032"/>
+        <location filename="../tvclipper.ui" line="1110"/>
+        <location filename="../tvclipper.ui" line="1113"/>
         <source>About </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="1040"/>
-        <location filename="../tvclipper.ui" line="1043"/>
+        <location filename="../tvclipper.ui" line="1124"/>
+        <location filename="../tvclipper.ui" line="1127"/>
         <source>&amp;Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="1046"/>
+        <location filename="../tvclipper.ui" line="1130"/>
         <source>Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="1049"/>
+        <location filename="../tvclipper.ui" line="1133"/>
         <source>F1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tvclipper.ui" line="1057"/>
+        <location filename="../tvclipper.ui" line="1141"/>
         <source>What&apos;s this</source>
         <translation type="unfinished"></translation>
     </message>
