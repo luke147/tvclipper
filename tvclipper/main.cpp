@@ -246,7 +246,7 @@ int genIdx(QStringList filenames, QString idxfilename) {
     } else {
         mpgfilename = filenames.front();  // use first one (for now)
         if (idxfilename.isEmpty()) {
-            idxfilename = mpgfilename + idxfile_ext_with_dot;
+            idxfilename = mpgfilename + IDXFILE_EXT_WITH_DOT;
         }
 
         for (QStringList::iterator it = filenames.begin(); it != filenames.end(); it++) {

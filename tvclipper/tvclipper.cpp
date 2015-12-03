@@ -302,7 +302,7 @@ void tvclipper::fileSaveAs()
 {
     QFileInfo fInfo;
     if (prjfilen.isEmpty() && !mpgfilen.isEmpty() && !mpgfilen.front().isEmpty()) {
-        prjfilen = getNonExistFilename(mpgfilen.front(), prjfile_ext_with_dot);
+        prjfilen = getNonExistFilename(mpgfilen.front(), PRJFILE_EXT_WITH_DOT);
     }
 
     QString s = QFileDialog::getSaveFileName(ui->tvclipperWidget,
@@ -1878,7 +1878,7 @@ QString tvclipper::getIdxFileName(QString idxfilename, QString mpgFilename)
     if (!idxfilename.isEmpty())
         return idxfilename;
 
-    idxfilename = mpgFilename + idxfile_ext_with_dot;
+    idxfilename = mpgFilename + IDXFILE_EXT_WITH_DOT;
     if (nogui)
         return idxfilename;
 
