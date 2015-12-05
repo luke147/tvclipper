@@ -44,8 +44,5 @@
 #include <stdint.h>
 
 typedef int64_t tvclipper_off_t;
-#ifndef FORMAT_PRINT_TV_CLIPPER_OFF_T
-#define PRINT_FORMAT_TV_CLIPPER_OFF_T PRId64
-#endif
 
 #endif /* _TVCLIPPER_PORT_H */

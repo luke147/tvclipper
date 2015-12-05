@@ -39,6 +39,7 @@
 
 #include <string>
 #include <list>
+#include <QCoreApplication>
 extern "C" {
 #include <libavformat/avformat.h>
 }
@@ -61,6 +62,8 @@ extern "C" {
 */
 class streamdata
   {
+    Q_DECLARE_TR_FUNCTIONS(streamdata)
+
 public:
   struct item
     {

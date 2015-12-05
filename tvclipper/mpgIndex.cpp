@@ -47,6 +47,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <QDebug>
 
 #include "port.h"
 #include "mpgIndex.h"
@@ -216,7 +217,7 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                     resolutions.insert(res);   // a set helps checking already read resolutions
                     WIDTH.push_back(res.first);
                     HEIGHT.push_back(res.second);
-                    //fprintf(stderr, "RESOLUTION[%d]: %d x %d\n", nres, res.first, res.second);
+                    // qCritical() << tr("RESOLUTION[%1]: %2 x %3\n").arg(nres).arg(res.first).arg(res.second);
                 }
 
                 // that's always the same preset value and thus not very usefull (in 400 bps)!!!
@@ -263,7 +264,7 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                         bool complain = false;
                         if (lasterr != error) {
                             if (err1cnt > 0) {
-                                fprintf(stderr, "last video PTS error repeated %d times\n", err1cnt);
+                                qCritical() << tr("last video PTS error repeated %1 times\n").arg(err1cnt);
                                 err1cnt = 0;
                             }
                             complain = true;
@@ -274,12 +275,14 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                         ++errcnt;
                         if (-epsilon <= error && error <= epsilon) {
                             if (complain)
-                                fprintf(stderr, "inconsistent video PTS (%+d), correcting\n", error);
+                                qCritical() << tr("inconsistent video PTS (%1), correcting\n").arg(error, 2, 10, (error < 0) ? QChar('-') : QChar('+'));
                             pts -= error;
                         } else {
                             if (complain)
-                                fprintf(stderr, "inconsistent video PTS (%+d) in %c frame %d, NOT correcting\n",
-                                        error, frametype["?IPB"], pictures);
+                                qCritical() << tr("inconsistent video PTS (%1) in %2 frame %3, NOT correcting\n")
+                                               .arg(error, 2, 10, (error < 0) ? QChar('-') : QChar('+'))
+                                               .arg(QChar(frametype["?IPB"]))
+                                               .arg(pictures);
                         }
                     }
                     referencepts=pts-(seqnr*mpgfile::frameratescr[framerate])/300;
@@ -312,8 +315,10 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                             maxbitrate=bitrate;
                             maxbitratepts=lastseqheaderpts;
                         }
-                        //fprintf(stderr, "%s: BITRATE = %d kbps over next %d ms\n",
-                        //                 ptsstring(lastseqheaderpts-firstseqheaderpts).c_str(), int(bitrate/1024.), int(dt));
+                        qCritical() << tr("%1: BITRATE = %2 kbps over next %3 ms\n")
+                                           .arg(ptsstring(lastseqheaderpts-firstseqheaderpts))
+                                           .arg(static_cast<int>(bitrate / 1024.))
+                                           .arg(static_cast<int>(dt));
                     } else {
                         firstseqheaderpts=pts;
                     }
@@ -327,8 +332,7 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                         pts_t ptsdelta = pts - p[lastiframe].getpts();
                         int pdelta = pictures - lastiframe + seqnr - p[lastiframe].getsequencenumber();
                         if (pdelta * framepts < ptsdelta)
-                            fprintf(stderr, "missing frames in GOP (%d, %d): %" PRINT_FORMAT_PTS_T "\n",
-                                    lastiframe, pictures, ptsdelta / framepts - pdelta);
+                            qCritical() << tr("missing frames in GOP (%1, %2): %3\n").arg(lastiframe).arg(pictures).arg(ptsdelta / framepts - pdelta);
                     }
                     lastiframe = pictures;
                 }
@@ -336,19 +340,17 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                 if (frametype == IDX_PICTYPE_B) {
                     /* check sequence number */
                     if (seqnr != last_seqnr + 1) {
-                        fprintf(stderr,
-                                "missing frame(s) before B frame %d (%d != %d)\n",
-                                pictures, seqnr, last_seqnr + 1);
+                        qCritical() << tr("missing frame/frames before B frame %d (%1 != %2)\n").arg(pictures).arg(seqnr).arg(last_seqnr + 1);
                         if (seqnr <= last_seqnr) {
-                            fprintf(stderr, "=> sequence number reset (%d => %d)\n", last_seqnr + 1, seqnr);
+                            qCritical() << tr("=> sequence number reset (%1 => %2)\n").arg(last_seqnr + 1).arg(seqnr);
                             if (last_non_b_pic >= 0 && last_non_b_seqnr > last_seqnr) {
-                                fprintf(stderr, "=> inserting delayed picture (%d)\n", last_non_b_seqnr);
+                                qCritical() << tr("=> inserting delayed picture (%1)\n").arg(last_non_b_seqnr);
                                 p[last_non_b_pic].setsequencenumber(++maxseqnr);
                                 last_non_b_pic = -1;
                             }
                         }
                         else if (last_non_b_pic >= 0 && last_non_b_seqnr < seqnr) {
-                            fprintf(stderr, "=> inserting delayed picture (%d)\n", last_non_b_seqnr);
+                            qCritical() << tr("=> inserting delayed picture (%1)\n").arg(last_non_b_seqnr);
                             p[last_non_b_pic].setsequencenumber(++maxseqnr);
                             last_non_b_pic = -1;
                         }
@@ -360,10 +362,11 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
                     if (last_non_b_pic >= 0) {
                         /* check sequence number */
                         if (last_non_b_seqnr != last_seqnr + 1) {
-                            fprintf(stderr,
-                                    "missing frame(s) before %c frame %d (%d != %d)\n",
-                                    p[last_non_b_pic].isiframe() ? 'I' : 'P',
-                                    pictures, last_non_b_seqnr, last_seqnr + 1);
+                            qCritical() << tr("missing frame/frames before %1 frame %2 (%3 != %4)\n")
+                                                .arg(QChar(p[last_non_b_pic].isiframe() ? 'I' : 'P'))
+                                                .arg(pictures)
+                                                .arg(last_non_b_seqnr)
+                                                .arg(last_seqnr + 1);
                         }
                         p[last_non_b_pic].setsequencenumber(++maxseqnr);
                         last_seqnr = last_non_b_seqnr;
@@ -388,9 +391,9 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
     }
 
     if (err1cnt > 0)
-        fprintf(stderr, "last video PTS error repeated %d times\n", err1cnt);
+        qCritical() << tr("last video PTS error repeated %1 times\n").arg(err1cnt);
     if (errcnt > 0)
-        fprintf(stderr, "found %d video PTS errors\n", errcnt);
+        qCritical() << tr("found %1 video PTS errors\n").arg(errcnt);
 
     if (last_non_b_pic >= 0) {
         p[last_non_b_pic].setsequencenumber(++maxseqnr);
@@ -438,7 +441,9 @@ int mpgIndex::generate(const char *savefilename, QString *errorstring, logoutput
     if (pictures != 0)
         pictures-=7;  // subtract fake pictures
 #endif
-    fprintf(stderr, "Max. input bitrate of %d kbps detected at %s\n", int(maxbitrate/1024), ptsstring(maxbitratepts-firstseqheaderpts).c_str());
+    qCritical() << tr("Max. input bitrate of %1 kbps detected at %2\n")
+                        .arg(static_cast<int>(maxbitrate/1024))
+                        .arg(ptsstring(maxbitratepts-firstseqheaderpts));
 
     return check();
 }
@@ -497,7 +502,7 @@ int mpgIndex::load(const char *filename, QString *errorstring)
     if (fd<0) {
         if (errorstring) {
             int serrno=errno;
-            *errorstring += tr("Open (")+filename+"): "+strerror(errno)+"\n";
+            *errorstring += tr("Open (%1): ").arg(filename) + strerror(errno)+"\n";
             errno=serrno;
         }
         return fd;
@@ -548,7 +553,7 @@ int mpgIndex::load(const char *filename, QString *errorstring)
         realpictures=0;
         if (errorstring)
             *errorstring += tr("Invalid index file '%1'\n").arg(filename);
-        fprintf(stderr,tr("Invalid index file: first frame no sequence header\n").toStdString().c_str());
+        qCritical() << tr("Invalid index file: first frame no sequence header\n");
         return -2;
     }
     p=(picture*)realloc((void*)data,pictures*sizeof(picture));
@@ -566,7 +571,7 @@ int mpgIndex::load(const char *filename, QString *errorstring)
             nres++;
             WIDTH.push_back(w);
             HEIGHT.push_back(h);
-            //fprintf(stderr, "RESOLUTION[%d]: %d x %d\n", nres, w, h);
+            // qCritical() << tr("RESOLUTION[%1]: %2 x %3\n").arg(nres).arg(w).arg(h);
         }
     }
 
@@ -579,8 +584,8 @@ int mpgIndex::load(const char *filename, QString *errorstring)
                 {
                     if (errorstring)
                         *errorstring += tr("Invalid index file (%1)\n").arg(filename);
-                    fprintf(stderr,tr("Invalid index file: sequence number %u appears %u times\n").toStdString().c_str(), j, seqnr[j]);
-                    fprintf(stderr, tr("Picture %u/%u, %u seqpics\n").toStdString().c_str(), i, pictures, seqpics);
+                    qCritical() << tr("Invalid index file: sequence number %1 appears %2 times\n").arg(j).arg(seqnr[j]);
+                    qCritical() << tr("Picture %1/%2, %3 seqpics\n").arg(i).arg(pictures).arg(seqpics);
                     free(p);
                     p=0;
                     pictures=0;
@@ -609,7 +614,7 @@ int mpgIndex::load(const char *filename, QString *errorstring)
             if (mpg.streamreader(s)<=0)
                 break;
         if ( (sd->inbytes()<po+4) || (*(const uint32_t*)((const uint8_t*)sd->getdata()+po) != mbo32(0x000001b3)) ) {
-            fprintf(stderr,tr("index does not match (%08x)\n").toStdString().c_str(),(*(const uint32_t*)((const uint8_t*)sd->getdata()+po)));
+            qCritical() << tr("index does not match (%1)\n").arg(*reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(sd->getdata()) + po), 8, 16, QChar('0'));
             free(p);
             p=0;
             pictures=0;

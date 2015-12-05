@@ -47,6 +47,8 @@
 
 class buffer
   {
+    Q_DECLARE_TR_FUNCTIONS(buffer)
+
 protected:
   void *d;
   unsigned int size, readpos, writepos;

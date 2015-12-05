@@ -39,13 +39,14 @@
 
 #include <stdint.h>
 #include <string>
-
+#include <QString>
 
 typedef int64_t pts_t;
+/*
 #ifndef PRINT_FORMAT_PTS_T
 #define PRINT_FORMAT_PTS_T PRId64
 #endif
-
+*/
 #define mplayer_ptsreference(x,y) (ptsreference(x,y))
 #define PTSMASK (0x0ffffffffll)
 #define PTSMSB (1ll<<31)
@@ -56,7 +57,7 @@ static inline pts_t ptsreference(pts_t t, pts_t reference)
   return t| ((reference+((t<((reference&PTSMASK)^PTSMSB))?(1ll<<32):0)-((reference&PTSMSB)?0:(1ll<<32)))&~PTSMASK);
   }
 
-std::string ptsstring(pts_t pts);
+QString ptsstring(pts_t pts);
 pts_t string2pts(std::string);
 
 #endif

@@ -50,6 +50,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cassert>
+#include <QDebug>
+
 #include "mpegmuxer.h"
 
 #ifndef O_BINARY
@@ -191,7 +193,7 @@ bool mpegmuxer::putpacket(int str, const void *data, int len, pts_t pts, pts_t d
         return false;
     if (len == 0) {
         // I'm not sure why this happens, but it does. --mr
-        fprintf(stderr, "mpegmuxer::putpacket called with zero length, str=%d\n", str);
+        qCritical() << tr("mpegmuxer::putpacket called with zero length, str=%1\n").arg(str);
         return false;
     }
     pts+=ptsoffset;
@@ -338,7 +340,7 @@ bool mpegmuxer::flush(bool flushall)
         pack *p=s->packlist.front();
 
         if (s->getfill()<0) {
-            fprintf(stderr, tr("stream %d filllevel: %d\n").toStdString().c_str(), s->getid(), s->getfill());
+            qCritical() << tr("stream %1 filllevel: %2\n").arg(QString::number(s->getid()), QString::number(s->getfill()));
         }
 
         if (!s->bufferremovals.empty()) {
@@ -383,11 +385,9 @@ bool mpegmuxer::flush(bool flushall)
         p->setscr(scr);
         scr+=packsize?scrpack:int(27.e6/double(muxrate*50)*p->getsize()+0.9999);
         if (scr>p->getmaxscr())
-            fprintf(stderr,tr("Muxer problem: %s > %s (dts:%s) s->getbuffree():%d\n").toStdString().c_str(),
-                    ptsstring(scr2pts(scr)).c_str(),
-                    ptsstring(scr2pts(p->getmaxscr())).c_str(),
-                    ptsstring(p->getdts()).c_str(),
-                    s->getbuffree() );
+            qCritical() << tr("Muxer problem: %1 > %2 (dts:%3) s->getbuffree():%4\n")
+                            .arg(ptsstring(scr2pts(scr)), ptsstring(scr2pts(p->getmaxscr())), ptsstring(p->getdts()))
+                            .arg(s->getbuffree());
         if (!p->write(fd)) return false;
         if (p->getaupayloadlen()>0) {
             s->fill(p->getaupayloadlen());
@@ -665,8 +665,7 @@ void mpegmuxer::packetizer(int str,pts_t maxdts)
         }
 
         if (len) {
-            fprintf(stderr, tr("str=%d len=%d aulist.size=%zu packlist.size=%zu\n").toStdString().c_str(),
-                    str,len,s->aulist.size(),s->packlist.size());
+            qCritical() << tr("str=%1 len=%2 aulist.size=%3 packlist.size=%4\n").arg(str).arg(len).arg(s->aulist.size()).arg(s->packlist.size());
             assert(len==0);
         }
     }
@@ -777,7 +776,7 @@ bool mpegmuxer::pack::write(int fd) {
         return true;
     }
     if (n == 0) {
-        fprintf(stderr, tr("zero-length write - disk full?\n").toStdString().c_str());
+        qCritical() << tr("zero-length write - disk full?\n");
     }
     else {
         perror(tr("write").toStdString().c_str());

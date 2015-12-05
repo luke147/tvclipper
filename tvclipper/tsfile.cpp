@@ -43,6 +43,7 @@
 #include <cstring>
 #include <cassert>
 #include <QFileInfo>
+#include <QDebug>
 
 tsfile::tsfile(inbuffer &b, int initial_offset, int stride) : mpgfile(b, initial_offset)
 {
@@ -58,11 +59,11 @@ tsfile::tsfile(inbuffer &b, int initial_offset, int stride) : mpgfile(b, initial
     const char *model[7]={"???","TF4000","TF5000","TF5010","TF5000c","TF5010c","TF7700"};
     int irc;
     bmtype = none;
-    if((irc=isTOPFIELD(header, initial_offset, buf.getfilename(0)))>0)
-        fprintf(stderr,"Found Topfield %s recording (%d bytes header, %d bookmarks)\n",model[irc/100],initial_offset,irc%100);
+    if ((irc=isTOPFIELD(header, initial_offset, buf.getfilename(0)))>0)
+        qCritical() << tr("Found Topfield %1 recording (%2 bytes header, %3 bookmarks)\n").arg(model[irc/100], QString::number(initial_offset), QString::number(irc % 100));
     else
-        fprintf(stderr,"Analyzed transport stream, %d bytes of initial data (IRC=%d)\n",initial_offset,irc);
-    fprintf(stderr, "Using %d-byte packets\n", packetsize);
+        qCritical() << tr("Analyzed transport stream, %1 bytes of initial data (IRC=%2)\n").arg(QString::number(initial_offset), QString::number(irc));
+    qCritical() << tr("Using %1-byte packets\n").arg(packetsize);
 
     // Find video PID and audio PID(s)
     buf.providedata(buf.getsize(), initialoffset);
@@ -290,11 +291,14 @@ int tsfile::isTOPFIELD(const uint8_t *header, int len, QString recfile) {
     // topfields use 188-byte packets.
     if (packetsize != TSPACKETSIZE) return -1;
 
-    if(verbose) fprintf(stderr,tr("Header length of %s: %d\n").toStdString().c_str(),recfile.toStdString().c_str(),len);
+    if (verbose)
+        qCritical() << tr("Header length of %1: %2\n").arg(recfile, QString::number(len));
 
     // topfield receiver with additional info file?
-    if((irc=isTF7700HDPVR(recfile))>0) return irc;
-    else if(verbose) fprintf(stderr,"No TF7700HDPVR! IRC=%d\n",irc);
+    if((irc=isTF7700HDPVR(recfile))>0)
+        return irc;
+    else if(verbose)
+        qCritical() << tr("No TF7700HDPVR! IRC=%1\n").arg(irc);
 
     // just in case there's a corrupted TS packet at the beginning
     if(len<TSPACKETSIZE) return -1;
@@ -306,7 +310,8 @@ int tsfile::isTOPFIELD(const uint8_t *header, int len, QString recfile) {
         unit = (1<<9)*TSPACKETSIZE;
         // There are 2 different versions, one with 4 bytes larger ServiceInfoStructure (UK models?)
         version = (header[4]<<8)|header[5];
-        if(verbose) fprintf(stderr,"magic: %x version: %x\n",magic,version);
+        if (verbose)
+            qCritical() << tr("magic: %1 version: %2\n").arg(magic).arg(version);
         if(version==TF5000PVR_VERSION) {
             off = 0;
             boff = TF5000PVR_POS;
@@ -323,7 +328,8 @@ int tsfile::isTOPFIELD(const uint8_t *header, int len, QString recfile) {
         frequency = (header[52+off]<<24)|(header[53+off]<<16)|(header[54+off]<<8)|header[55+off];
         symbolrate = (header[56+off]<<8)|header[57+off];
         modulation = header[62+off];
-        if(verbose) fprintf(stderr,"DVB-C? freq=%d symb=%d mod=%d\n",frequency,symbolrate,modulation);
+        if (verbose)
+            qCritical() << tr("DVB-C? freq=%1 symb=%2 mod=%3\n").arg(frequency).arg(symbolrate).arg(modulation);
         if(frequency>=47000 && frequency<=862000 && symbolrate>=2000 && symbolrate<=30000 && modulation<=4) {
             boff-=4;
             type+=2;
@@ -338,8 +344,15 @@ int tsfile::isTOPFIELD(const uint8_t *header, int len, QString recfile) {
         unsigned int polarity = header[53]; // 0x80, 0x08, 0x88, 0x00 (hi/lo, hor/ver)
         frequency = (header[54]<<8)|header[55];
         symbolrate = (header[56]<<8)|header[57];
-        if(verbose) fprintf(stderr,"TF4000? start=%x stop=%x dur=%d serv=%d freq=%d symb=%d pol=%d\n",
-                            magic,version,duration,servicetype,frequency,symbolrate,polarity);
+        if (verbose)
+            qCritical() << tr("TF4000? start=%1 stop=%2 dur=%3 serv=%4 freq=%5 symb=%6 pol=%7")
+                                .arg(magic, 0, 16, QChar())
+                                .arg(version, 0, 16, QChar())
+                                .arg(duration)
+                                .arg(servicetype)
+                                .arg(frequency)
+                                .arg(symbolrate)
+                                .arg(polarity);
         if(magic<=version && (magic>>16)>51543 &&
                 header[2]<24 && header[3]<60 && header[6]<24 && header[7]<60 &&
                 duration>0 && duration<1440 && servicetype==0 &&    // up to one full day TV recording should be enough!
@@ -366,14 +379,14 @@ int tsfile::isTOPFIELD(const uint8_t *header, int len, QString recfile) {
             // bookmark is stored in 128 resp. 94kbyte units
             bookmark*=unit;
             if (verbose)
-                fprintf(stderr, "BOOKMARK[%d] = %" PRINT_FORMAT_TV_CLIPPER_OFF_T "\n", bnum, bookmark);
+                qCritical() << tr("BOOKMARK[%1] = %2\n").arg(bnum).arg(bookmark);
             // fill bookmark vector with byte positions
             byte_bookmarks.push_back(bookmark);
             bnum++;
             boff+=4;
         }
     } else // receiver model identified but header to short!
-        fprintf(stderr,"Header probabely corrupted (%dbytes to short), discarding bookmarks!\n",hlen-len);
+        qCritical() << tr("Header probabely corrupted (%1bytes to short), discarding bookmarks!\n").arg(hlen - len);
 
     // this routine stores bookmarks as byte positions!
     bmtype = byte;
@@ -412,15 +425,16 @@ tsfile::isTF7700HDPVR(QString recfile) {
             free(buffer);
             return -40;
         }
-        else if(verbose) fprintf(stderr,tr("Found Topfield ADD-file: %1\n").arg(addfile).toStdString().c_str());
+        else if(verbose)
+           qCritical() << tr("Found Topfield ADD-file: %1\n").arg(addfile);
 
         boff = TF7700HDPVR_POS;
         pts_t bookmark;
         // changed byte order compared to old receivers!?!
         while ((bookmark=(buffer[boff+3]<<24)|(buffer[boff+2]<<16)|(buffer[boff+1]<<8)|buffer[boff])
                && bnum<TF7700HDPVR_MAX) {
-            if(verbose)
-                fprintf(stderr,tr("BOOKMARK[%d] = %" PRINT_FORMAT_PTS_T "\n").toStdString().c_str(), bnum, bookmark);
+            if (verbose)
+                qCritical() << tr("BOOKMARK[%1] = %2\n").arg(bnum).arg(bookmark);
             // bookmark is stored in seconds now, but we'll use full pts!
             bookmark*=unit;
             // fill bookmark vector with times
@@ -429,7 +443,7 @@ tsfile::isTF7700HDPVR(QString recfile) {
             boff+=4;
         }
     } else { // receiver model identified but file to short!
-        fprintf(stderr,tr("ADD-File probabely corrupted (%zd bytes to short), discarding bookmarks!\n").toStdString().c_str(), TF7700HDPVR_LEN - len);
+        qCritical() << tr("ADD-File probabely corrupted (%1 bytes to short), discarding bookmarks!\n").arg(TF7700HDPVR_LEN - len);
     }
 
     // terminate
@@ -438,7 +452,7 @@ tsfile::isTF7700HDPVR(QString recfile) {
     // this routine stores bookmarks as times!
     bmtype = time;
 
-    return 600+bnum;
+    return 600 + bnum;
 }
 
 size_t tsfile::get_si_table(uint8_t *tbl, size_t max, size_t &index, int pid, int tid) {
@@ -576,7 +590,7 @@ tsfile::check_si_tables() {
         // XXX: CRC32 check omitted
         if (pat[6] != 0 || pat[7] != 0) {
             /* this is NOT an error, but currently unhandled */
-            fprintf(stderr, "can not handle segmented PAT; guessing streams\n");
+            qCritical() << tr("can not handle segmented PAT; guessing streams\n");
             return false;
         }
         break;
@@ -588,7 +602,7 @@ tsfile::check_si_tables() {
         if (pat[i] || pat[i + 1]) {
             int pid = ((pat[i + 2] << 8) | pat[i + 3]) & 0x1fff;
             if (pids[pid]) {
-                fprintf(stderr, "PAT: found PMT at pid %d\n", pid);
+                qCritical() << tr("PAT: found PMT at pid %1\n").arg(pid);
                 pmts.push_back(pid);
             }
         }
@@ -659,9 +673,9 @@ tsfile::check_si_tables() {
 
         // did we find at least a video stream?
         if (vpid != -1) {
-            fprintf(stderr, "PMT: found video stream at pid %d\n", vpid);
+            qCritical() << tr("PMT: found video stream at pid %1\n").arg(vpid);
             if (apids.empty()) {
-                fprintf(stderr, "but I have to guess the audio streams :-(\n");
+                qCritical() << tr("but I have to guess the audio streams :-(\n");
                 return false;
             }
             streamnumber[vpid] = VIDEOSTREAM;
@@ -696,17 +710,17 @@ tsfile::check_si_tables() {
                 case 0x146:	// VBI teletext descriptor
                 case 0x156:	// teletext descriptor
                     // t = streamtype::vbisub;
-                    fprintf(stderr, "PMT: can't handle teletext stream at pid %d\n", ait->second);
+                    qCritical() << tr("PMT: can't handle teletext stream at pid %1\n").arg(ait->second);
                     break;
                 case 0x159:	// subtitling descriptor
                     // t = streamtype::dvbsub;
-                    fprintf(stderr, "PMT: can't handle subtitle stream at pid %d\n", ait->second);
+                    qCritical() << tr("PMT: can't handle subtitle stream at pid %2\n").arg(ait->second);
                     break;
                 default:
                     break;
                 }
                 if (t != streamtype::unknown) {
-                    fprintf(stderr, "PMT: found audio stream at pid %d\n", ait->second);
+                    qCritical() << tr("PMT: found audio stream at pid %3").arg(ait->second);
                     streamnumber[ait->second] = audiostream(audiostreams);
                     stream *S = &s[audiostream(audiostreams++)];
                     S->id = ait->second;

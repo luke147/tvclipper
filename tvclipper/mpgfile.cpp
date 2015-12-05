@@ -40,9 +40,9 @@
 #include <cerrno>
 #include <unistd.h>
 #include <cmath>
-
 #include <list>
 #include <utility>
+#include <QDebug>
 
 #include "port.h"
 #include "mpgfile.h"
@@ -139,7 +139,7 @@ void mpgfile::decodegop(int start, int stop, std::list<avframe*> &framelist)
 
     if (int rv=avcodec_open2(S->avcc, S->dec, NULL))
     {
-        fprintf(stderr,"avcodec_open returned %d\n",rv);
+        qCritical() << tr("avcodec_open returned %1\n").arg(rv);
         return;
     }
     avframe avf;
@@ -191,7 +191,7 @@ void mpgfile::decodegop(int start, int stop, std::list<avframe*> &framelist)
                                                        &avpkt);
                 if (bytesDecoded<0)
                 {
-                    fprintf(stderr,"libavcodec error while decoding frame #%d\n",pic);
+                    qCritical() << tr("libavcodec error while decoding frame #%1\n").arg(pic);
                     avcodec_close(S->avcc);
                     return;
                 }
@@ -437,7 +437,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
         pts_t delta_pts = (pts_t)(stop - start) * framerate / 300;
         double mux_rate = (double)bytes * 9e4 / (double)delta_pts;
         if (log)
-            log->printinfo(tr("Estimated mux rate: %.2f MB/s").toStdString().c_str(), mux_rate * 1e-6);
+            log->printinfo(tr("Estimated mux rate: %.2f MB/s").toUtf8().constData(), mux_rate * 1e-6);
     }
 
     while (seekpic>0 && idx[seekpic].getpts()>=videostartpts-180000)
@@ -594,9 +594,9 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                                        idx[streampic].isiframe() ? MUXER_FLAG_KEY:0  ))
                     {
                         if (log)
-                            log->printwarning("putpacket(streampic=%d) returned false",streampic);
+                            log->printwarning(tr("putpacket(streampic=%1) returned false").arg(streampic).toUtf8().constData());
                         else
-                            fprintf(stderr,"WARN: putpacket(streampic=%d) returned false\n",streampic);
+                            qCritical() << tr("WARN: putpacket(streampic=%1) returned false").arg(streampic);
                     }
                 }
 
@@ -656,17 +656,18 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                         {
 
                             for(it=sd->itemlist().begin();it!=sd->itemlist().end();++it)
-                                fprintf(stderr," fileposition:%" PRINT_FORMAT_TV_CLIPPER_OFF_T "/%d bufferposition:%d flags:%x pts:%s\n",
-                                        it->fileposition.packetposition(),it->fileposition.packetoffset(),
-                                        it->bufferposition,it->flags,ptsstring(it->pts).c_str());
+                                qCritical() << tr(" fileposition:%1/%2 bufferposition:%3 flags:%4 pts:%5\n")
+                                                    .arg(it->fileposition.packetposition())
+                                                    .arg(it->fileposition.packetoffset())
+                                                    .arg(it->bufferposition)
+                                                    .arg(it->flags, 0, 16)
+                                                    .arg(ptsstring(it->pts));
 
-                            fprintf(stderr,"nx->bufferposition:%d it->bufferposition:%d\n",
-                                    nx->bufferposition,it->bufferposition);
+                            qCritical() << tr("nx->bufferposition:%1 it->bufferposition:%2").arg(nx->bufferposition).arg(it->bufferposition);
 
                             for(int i=0;i<MAXAVSTREAMS;++i)
                                 if (sh.stream[i])
-                                    fprintf(stderr,"stream %d%s, itemlist.size():%zu\n",
-                                            i,(sh.stream[i]==sd)?"*":"",sh.stream[i]->itemlist().size());
+                                    qCritical() << tr("stream %1%2, itemlist.size():%3\n").arg(i).arg((sh.stream[i]==sd) ? "*" : "").arg(sh.stream[i]->itemlist().size());
 
                             abort();
                         }
@@ -674,7 +675,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                         if (bytes>0)
                         {
                             pts_t pts=audiopts[a]-audiooffset[a];
-                            //fprintf(stderr, "mux.put audio %d %lld\n", bytes, pts);
+                            // qCritical() << tr("mux.put audio %1 %2\n").arg(bytes).arg(pts);
                             mux.putpacket(audiostream(a),sd->getdata(),bytes,pts,pts,MUXER_FLAG_KEY);
 
                             sd->discard(bytes);
@@ -710,17 +711,17 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                 float stops=float(audiostoppts[a]-videostoppts)/90.;
                 float shift=float(audiooffset[a]-videooffset)/90.;
                 if (starts>=shift) {
-                    log->printinfo(tr("Audio channel %d: starts %.3f milliseconds after video").toStdString().c_str(),
+                    log->printinfo(tr("Audio channel %d: starts %.3f milliseconds after video").toUtf8().constData(),
                                    a+1, fabsf(starts-shift));
-                    log->printinfo(tr("Audio channel %d: stops %.3f milliseconds after video").toStdString().c_str(),
+                    log->printinfo(tr("Audio channel %d: stops %.3f milliseconds after video").toUtf8().constData(),
                                    a+1, fabsf(stops-shift));
                 } else {
-                    log->printinfo(tr("Audio channel %d: starts %.3f milliseconds before video").toStdString().c_str(),
+                    log->printinfo(tr("Audio channel %d: starts %.3f milliseconds before video").toUtf8().constData(),
                                    a+1, fabsf(starts-shift));
-                    log->printinfo(tr("Audio channel %d: stops %.3f milliseconds before video").toStdString().c_str(),
+                    log->printinfo(tr("Audio channel %d: stops %.3f milliseconds before video").toUtf8().constData(),
                                    a+1, fabsf(stops-shift));
                 }
-                log->printinfo(tr("Audio channel %d: delayed %.3f milliseconds").toStdString().c_str(),
+                log->printinfo(tr("Audio channel %d: delayed %.3f milliseconds").toUtf8().constData(),
                                a+1, shift);
                 log->print("");
             }
@@ -733,7 +734,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
 void mpgfile::recodevideo(muxer &mux, int start, int stop, pts_t offset,int savedpics,int savepics, logoutput *log)
 {
     if (log)
-        log->printinfo(tr("Recoding %d pictures").toStdString().c_str(), stop-start);
+        log->printinfo(tr("Recoding %d pictures").toUtf8().constData(), stop-start);
 
     std::list<avframe*> framelist;
     decodegop(start,stop,framelist);
@@ -746,7 +747,7 @@ void mpgfile::recodevideo(muxer &mux, int start, int stop, pts_t offset,int save
     if (int rv=avcodec_open2(avcc, s[VIDEOSTREAM].enc, NULL))
     {
         if (log)
-            log->printerror("avcodec_open(mpeg2video_encoder) returned %d",rv);
+            log->printerror(tr("avcodec_open(mpeg2video_encoder) returned %1").arg(rv).toUtf8().constData());
         return ;
     }
 
@@ -781,9 +782,9 @@ void mpgfile::recodevideo(muxer &mux, int start, int stop, pts_t offset,int save
             if (encodeError < 0 || avpkt.size == 0)
                 continue;
         } else {
-            fprintf(stderr,"trying to call avcodec_encode_video2 with frame=0\n");
+            qCritical() << tr("trying to call avcodec_encode_video2 with frame=0\n");
             encodeError = avcodec_encode_video2(avcc, &avpkt, 0, &got_packet_ptr);
-            fprintf(stderr,"...back I am.\n");
+            qCritical() << tr("...back I am.\n");
 
             if (encodeError < 0 || avpkt.size == 0)
                 break;

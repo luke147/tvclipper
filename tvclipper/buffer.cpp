@@ -56,6 +56,7 @@
 #include "port.h"
 #include "buffer.h"
 #include "windefines.h"
+#include <QDebug>
 
 #ifndef O_BINARY
 #define O_BINARY    0
@@ -297,8 +298,7 @@ int inbuffer::pipedata(unsigned int amount, long long position) {
     if (!d) {
         d = (void*) calloc(1, size);
         if (!d) {
-            fprintf(stderr, tr("inbuffer::pipedata: can't allocate %ld bytes: %s\n").toStdString().c_str(),
-                    (long)size, strerror(errno));
+            qCritical() << tr("inbuffer::pipedata: can't allocate %1 bytes: %2\n").arg(QString::number(size), strerror(errno));
             abort();
         }
         readpos = 0;
@@ -426,8 +426,7 @@ int inbuffer::providedata(unsigned int amount, long long position) {
     if (!d) {
         d = (void*) calloc(1, size);
         if (!d) {
-            fprintf(stderr, tr("inbuffer::providedata: can't allocate %ld bytes: %s\n").toStdString().c_str(),
-                    (long)size, strerror(errno));
+            qCritical() << tr("inbuffer::providedata: can't allocate %1 bytes: %2\n").arg(QString::number(size), strerror(errno));
             abort();
         }
         readpos = 0;

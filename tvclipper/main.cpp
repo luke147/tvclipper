@@ -52,6 +52,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
+#include <QObject>
 #include <QApplication>
 #include <QImage>
 #include <QTextCodec>
@@ -110,21 +111,21 @@ void usage_exit(int rv = 1) {
         "\t-cut 4:3|16:9|TS|TS2|<list>, -exp <expfilename>,\n"
         "\t-format <num>, -automarker <num>\n\n",
         QObject::tr("Usage %1:").arg(VERSION_STRING).toStdString().c_str(), argv0, argv0, QObject::tr("Options:").toStdString().c_str());
-    fprintf(stderr,
+    fprintf(stderr, "%s",
             QObject::tr("If no input files are specified, `tvclipper -generateidx' reads from\n"
                         "standard input.  By default, it also writes the index to standard\n"
                         "output, but you can specify another destination with `-idx'.\n\n").toStdString().c_str());
-    fprintf(stderr,
+    fprintf(stderr, "%s",
             QObject::tr("In batch mode you can use `-cut' to keep only 4:3 resp. 16:9 frames or\n"
                         "create automatically alternating START/STOP cut markers for the bookmarks\n"
                         "imported from the input transport stream (TS, TS2) or for a given list of\n"
                         "frame numbers / time stamps (you can use any of ',-|;' as separators).\n"
                         "Without any (valid) cut markers the whole file will be converted!\n\n").toStdString().c_str());
-    fprintf(stderr,
+    fprintf(stderr, "%s",
             QObject::tr("The -exp switch specifies the name of the exported file, with -format\n"
                         "the default export format (0=MPEG program stream/DVD) can be changed and\n"
                         "-automarker sets START/STOP markers at BOF/EOF (0=none,1=BOF,2=EOF,3=both).\n\n").toStdString().c_str());
-    fprintf(stderr,
+    fprintf(stderr, "%s",
             QObject::tr("Options may be abbreviated as long as they remain unambiguous.\n\n").toStdString().c_str());
     exit(rv);
 }
@@ -337,11 +338,11 @@ void exportInBatchMode(tvclipper *mainWin, AppParams *appParams) {
                 }
 
                 if (piclist.size()%2)
-                    fprintf(stderr, QObject::tr("*** Cut list contains an odd number of entries! ***\n").toStdString().c_str());
+                    fprintf(stderr, "%s", QObject::tr("*** Cut list contains an odd number of entries! ***\n").toStdString().c_str());
                 if (!prob_item.empty()) {
-                    fprintf(stderr, QObject::tr("*** Problems parsing parameter provided with option `-cut'! ***\n").toStdString().c_str());
+                    fprintf(stderr, "%s", QObject::tr("*** Problems parsing parameter provided with option `-cut'! ***\n").toUtf8().constData());
                     for (j=0; j<prob_item.size(); j++) {
-                        fprintf(stderr, QObject::tr("\t'%s' ==> discarded!\n").toStdString().c_str(),appParams->cutlist[prob_item[j]].toStdString().c_str());
+                        fprintf(stderr, "%s", QObject::tr("\t'%1' ==> discarded!\n").arg(appParams->cutlist[prob_item[j]]).toUtf8().constData());
                         for (int i = 0; i < (5 + prob_pos[j]); i++)
                             fprintf(stderr," ");
                         fprintf(stderr,"^\n");

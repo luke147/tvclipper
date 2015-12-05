@@ -57,6 +57,7 @@
 #include <QThread>
 #include <QMimeData>
 #include <QDesktopServices>
+#include <QDebug>
 
 #include "port.h"
 #include "tvclipper.h"
@@ -534,7 +535,12 @@ int tvclipper::chooseBestPicture(int startpic, int range, int samples)
             }
         entropy /= log(2.);
 
-        //fprintf(stderr,"frame %7d, sample %4d (%7d): %10d %10.2f\n",startpic,n,pic,colors,entropy);
+        // qCritical() << tr("frame %7d, sample %4d (%7d): %10d %10.2f\n")
+        //                     .arg(startpic, 7, 10, QChar(' '))
+        //                     .arg(n, 4, 10, QChar(' '))
+        //                     .arg(pic, 7, 10, QChar(' '))
+        //                     .arg(colors, 10, 10, QChar(' '))
+        //                     .arg(entropy, 10, 'f', 2, QChar(' '));
 
         // largest "information content"?
         if(entropy>bestval) {
@@ -543,7 +549,7 @@ int tvclipper::chooseBestPicture(int startpic, int range, int samples)
             //bestnr=n;
         }
     }
-    //fprintf(stderr,"choosing sample / frame: %4d / %7d\n!", bestnr, bestpic);
+    // qCritical() << tr("choosing sample / frame: %4d / %7d\n!").arg(bestnr, 4, 10, QChar(' ')).arg(bestpic, 7, 10, QChar(' '));
 
     return bestpic;
 }
@@ -686,7 +692,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
             while (waitpid(child_pid, &wstatus, 0)==-1 && errno==EINTR);
         }
 #endif
-        log->printerror(tr("Unable to set up muxer!").toStdString().c_str());
+        log->printerror(tr("Unable to set up muxer!").toUtf8().constData());
         if (nogui)
             delete log;
         else {
@@ -708,8 +714,8 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
         stoppic=quick_picture_lookup[num].stoppicture;
         stoppts=quick_picture_lookup[num].stoppts;
 
-        log->printheading(tr("%d. Exporting %d pictures: %s .. %s").toStdString().c_str(),
-                          num+1,stoppic-startpic,ptsstring(startpts).c_str(),ptsstring(stoppts).c_str());
+        log->printheading(tr("%d. Exporting %d pictures: %s .. %s").toUtf8().constData(),
+                          num+1,stoppic-startpic,ptsstring(startpts).toUtf8().constData(),ptsstring(stoppts).toUtf8().constData());
         mpg->savempg(*mux,startpic,stoppic,savedpic,quick_picture_lookup.back().outpicture,log);
 
         savedpic=quick_picture_lookup[num].outpicture;
@@ -718,7 +724,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 
     mux.reset();
 
-    log->printheading(tr("Saved %d pictures (%02d:%02d:%02d.%03d)").toStdString().c_str(),savedpic,
+    log->printheading(tr("Saved %d pictures (%02d:%02d:%02d.%03d)").toUtf8().constData(),savedpic,
                       int(savedtime/(3600*90000)),
                       int(savedtime/(60*90000))%60,
                       int(savedtime/90000)%60,
@@ -746,7 +752,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
         QString which = QString("which ") + expcmd.mid(0,pos) + " >/dev/null";
 
         log->print("");
-        log->printheading(tr("Performing post processing").toStdString().c_str());
+        log->printheading(tr("Performing post processing").toUtf8().constData());
         int irc = QProcess::execute(which);
 
         if(irc!=0) {
@@ -766,8 +772,8 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
 
     // print plain list of chapter marks
     log->print("");
-    log->printheading(tr("Chapter list").toStdString().c_str());
-    log->print(chaptercolumn.toStdString().c_str());
+    log->printheading(tr("Chapter list").toUtf8().constData());
+    log->print(chaptercolumn.toUtf8().constData());
 
     // simple dvdauthor xml file with chapter marks
     QString filename,destname;
@@ -775,13 +781,13 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
     filename = fInfo.fileName();
     destname = fInfo.completeBaseName();
     log->print("");
-    log->printheading(tr("Simple XML-file for dvdauthor with chapter marks").toStdString().c_str());
-    log->print("<dvdauthor dest=\"%s\">",destname.toStdString().c_str());
+    log->printheading(tr("Simple XML-file for dvdauthor with chapter marks").toUtf8().constData());
+    log->print("<dvdauthor dest=\"%s\">",destname.toUtf8().constData());
     log->print("  <vmgm />");
     log->print("  <titleset>");
     log->print("    <titles>");
     log->print("      <pgc>");
-    log->print("        <vob file=\"%s\" chapters=\"%s\" />",filename.toStdString().c_str(),chapterstring.toStdString().c_str());
+    log->print("        <vob file=\"%s\" chapters=\"%s\" />",filename.toUtf8().constData(),chapterstring.toUtf8().constData());
     log->print("      </pgc>");
     log->print("    </titles>");
     log->print("  </titleset>");
@@ -855,7 +861,7 @@ void tvclipper::fileExport()
             if (pipe_fds[0] != STDIN_FILENO) {
                 dup2(pipe_fds[0], STDIN_FILENO);
             }
-            //fprintf(stderr, "Executing %s\n", expcmd.c_str()+pos);
+            // qCritical() << tr("Executing %s").arg(expcmd);
             for (int fd=0; fd<256; ++fd)
                 if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO)
                     ::close(fd);
@@ -1016,10 +1022,13 @@ void tvclipper::editAutoChapters()
                     dist/=(p1.height()*p1.width());
 
                     // 50. seems to be a good measure for the color distance at scene changes (about sqrt(3)*50. if sum of abs values)!
-                    //fprintf(stderr,"%d, DIST=%f\n",pic,dist);
+                    // qCritical() << QString("%1, DIST=%2").arg(pic).arg(dist);
                     if(dist>settings()->chapter_threshold) {
                         inpic=pic;
-                        statusBar()->showMessage(QString().sprintf("%d. Scene change @ %d, DIST=%f\n",chapters+1,inpic,dist));
+                        statusBar()->showMessage(tr("%1. Scene change @ %2, DIST=%3\n")
+                                                        .arg(chapters + 1)
+                                                        .arg(inpic)
+                                                        .arg(dist));
                         break;
                     }
                 }
@@ -2137,7 +2146,7 @@ void tvclipper::open(QStringList filenames, QString idxfilename, QString expfile
         int serrno=errno;
         busy.setbusy(false);
         if (nogui && pictures > 0)
-            fprintf(stderr, tr("Loaded index with %d pictures!\n").toStdString().c_str(), pictures);
+            qCritical() << tr("Loaded index with %1 pictures!").arg(pictures);
         if (pictures == -1 && serrno != ENOENT) {
             delete mpg;
             mpg=0;
@@ -2170,7 +2179,7 @@ void tvclipper::open(QStringList filenames, QString idxfilename, QString expfile
         pictures=mpg->generateindex(idxfilename.isEmpty()?0:idxfilename.toStdString().c_str(),&errorstring,&psb);
         busy.setbusy(false);
         if (nogui && pictures > 0)
-            fprintf(stderr, tr("Generated index with %1 pictures!\n").arg(pictures).toStdString().c_str());
+            qCritical() << tr("Generated index with %1 pictures!").arg(pictures);
 
         if (psb.cancelled()) {
             delete mpg;
@@ -2421,7 +2430,7 @@ bool tvclipper::eventFilter(QObject *, QEvent *e) {
 int tvclipper::question(const QString &caption, const QString &text)
 {
     if (nogui) {
-        fprintf(stderr, tr("%s\n%s\n(assuming No)\n").toStdString().c_str(), caption.toStdString().c_str(), text.toStdString().c_str());
+        qCritical() << tr("%s\n%s\n(assuming no)\n").arg(caption).arg(text);
         return QMessageBox::No;
     }
     return QMessageBox::question(this, caption, text, QMessageBox::Yes,
@@ -2431,7 +2440,7 @@ int tvclipper::question(const QString &caption, const QString &text)
 int tvclipper::critical(const QString & caption, const QString & text)
 {
     if (nogui) {
-        fprintf(stderr, tr("%s\n%s\n(aborting)\n").toStdString().c_str(), caption.toStdString().c_str(), text.toStdString().c_str());
+        qCritical() << tr("%s\n%s\n(aborting)\n").arg(caption).arg(text);
         return QMessageBox::Abort;
     }
     return QMessageBox::critical(this, caption, text, QMessageBox::Abort, QMessageBox::NoButton);

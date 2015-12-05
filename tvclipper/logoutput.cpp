@@ -41,9 +41,9 @@
 #include <cstdio>
 #include <cstdarg>
 #include <cstdlib>
+#include <QObject>
 #include "logoutput.h"
 
-#include <QObject>
 
 void
 logoutput::setprogress(int permille) {
@@ -62,40 +62,35 @@ static void vprintmsg(const char *fmt, va_list ap, const char *head, const char 
     fprintf(stderr, "\n");
 }
 
-void
-logoutput::print(const char *fmt, ...) {
+void logoutput::print(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vprintmsg(fmt, ap, 0, 0);
     va_end(ap);
 }
 
-void
-logoutput::printheading(const char *fmt, ...) {
+void logoutput::printheading(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vprintmsg(fmt, ap, "=== ", " ===");
     va_end(ap);
 }
 
-void
-logoutput::printinfo(const char *fmt, ...) {
+void logoutput::printinfo(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vprintmsg(fmt, ap, tr("INFO: ").toStdString().c_str(), 0);
     va_end(ap);
 }
 
-void
-logoutput::printerror(const char *fmt, ...) {
+void logoutput::printerror(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vprintmsg(fmt, ap, tr("ERROR: ").toStdString().c_str(), 0);
     va_end(ap);
 }
 
-void
-logoutput::printwarning(const char *fmt, ...) {
+void logoutput::printwarning(const char *fmt, ...) {
     va_list ap;
     va_start(ap,fmt);
     vprintmsg(fmt, ap, tr("WARNING: ").toStdString().c_str(), 0);
