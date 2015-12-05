@@ -38,7 +38,7 @@
 #include <QImage>
 #include <cstdlib>
 #include <cstdio>
-#include "windefines.h"
+#include "types.h"
 
 avframe::avframe() : tobefreed(0),w(0),h(0),dw(0),pix_fmt(),img_convert_ctx(0)
 {

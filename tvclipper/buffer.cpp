@@ -36,12 +36,12 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
 #include <sys/mman.h>
 #endif
 #include <cerrno>
 #include <fcntl.h>
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
 #include <unistd.h>
 #endif
 #include <cstring>
@@ -55,7 +55,7 @@
 
 #include "port.h"
 #include "buffer.h"
-#include "windefines.h"
+#include "types.h"
 #include <QDebug>
 
 #ifndef O_BINARY
@@ -221,13 +221,13 @@ bool inbuffer::open(int fd, QString *errmsg, bool closeme, QString filename) {
             ::close(f.fd);
         return false;
     }
-#ifdef __WIN32__
+#ifdef Q_OS_WIN
     struct _stati64 st;
     if (::_fstati64(f.fd, &st) == -1) {
-#else /* __WIN32__ */
+#else /* Q_OS_WIN */
     struct stat st;
     if (::fstat(f.fd, &st) == -1) {
-#endif /* __WIN32__ */
+#endif /* Q_OS_WIN */
         if (errmsg)
             *errmsg = tr("fstat: ") + strerror(errno);
         if (f.closeme)
@@ -268,7 +268,7 @@ void inbuffer::close() {
     }
     files.clear();
     // free buffer
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
     if (mmapped)
         ::munmap(d, writepos);
     else
@@ -376,7 +376,7 @@ int inbuffer::providedata(unsigned int amount, long long position) {
     }
     assert(position >= i->off);
 
-#ifndef __WIN32_
+#ifndef Q_OS_WIN
     // remove old mapping, if any
     if (mmapped) {
         ::munmap(d, writepos);
@@ -459,13 +459,13 @@ int inbuffer::providedata(unsigned int amount, long long position) {
         }
         assert(seekpos >= i->off);
         if (needseek) {
-#ifdef __WIN32_
+#ifdef Q_OS_WIN
             __int64 relpos = seekpos - i->off;
             if (::_lseeki64(i->fd, relpos, SEEK_SET) == -1)
-#else /* __WIN32__ */
+#else /* Q_OS_WIN */
             off_t relpos = seekpos - i->off;
             if (::lseek(i->fd, relpos, SEEK_SET) == -1)
-#endif /* __WIN32__ */
+#endif /* Q_OS_WIN */
                 return -1;
             needseek = false;
         }

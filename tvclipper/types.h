@@ -42,6 +42,11 @@
 
 #include "port.h"
 
+#ifdef Q_OS_WIN
+typedef uint8_t u_int8_t;
+#endif
+
+
 class filepos_t
   {
 private:

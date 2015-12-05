@@ -38,7 +38,7 @@
 #define _TVCLIPPER_PORT_H
 
 #include <sys/types.h>
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
 #include <sys/wait.h>
 #endif
 #include <stdint.h>

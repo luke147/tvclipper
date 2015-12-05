@@ -91,8 +91,7 @@ HEADERS  += tvclipper.h \
     listitemdelegate.h \
     DlgMplayerError.h \
     DlgExport.h \
-    DlgProgress.h \
-    windefines.h
+    DlgProgress.h
 
 FORMS    += tvclipper.ui \
     DlgExport.ui \

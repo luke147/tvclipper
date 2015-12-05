@@ -34,7 +34,7 @@
     along with TV Clipper. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef __WIN32__
+#ifdef Q_OS_WIN
 #include <string.h>
 #else
 #include <strings.h>
@@ -43,7 +43,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
 #include <unistd.h>
 #endif
 #include <fcntl.h>

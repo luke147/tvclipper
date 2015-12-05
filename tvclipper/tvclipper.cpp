@@ -579,7 +579,7 @@ bool tvclipper::saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selec
 
     std::auto_ptr<DlgExport> expd(new DlgExport(expfilen,this));
 
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
     // add possible user configured pipe commands
     pipe_items_start=expd->ui->muxercombo->count();
     for (int i = 0; i < settings()->pipe_command.size(); ++i)
@@ -685,7 +685,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
     }
 
     if (!mux->ready()) {
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
         if (child_pid > 0) {
             ::close(pipe_fds[1]);
             int wstatus;
@@ -730,7 +730,7 @@ bool tvclipper::exportMpgFile(int selectedAudio, int child_pid, int pipe_fds[], 
                       int(savedtime/90000)%60,
                       int(savedtime/90)%1000);
 
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
     if (child_pid > 0) {
         ::close(pipe_fds[1]);
         int wstatus;
@@ -822,7 +822,7 @@ void tvclipper::fileExport()
     int pos;
     int ip = expfmt - pipe_items_start;
 
-#ifndef __WIN32__
+#ifndef Q_OS_WIN
     // check for piped output
     if(ip >= 0) {
         expfmt=settings()->pipe_format[ip];
@@ -1304,7 +1304,7 @@ void tvclipper::playPlay()
     if (partindex == -1)
         return;	// what else can we do?
 
-#ifdef __WIN32__
+#ifdef Q_OS_WIN
     arguments << "-vo" << "directx:noaccel";
 #endif
     arguments << "-wid" << QString().sprintf("0x%x",int(ui->imageDisplay->winId()));
