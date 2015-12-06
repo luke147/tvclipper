@@ -323,7 +323,7 @@ QMAKE_DISTCLEAN += "$$getCopiedFilesToBuild($$shell_path("servicemenu"), $$shell
 QMAKE_DISTCLEAN += "$$getCopiedFilesToBuild($$shell_path("share/icons/tvclipper.svg"), $$shell_path("$$BUILD_PATH_TO_APP_SCALABLE_ICONS"))"
 QMAKE_DISTCLEAN += "$$getCopiedFilesToBuild($$shell_path("icons"), $$shell_path("$$BUILD_SHAREDIR/icons"))"
 
-message("QMAKE_DISTCLEAN: $$QMAKE_DISTCLEAN")
+message("file list for 'make distclean' command: $$escape_expand(\\n\\t)$$QMAKE_DISTCLEAN")
 
 # ***********************************************************************************************
 # *** installation settings
@@ -339,7 +339,7 @@ CONFIG(release, debug|release) {
         manFiles.path = $$shell_path("$$INST_MANDIR")
         manFiles.files = $$getShareFiles("man")
         desktopMenuFile.path = $$shell_path("$$INST_APPLICATIONSDIR")
-        desktopMenuFile.files = $$getShareFiles("desktopMenuFile")
+        desktopMenuFile.files = $$DESKTOP_MENU_FILE
         servicemenuFiles.path = $$shell_path("$$INST_SERVICEMENUDIR")
         servicemenuFiles.files = $$getShareFiles("servicemenu")
         appIconFile.path = $$shell_path("$$INST_PATH_TO_APP_SCALABLE_ICONS")

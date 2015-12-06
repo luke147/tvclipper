@@ -1,15 +1,1 @@
-[Desktop Entry]
-Type=Application
-Version=1.0
-MimeType=application/x-tvclipper;video/mpeg;
-Icon=tvclipper
-Terminal=false
-Name=TV Clipper
-GenericName=Cutting Videoeditor for MPEG-TS files
-NoDisplay=false
-Comment=Trim and cut video MPEG2 transport streams into multiple export formats
-Categories=AudioVideo;Player;AudioVideoEditing;Qt;
-StartupWMClass=TV Clipper
-X-DocPath=/usr/share/doc/tvclipper/tvclipper_en.html
-Exec=/opt/tvclipper/tvclipper %F
-TryExec=/opt/tvclipper/tvclipper
+
