@@ -8,5 +8,5 @@ Name=TV Clipper
 GenericName=Cutting Videoeditor for MPEG-TS files
 NoDisplay=false
 Comment=Trim and cut video MPEG2 transport streams into multiple export formats
-Categories=AudioVideo;Player;AudioVideoEditing;Qt;
+Categories=AudioVideo;Video;AudioVideoEditing;Qt;
 StartupWMClass=TV Clipper

@@ -338,7 +338,7 @@ CONFIG(release, debug|release) {
         manFiles.path = $$shell_path("$$INST_MANDIR")
         manFiles.files = $$getShareFiles("man")
         desktopMenuFile.path = $$shell_path("$$INST_APPLICATIONSDIR")
-        desktopMenuFile.files = $$getShareFiles("desktopMenuFile")
+        desktopMenuFile.files = $$DESKTOP_MENU_FILE
         servicemenuFiles.path = $$shell_path("$$INST_SERVICEMENUDIR")
         servicemenuFiles.files = $$getShareFiles("servicemenu")
         appIconFile.path = $$shell_path("$$INST_PATH_TO_APP_SCALABLE_ICONS")
@@ -356,3 +356,5 @@ message("commands after linking: $$escape_expand(\\n\\t)$$QMAKE_POST_LINK")
 message("INSTALLS: $$INSTALLS")
 
 TRANSLATIONS = tr/tvclipper_cz.ts
+
+message("translation file in '$$_PRO_FILE_PWD_': $$escape_expand(\\n\\t)$$TRANSLATIONS")

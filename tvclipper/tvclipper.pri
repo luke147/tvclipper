@@ -195,10 +195,12 @@ defineReplace(getCopiedFilesToBuild) {
 }
 
 defineReplace(getEditDesktopFileCmd) {
+    DESKTOP_MENU_FILE = $$shell_path("share/desktopMenuFile/tvclipper.desktop")
+
     destFile = "$$shell_path($$clean_path("$$OUT_PWD/$$1"))"
     destPath = "$$dirname(destFile)"
     sourceFile = "$$shell_path($$clean_path("$$_PRO_FILE_PWD_/desktopMenuFile/tvclipper.desktop"))"
-    fileForEdit = "$$shell_path($$clean_path("$$_PRO_FILE_PWD_/share/desktopMenuFile/tvclipper.desktop"))"
+    fileForEdit = "$$shell_path($$clean_path("$$_PRO_FILE_PWD_/$$DESKTOP_MENU_FILE"))"
 
     unix: {
         desktopDocLine = $$shell_quote("$$desktopDocLine")
@@ -212,6 +214,8 @@ defineReplace(getEditDesktopFileCmd) {
     commands += "echo $$desktopExecLine >> $$shell_quote("$$fileForEdit")$$escape_expand(\\n\\t)"
     commands += "echo $$desktopTryExecLine >> $$shell_quote("$$fileForEdit")$$escape_expand(\\n\\t)"
     commands += "$$QMAKE_COPY_FILE $$shell_quote("$$fileForEdit") $$shell_quote("$$destFile")$$escape_expand(\\n\\t)"
+
+    export(DESKTOP_MENU_FILE)
 
     return("$$commands")
 }
