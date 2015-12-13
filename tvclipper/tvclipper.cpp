@@ -61,7 +61,6 @@
 
 #include "port.h"
 #include "tvclipper.h"
-#include "ui_tvclipper.h"
 #include "mpgfile.h"
 #include "avframe.h"
 #include "eventlistitem.h"
@@ -101,12 +100,14 @@ public:
         while (bsy<0)
             setbusy(true);
     }
-    virtual void setbusy(bool busy=true)
+
+    // The method calls tvclipper::setbusy method which sets waiting cursor.
+    void setbusy(bool busy = true)
     {
         if (busy)
             ++bsy;
         else {
-            if (bsy<=0)
+            if (bsy <= 0)
                 return;
             --bsy;
         }
@@ -114,7 +115,7 @@ public:
     }
 };
 
-
+//The method sets waiting cursor.
 void tvclipper::setbusy(bool b)
 {
     if (b) {
@@ -149,7 +150,7 @@ tvclipper::tvclipper(QString orgName, QString appName, QWidget *parent, Qt::Wind
     this->setAccessibleName(appName);
     this->setWindowFlags(flags);
 
-    ui = new Ui_tvclipper();
+    ui = new Ui::WinTvClipper();
     ui->setupUi(this);
 
 #ifndef HAVE_LIB_AO
@@ -535,7 +536,7 @@ int tvclipper::chooseBestPicture(int startpic, int range, int samples)
             }
         entropy /= log(2.);
 
-        // qCritical() << tr("frame %7d, sample %4d (%7d): %10d %10.2f\n")
+        // qCritical() << tr("frame %1, sample %2 (%3): %4 %5")
         //                     .arg(startpic, 7, 10, QChar(' '))
         //                     .arg(n, 4, 10, QChar(' '))
         //                     .arg(pic, 7, 10, QChar(' '))
@@ -549,7 +550,7 @@ int tvclipper::chooseBestPicture(int startpic, int range, int samples)
             //bestnr=n;
         }
     }
-    // qCritical() << tr("choosing sample / frame: %4d / %7d\n!").arg(bestnr, 4, 10, QChar(' ')).arg(bestpic, 7, 10, QChar(' '));
+    // qCritical() << tr("choosing sample / frame: %1 / %2!").arg(bestnr, 4, 10, QChar(' ')).arg(bestpic, 7, 10, QChar(' '));
 
     return bestpic;
 }
@@ -591,7 +592,7 @@ bool tvclipper::saveExportDlgInfo(int &expfmt, int &pipe_items_start, int &selec
     expd->ui->muxercombo->setCurrentIndex(settings()->export_format);
 
     for(int a=0;a<mpg->getaudiostreams();++a) {
-        expd->ui->audioList->addItem(mpg->getstreaminfo(audiostream(a)).c_str());
+        expd->ui->audioList->addItem(mpg->getstreaminfo(audiostream(a)));
     }
     expd->ui->audioList->item(0)->setSelected(true);
 
@@ -861,7 +862,7 @@ void tvclipper::fileExport()
             if (pipe_fds[0] != STDIN_FILENO) {
                 dup2(pipe_fds[0], STDIN_FILENO);
             }
-            // qCritical() << tr("Executing %s").arg(expcmd);
+            // qCritical() << tr("Executing %1").arg(expcmd);
             for (int fd=0; fd<256; ++fd)
                 if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO)
                     ::close(fd);
@@ -1990,7 +1991,7 @@ void tvclipper::setUiForOpeningFile(bool afterOpening)
         linslidervalue(0);
 
         for(int a = 0; a < mpg->getaudiostreams(); ++a) {
-            audiotrackpopup->addAction(QString::fromStdString(mpg->getstreaminfo(audiostream(a))));
+            audiotrackpopup->addAction(mpg->getstreaminfo(audiostream(a)));
         }
         if (mpg->getaudiostreams()>0) {
             audiotrackpopup->actions().at(0)->setChecked(true);
@@ -2111,6 +2112,7 @@ void tvclipper::open(QStringList filenames, QString idxfilename, QString expfile
 {
     EventMarks eventMarks;
     QString filename;
+    QString errorString;
     if ( !prepareToOpeninMpgFile(filenames, idxfilename, expfilename, eventMarks) )
         return;
 
@@ -2120,18 +2122,17 @@ void tvclipper::open(QStringList filenames, QString idxfilename, QString expfile
     busy.setbusy(true);
 
     {
-        QString errormessage;
         QStringList::const_iterator it = filenames.begin();
-        while (it != filenames.end() && buf.open(*it, &errormessage))
+        while (it != filenames.end() && buf.open(*it, &errorString))
             ++it;
         buf.setsequential(cache_friendly);
         if (it == filenames.end()) {
-            mpg = mpgfile::open(&buf, &errormessage);
+            mpg = mpgfile::open(&buf, &errorString);
         }
         busy.setbusy(false);
 
         if (!mpg) {
-            critical(PROGRAM_NAME " - " + tr("Failed to open file"), errormessage);
+            critical(PROGRAM_NAME " - " + tr("Failed to open file"), errorString);
             ui->fileOpenAction->setEnabled(true);
             return;
         }
@@ -2139,36 +2140,40 @@ void tvclipper::open(QStringList filenames, QString idxfilename, QString expfile
 
     pictures=-1;
 
-    if (!idxfilename.isEmpty()) {
-        QString errorstring;
-        busy.setbusy(true);
-        pictures=mpg->loadindex(idxfilename.toStdString().c_str(),&errorstring);
-        int serrno=errno;
-        busy.setbusy(false);
-        if (nogui && pictures > 0)
-            qCritical() << tr("Loaded index with %1 pictures!").arg(pictures);
-        if (pictures == -1 && serrno != ENOENT) {
-            delete mpg;
-            mpg=0;
-            critical(PROGRAM_NAME " - " + tr("Failed to open file"), errorstring);
-            ui->fileOpenAction->setEnabled(true);
-            return;
-        }
-        if (pictures==-2) {
-            delete mpg;
-            mpg=0;
-            critical(PROGRAM_NAME " - " + tr("Invalid index file"), errorstring);
-            ui->fileOpenAction->setEnabled(true);
-            return;
-        }
-        if (pictures<=-3) {
-            delete mpg;
-            mpg=0;
-            critical(PROGRAM_NAME " - " + tr("Index file mismatch"), errorstring);
-            ui->fileOpenAction->setEnabled(true);
-            return;
-        }
+    if (idxfilename.isEmpty()) {
+        errorString = tr("Index filename is empty.");
+        critical(PROGRAM_NAME " - " + tr("Failed to open file"), errorString);
+        return;
     }
+
+    busy.setbusy(true);
+    pictures=mpg->loadindex(idxfilename.toStdString().c_str(),&errorString);
+    int serrno=errno;
+    busy.setbusy(false);
+    if (nogui && pictures > 0)
+        qCritical() << tr("Loaded index with %1 pictures!").arg(pictures);
+    if (pictures == -1 && serrno != ENOENT) {
+        delete mpg;
+        mpg=0;
+        critical(PROGRAM_NAME " - " + tr("Failed to open file"), errorString);
+        ui->fileOpenAction->setEnabled(true);
+        return;
+    }
+    if (pictures==-2) {
+        delete mpg;
+        mpg=0;
+        critical(PROGRAM_NAME " - " + tr("Invalid index file"), errorString);
+        ui->fileOpenAction->setEnabled(true);
+        return;
+    }
+    if (pictures<=-3) {
+        delete mpg;
+        mpg=0;
+        critical(PROGRAM_NAME " - " + tr("Index file mismatch"), errorString);
+        ui->fileOpenAction->setEnabled(true);
+        return;
+    }
+
 
     if (pictures < 0) {
         progressstatusbar psb(statusBar());
@@ -2215,7 +2220,7 @@ void tvclipper::open(QStringList filenames, QString idxfilename, QString expfile
     mpgfilen=filenames;
     idxfilen=idxfilename;
     expfilen=expfilename;
-    picfilen=QString::null;
+    picfilen=QString();
     if (prjfilen.isEmpty())
         addToRecentFiles(mpgfilen,idxfilen);
     else {
@@ -2430,7 +2435,7 @@ bool tvclipper::eventFilter(QObject *, QEvent *e) {
 int tvclipper::question(const QString &caption, const QString &text)
 {
     if (nogui) {
-        qCritical() << tr("%s\n%s\n(assuming no)\n").arg(caption).arg(text);
+        qCritical() << tr("%1\n%1\n(assuming no)").arg(caption).arg(text);
         return QMessageBox::No;
     }
     return QMessageBox::question(this, caption, text, QMessageBox::Yes,
@@ -2440,7 +2445,7 @@ int tvclipper::question(const QString &caption, const QString &text)
 int tvclipper::critical(const QString & caption, const QString & text)
 {
     if (nogui) {
-        qCritical() << tr("%s\n%s\n(aborting)\n").arg(caption).arg(text);
+        qCritical() << tr("%1\n%1\n(aborting)").arg(caption).arg(text);
         return QMessageBox::Abort;
     }
     return QMessageBox::critical(this, caption, text, QMessageBox::Abort, QMessageBox::NoButton);

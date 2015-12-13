@@ -38,11 +38,11 @@
 #ifndef _TVCLIPPER_BUFFER_H_
 #define _TVCLIPPER_BUFFER_H_
 
-#include <QVector>
-#include "port.h"
+class QString;
 
+#include <QVector>
 #include <QCoreApplication>
-#include <QString>
+#include "port.h"
 
 
 class buffer

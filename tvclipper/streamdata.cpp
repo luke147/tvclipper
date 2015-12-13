@@ -207,7 +207,7 @@ void streamdata::audio_addpts(uint32_t startbufferpos, bool onepacket)
                 data += pos;
                 len -= pos;
                 if (nx != items.end() && bufferposition >= nx->bufferposition) {
-                    // qCritical() << tr("hit next %1>=%2 pts=%3 interp=%4\n")
+                    // qCritical() << tr("hit next %1>=%2 pts=%3 interp=%4")
                     //                     .arg(bufferposition)
                     //                     .arg(nx->bufferposition)
                     //                     .arg(nx->headerpts())
@@ -217,7 +217,7 @@ void streamdata::audio_addpts(uint32_t startbufferpos, bool onepacket)
                 it=items.insert(nx,item(it->fileposition+(bufferposition-it->bufferposition),
                                         STREAM_ITEM_FLAG_HAS_PTS|STREAM_ITEM_FLAG_FRAME,
                                         pts,bufferposition));
-                // qCritical() << tr("sd: insert %1 (pos %2, nxflags %3) pts=%4\n")
+                // qCritical() << tr("sd: insert %1 (pos %2, nxflags %3) pts=%4")
                 //                     .arg(reinterpret_cast<quintptr>(&(*it)), QT_POINTER_SIZE * 2, 16, QChar('0'))
                 //                     .arg(bufferposition)
                 //                     .arg(nx->flags)

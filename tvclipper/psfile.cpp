@@ -143,7 +143,7 @@ psfile::psfile(inbuffer &b, int initial_offset)
   // renumber audio streams
   for (sid = 0; sid < 0x300; ++sid) {
     if (streamnumber[sid] == audiostream(0)) {
-      qCritical() << tr("Found audio stream %1 (sid 0x%2)\n").arg(audiostreams).arg(sid, 3, 16, QChar('0'));
+      qCritical() << tr("Found audio stream %1 (sid 0x%2)").arg(audiostreams).arg(sid, 3, 16, QChar('0'));
       streamnumber[sid] = audiostream(audiostreams);
       stream *S = &s[audiostream(audiostreams++)];
       S->id = sid;

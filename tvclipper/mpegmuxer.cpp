@@ -193,7 +193,7 @@ bool mpegmuxer::putpacket(int str, const void *data, int len, pts_t pts, pts_t d
         return false;
     if (len == 0) {
         // I'm not sure why this happens, but it does. --mr
-        qCritical() << tr("mpegmuxer::putpacket called with zero length, str=%1\n").arg(str);
+        qCritical() << tr("mpegmuxer::putpacket called with zero length, str=%1").arg(str);
         return false;
     }
     pts+=ptsoffset;
@@ -340,7 +340,7 @@ bool mpegmuxer::flush(bool flushall)
         pack *p=s->packlist.front();
 
         if (s->getfill()<0) {
-            qCritical() << tr("stream %1 filllevel: %2\n").arg(QString::number(s->getid()), QString::number(s->getfill()));
+            qCritical() << tr("stream %1 filllevel: %2").arg(QString::number(s->getid()), QString::number(s->getfill()));
         }
 
         if (!s->bufferremovals.empty()) {
@@ -385,7 +385,7 @@ bool mpegmuxer::flush(bool flushall)
         p->setscr(scr);
         scr+=packsize?scrpack:int(27.e6/double(muxrate*50)*p->getsize()+0.9999);
         if (scr>p->getmaxscr())
-            qCritical() << tr("Muxer problem: %1 > %2 (dts:%3) s->getbuffree():%4\n")
+            qCritical() << tr("Muxer problem: %1 > %2 (dts:%3) s->getbuffree():%4")
                             .arg(ptsstring(scr2pts(scr)), ptsstring(scr2pts(p->getmaxscr())), ptsstring(p->getdts()))
                             .arg(s->getbuffree());
         if (!p->write(fd)) return false;
@@ -665,7 +665,7 @@ void mpegmuxer::packetizer(int str,pts_t maxdts)
         }
 
         if (len) {
-            qCritical() << tr("str=%1 len=%2 aulist.size=%3 packlist.size=%4\n").arg(str).arg(len).arg(s->aulist.size()).arg(s->packlist.size());
+            qCritical() << tr("str=%1 len=%2 aulist.size=%3 packlist.size=%4").arg(str).arg(len).arg(s->aulist.size()).arg(s->packlist.size());
             assert(len==0);
         }
     }
@@ -776,7 +776,7 @@ bool mpegmuxer::pack::write(int fd) {
         return true;
     }
     if (n == 0) {
-        qCritical() << tr("zero-length write - disk full?\n");
+        qCritical() << tr("zero-length write - disk full?");
     }
     else {
         perror(tr("write").toStdString().c_str());

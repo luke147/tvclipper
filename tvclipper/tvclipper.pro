@@ -93,10 +93,11 @@ HEADERS  += tvclipper.h \
     DlgExport.h \
     DlgProgress.h
 
-FORMS    += tvclipper.ui \
+FORMS    += \
     DlgExport.ui \
     DlgMplayerError.ui \
-    DlgProgress.ui
+    DlgProgress.ui \
+    WinTvClipper.ui
 
 DISTFILES += \
     share/doc/tvclipper_en.html \
@@ -355,6 +356,6 @@ message("commands before linking: $$escape_expand(\\n\\t)$$QMAKE_PRE_LINK")
 message("commands after linking: $$escape_expand(\\n\\t)$$QMAKE_POST_LINK")
 message("INSTALLS: $$INSTALLS")
 
-TRANSLATIONS = tr/tvclipper_cz.ts
+TRANSLATIONS = tr/tvclipper_cs_CZ.ts
 
 message("translation file in '$$_PRO_FILE_PWD_': $$escape_expand(\\n\\t)$$TRANSLATIONS")

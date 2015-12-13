@@ -44,15 +44,12 @@
 #ifndef Q_OS_WIN
 #include <unistd.h>
 #endif
-#include <cstring>
 #include <cstdlib>
 #include <cstdio>
-#include <stdint.h>
+#include <cstdint>
 #include <cassert>
 
-#include <string>
-#include <vector>
-
+#include <QString>
 #include "port.h"
 #include "buffer.h"
 #include "types.h"
@@ -298,7 +295,7 @@ int inbuffer::pipedata(unsigned int amount, long long position) {
     if (!d) {
         d = (void*) calloc(1, size);
         if (!d) {
-            qCritical() << tr("inbuffer::pipedata: can't allocate %1 bytes: %2\n").arg(QString::number(size), strerror(errno));
+            qCritical() << tr("inbuffer::pipedata: can't allocate %1 bytes: %2").arg(QString::number(size), strerror(errno));
             abort();
         }
         readpos = 0;
@@ -426,7 +423,7 @@ int inbuffer::providedata(unsigned int amount, long long position) {
     if (!d) {
         d = (void*) calloc(1, size);
         if (!d) {
-            qCritical() << tr("inbuffer::providedata: can't allocate %1 bytes: %2\n").arg(QString::number(size), strerror(errno));
+            qCritical() << tr("inbuffer::providedata: can't allocate %1 bytes: %2").arg(QString::number(size), strerror(errno));
             abort();
         }
         readpos = 0;

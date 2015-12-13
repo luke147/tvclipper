@@ -46,6 +46,7 @@
 typedef uint8_t u_int8_t;
 #endif
 
+#define KILOBYTES_TO_BYTES(x) (x << 10)
 
 class filepos_t
   {

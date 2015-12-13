@@ -37,8 +37,9 @@
 #ifndef _TVCLIPPER_MPGFILE_H
 #define _TVCLIPPER_MPGFILE_H
 
+class QString;
+
 #include <QCoreApplication>
-#include <string>
 #include <vector>
 #include <list>
 
@@ -106,7 +107,7 @@ public:
     {
         return s[str].type;
     }
-    const std::string &getstreaminfo(int str) const
+    const QString &getstreaminfo(int str) const
     {
         return s[str].getinfo();
     }

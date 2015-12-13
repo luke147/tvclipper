@@ -139,7 +139,7 @@ void mpgfile::decodegop(int start, int stop, std::list<avframe*> &framelist)
 
     if (int rv=avcodec_open2(S->avcc, S->dec, NULL))
     {
-        qCritical() << tr("avcodec_open returned %1\n").arg(rv);
+        qCritical() << tr("avcodec_open returned %1").arg(rv);
         return;
     }
     avframe avf;
@@ -191,7 +191,7 @@ void mpgfile::decodegop(int start, int stop, std::list<avframe*> &framelist)
                                                        &avpkt);
                 if (bytesDecoded<0)
                 {
-                    qCritical() << tr("libavcodec error while decoding frame #%1\n").arg(pic);
+                    qCritical() << tr("libavcodec error while decoding frame #%1").arg(pic);
                     avcodec_close(S->avcc);
                     return;
                 }
@@ -253,22 +253,18 @@ void mpgfile::initaudiocodeccontext(int aud)
     stream &S=s[audiostream(aud)];
     S.infostring="Audio ";
 
-    {
-        char number[16];
-        snprintf(number,16,"%d",aud);
-        S.infostring+=number;
-    }
+    S.infostring += QString::number(aud);
 
     switch (S.type)
     {
     case streamtype::mpegaudio:
-        S.infostring+=" (MPEG)";
+        S.infostring += " (MPEG)";
         break;
     case streamtype::ac3audio:
-        S.infostring+=" (AC3)";
+        S.infostring += " (AC3)";
         break;
     default:
-        S.infostring+=" (unknown)";
+        S.infostring += tr(" (unknown)");
         break;
     }
 }
@@ -656,7 +652,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                         {
 
                             for(it=sd->itemlist().begin();it!=sd->itemlist().end();++it)
-                                qCritical() << tr(" fileposition:%1/%2 bufferposition:%3 flags:%4 pts:%5\n")
+                                qCritical() << tr(" fileposition:%1/%2 bufferposition:%3 flags:%4 pts:%5")
                                                     .arg(it->fileposition.packetposition())
                                                     .arg(it->fileposition.packetoffset())
                                                     .arg(it->bufferposition)
@@ -667,7 +663,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
 
                             for(int i=0;i<MAXAVSTREAMS;++i)
                                 if (sh.stream[i])
-                                    qCritical() << tr("stream %1%2, itemlist.size():%3\n").arg(i).arg((sh.stream[i]==sd) ? "*" : "").arg(sh.stream[i]->itemlist().size());
+                                    qCritical() << tr("stream %1%2, itemlist.size():%3").arg(i).arg((sh.stream[i]==sd) ? "*" : "").arg(sh.stream[i]->itemlist().size());
 
                             abort();
                         }
@@ -675,7 +671,7 @@ void mpgfile::savempg(muxer &mux, int start, int stop, int savedpics, int savepi
                         if (bytes>0)
                         {
                             pts_t pts=audiopts[a]-audiooffset[a];
-                            // qCritical() << tr("mux.put audio %1 %2\n").arg(bytes).arg(pts);
+                            // qCritical() << tr("mux.put audio %1 %2").arg(bytes).arg(pts);
                             mux.putpacket(audiostream(a),sd->getdata(),bytes,pts,pts,MUXER_FLAG_KEY);
 
                             sd->discard(bytes);
@@ -782,9 +778,9 @@ void mpgfile::recodevideo(muxer &mux, int start, int stop, pts_t offset,int save
             if (encodeError < 0 || avpkt.size == 0)
                 continue;
         } else {
-            qCritical() << tr("trying to call avcodec_encode_video2 with frame=0\n");
+            qCritical() << tr("trying to call avcodec_encode_video2 with frame=0");
             encodeError = avcodec_encode_video2(avcc, &avpkt, 0, &got_packet_ptr);
-            qCritical() << tr("...back I am.\n");
+            qCritical() << tr("...back I am.");
 
             if (encodeError < 0 || avpkt.size == 0)
                 break;

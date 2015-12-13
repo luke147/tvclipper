@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>tvclipper</class>
- <widget class="QMainWindow" name="tvclipper">
+ <class>WinTvClipper</class>
+ <widget class="QMainWindow" name="WinTvClipper">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -496,7 +496,7 @@
      <x>0</x>
      <y>0</y>
      <width>822</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="fileMenu">
@@ -1098,7 +1098,9 @@
   </action>
   <action name="helpAboutAction">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;About</string>
@@ -1118,7 +1120,9 @@
   </action>
   <action name="helpContentAction">
    <property name="icon">
-    <iconset theme="help-contents"/>
+    <iconset theme="help-contents">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Contents</string>
@@ -1148,7 +1152,7 @@
   <connection>
    <sender>fileCloseAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>fileClose()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1164,7 +1168,7 @@
   <connection>
    <sender>fileOpenAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>fileOpen()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1180,7 +1184,7 @@
   <connection>
    <sender>linslider</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>linslidervalue(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1196,7 +1200,7 @@
   <connection>
    <sender>jogslider</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>jogslidervalue(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1212,7 +1216,7 @@
   <connection>
    <sender>jogslider</sender>
    <signal>sliderReleased()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>jogsliderreleased()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1228,7 +1232,7 @@
   <connection>
    <sender>editStartAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editStart()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1244,7 +1248,7 @@
   <connection>
    <sender>editStopAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editStop()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1260,7 +1264,7 @@
   <connection>
    <sender>editChapterAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editChapter()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1276,7 +1280,7 @@
   <connection>
    <sender>editBookmarkAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editBookmark()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1292,7 +1296,7 @@
   <connection>
    <sender>editAutoChaptersAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editAutoChapters()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1308,7 +1312,7 @@
   <connection>
    <sender>editSuggestAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editSuggest()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1324,7 +1328,7 @@
   <connection>
    <sender>editImportAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>editImport()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1340,7 +1344,7 @@
   <connection>
    <sender>gobutton</sender>
    <signal>clicked()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>clickedgo()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1356,7 +1360,7 @@
   <connection>
    <sender>goinput</sender>
    <signal>returnPressed()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>clickedgo()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1372,7 +1376,7 @@
   <connection>
    <sender>gobutton2</sender>
    <signal>clicked()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>clickedgo2()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1388,7 +1392,7 @@
   <connection>
    <sender>goinput2</sender>
    <signal>returnPressed()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>clickedgo2()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1404,7 +1408,7 @@
   <connection>
    <sender>playPlayAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>playPlay()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1420,7 +1424,7 @@
   <connection>
    <sender>playStopAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>playStop()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1436,7 +1440,7 @@
   <connection>
    <sender>playAudio1Action</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>playAudio1()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1452,7 +1456,7 @@
   <connection>
    <sender>playAudio2Action</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>playAudio2()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1468,7 +1472,7 @@
   <connection>
    <sender>fileNewAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>fileNew()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1484,7 +1488,7 @@
   <connection>
    <sender>fileSaveAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>fileSave()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1500,7 +1504,7 @@
   <connection>
    <sender>fileSaveAsAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>fileSaveAs()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1516,7 +1520,7 @@
   <connection>
    <sender>viewDifferenceAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewDifference()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1532,7 +1536,7 @@
   <connection>
    <sender>viewNormalAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewNormal()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1548,7 +1552,7 @@
   <connection>
    <sender>viewUnscaledAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewUnscaled()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1564,7 +1568,7 @@
   <connection>
    <sender>fileExportAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>fileExport()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1580,7 +1584,7 @@
   <connection>
    <sender>zoomInAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>zoomIn()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1596,7 +1600,7 @@
   <connection>
    <sender>zoomOutAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>zoomOut()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1612,7 +1616,7 @@
   <connection>
    <sender>viewHalfSizeAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewHalfSize()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1628,7 +1632,7 @@
   <connection>
    <sender>viewFullSizeAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewFullSize()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1644,7 +1648,7 @@
   <connection>
    <sender>viewQuarterSizeAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewQuarterSize()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1660,7 +1664,7 @@
   <connection>
    <sender>viewAdaptSizeAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>viewCustomSize()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1676,7 +1680,7 @@
   <connection>
    <sender>snapshotSaveAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>snapshotSave()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1692,7 +1696,7 @@
   <connection>
    <sender>chapterSnapshotsSaveAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>chapterSnapshotsSave()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1708,7 +1712,7 @@
   <connection>
    <sender>helpAboutAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>helpAboutAction_activated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1724,7 +1728,7 @@
   <connection>
    <sender>helpContentAction</sender>
    <signal>triggered()</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>helpContentAction_activated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1740,7 +1744,7 @@
   <connection>
    <sender>eventlist</sender>
    <signal>itemDoubleClicked(QListWidgetItem*)</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>goToEventItemPic(QListWidgetItem*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1756,7 +1760,7 @@
   <connection>
    <sender>eventlist</sender>
    <signal>customContextMenuRequested(const QPoint)</signal>
-   <receiver>tvclipper</receiver>
+   <receiver>WinTvClipper</receiver>
    <slot>eventlistcontextmenu(const QPoint)</slot>
    <hints>
     <hint type="sourcelabel">

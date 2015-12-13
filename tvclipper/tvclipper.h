@@ -42,16 +42,12 @@
 #include <QList>
 #include <ctime>
 #include "mpgfile.h"
-#include "ui_tvclipper.h"
+#include "ui_WinTvClipper.h"
 #include "pts.h"
 #include "eventlistitem.h"
 #include "xmlprjfile.h"
 
 #include <QMainWindow>
-
-namespace Ui {
-class tvclipper;
-}
 
 class QProcess;
 class imageprovider;
@@ -146,7 +142,7 @@ protected:
     int exportformat;
     bool start_bof;
     bool stop_eof;
-    Ui_tvclipper *ui;
+    Ui::WinTvClipper *ui;
 
 protected:
     //   QPixmap getpixmap(int picture, bool allgop=false);

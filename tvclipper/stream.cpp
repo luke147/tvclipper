@@ -78,7 +78,7 @@ void stream::setvideoencodingparameters(bool interlaced)
         avcc->flags |= CODEC_FLAG_INTERLACED_DCT|CODEC_FLAG_INTERLACED_ME;
 }
 
-const std::string& stream::getinfo() const
+const QString &stream::getinfo() const
 {
     return infostring;
 }

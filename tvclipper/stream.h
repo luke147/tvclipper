@@ -37,7 +37,7 @@
 #ifndef TVCLIPPER_STREAM_H
 #define TVCLIPPER_STREAM_H
 
-#include <string>
+#include <QString>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -50,7 +50,7 @@ class stream
 protected:
     int id; //avfid;
     streamtype::type type;
-    std::string infostring;
+    QString infostring;
     AVCodec *dec,*enc;
     AVCodecContext *avcc;
 
@@ -67,7 +67,7 @@ protected:
     friend class tsfile;
     friend class psfile;
 public:
-    const std::string& getinfo() const;
+    const QString& getinfo() const;
 };
 
 #endif
